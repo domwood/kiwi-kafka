@@ -7,9 +7,9 @@ import KafkaTopics from "./pages/KafkaTopics";
 const routing = (
     <Router>
         <div>
-            <Route path="#/" component={App} />
-            <Route path="#/post" component={KafkaPost} />
-            <Route path="#/topics" component={KafkaTopics} />
+            <Route path="/" component={App} />
+            <Route path="/post" component={KafkaPost} />
+            <Route path="/topics" component={KafkaTopics} />
         </div>
     </Router>
 )
