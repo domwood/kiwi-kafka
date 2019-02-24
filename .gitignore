@@ -21,6 +21,7 @@ hs_err_pid*
 
 *.iml
 target/
+
 src/main/ui/node_modules/
 src/main/ui/build
 .idea/

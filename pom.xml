@@ -18,17 +18,26 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <frontendSrcDir>${project.basedir}/src/main/ui/</frontendSrcDir>
+        <frontendSrcDir>${project.basedir}/src/main/js/</frontendSrcDir>
         <node.version>v8.15.0</node.version>
         <yarn.version>v1.7.0</yarn.version>
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
+        <immutables.version>2.7.4</immutables.version>
+        <kafka.version>2.1.0</kafka.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -36,9 +45,40 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+            <version>${immutables.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
+
+        <!--                -->
+        <!--                -->
+        <!-- TEST RESOURCES -->
+        <!--                -->
+        <!--                -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -102,7 +142,7 @@
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes/public</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${frontendSrcDir}/build</directory>
@@ -113,6 +153,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
