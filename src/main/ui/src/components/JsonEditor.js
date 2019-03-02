@@ -2,13 +2,15 @@ import React, { Component } from "react";
 import {Input, Label} from "reactstrap";
 import FormGroup from "reactstrap/es/FormGroup";
 
+
 class JsonEditor extends Component {
     constructor(props) {
         super(props);
         this.state = {
             id : props.id,
-            name : props.name
-        }
+            name : props.name,
+            local: ""
+        };
         this.addAlert = this.addAlert.bind(this);
         this.format = this.format.bind(this);
         this.updateState = this.updateState.bind(this);
@@ -24,7 +26,7 @@ class JsonEditor extends Component {
 
     format(messagedata, pretty) {
         try {
-            if (/{/.test(messagedata)) {
+            if (/^{/.test(messagedata)) {
                 let obj = JSON.parse(messagedata);
                 if (pretty) {
                     return JSON.stringify(obj, undefined, 4);
@@ -46,7 +48,15 @@ class JsonEditor extends Component {
         return (
             <FormGroup>
                 <Label for="exampleText">Input:</Label>
-                <Input type="textarea" name={this.state.name} id={this.state.id} bsSize="large" rows={30} onChange={this.updateState}/>
+                <Input type="textarea"
+                       name={this.state.name}
+                       id={this.state.id}
+                       bsSize="large"
+                       rows={30}
+                       height="400px"
+                       onChange={this.updateState}
+                       value={this.state.local}
+                />
                 <Label for="exampleFile">Send Message From File:</Label>
                 <Input type="file" name="file" id="exampleFile" />
             </FormGroup>

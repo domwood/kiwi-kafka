@@ -37,6 +37,7 @@ class KafkaPost extends Component {
         this.handleCurrentHeaderKeyChange = this.handleCurrentHeaderKeyChange.bind(this);
         this.handleCurrentHeaderValueChange = this.handleCurrentHeaderValueChange.bind(this);
         this.updateMessage = this.updateMessage.bind(this);
+        this.submit = this.submit.bind(this);
 
         this.state = {
             bootstrapServers: "",
@@ -145,6 +146,10 @@ class KafkaPost extends Component {
         })
     }
 
+    submit(){
+
+    }
+
     render() {
         return (
             <Container>
@@ -216,14 +221,13 @@ class KafkaPost extends Component {
                                     </tr>
                                     )
                                 })}
-
                                 </tbody>
                             </Table> : ""
                         }
 
                     </FormGroup>
                     <JsonEditor addAlert={this.addAlert} updateMessage={this.updateMessage} id="kafkaPost" name="kafkaPost"/>
-                    <Button>Send!</Button>
+                    <Button onClick={this.submit}>Send!</Button>
 
                 </Form>
             </Container>

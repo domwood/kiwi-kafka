@@ -1,10 +1,11 @@
-import url from "./ApiConfig";
+import api from "./ApiConfig";
 
 
 export const getTopics = (cb) => {
-    console.log(url);
-    console.log(process.env);
-
-    cb(["activeStateFeed", "sportsIncidentFeed", "aggregatedFixtures"]);
+    fetch(api.listTopics)
+        .then(res => res.json())
+        .then(result => {
+            cb(result.topics);
+        });
 };
 
