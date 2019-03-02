@@ -14,7 +14,7 @@
     <artifactId>kiwi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>kiwi</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Kafka Interactive Web Interface</description>
 
     <properties>
         <java.version>1.8</java.version>

@@ -18,6 +18,7 @@ import {
 import JsonEditor from "./../components/JsonEditor"
 
 import uuid from "uuid/v4";
+import * as ApiService from "../services/ApiService";
 
 class KafkaPost extends Component {
 
@@ -28,7 +29,6 @@ class KafkaPost extends Component {
         this.removeAlert = this.removeAlert.bind(this);
         this.setTargetTopic = this.setTargetTopic.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        this.getDefaultBootstrapServers = this.getDefaultBootstrapServers.bind(this);
         this.getTopicList = this.getTopicList.bind(this);
         this.setKafkaKey = this.setKafkaKey.bind(this);
         this.setRandomKafkaKey = this.setRandomKafkaKey.bind(this);
@@ -70,18 +70,14 @@ class KafkaPost extends Component {
         });
     }
 
-    getDefaultBootstrapServers() {
-        //TODO http request
-        this.setState({
-            bootstrapServers: "localhost:9092,localhost:9093,localhost:9094"
-        });
-    }
-
     getTopicList() {
-        //TODO http request
-        this.setState({
-            topicList: ["activeStateFeed", "sportsIncidentFeed", "aggregatedFixtures"]
-        });
+        if(this.state.topicList.length === 0){
+            ApiService.getTopics((topics) => {
+                this.setState({
+                    topicList:topics
+                });
+            });
+        }
     }
 
     toggleDropDown() {
@@ -163,15 +159,6 @@ class KafkaPost extends Component {
                     }
                 </div>
                 <Form>
-                    <FormGroup>
-                        <Label for="bootstrapServers">Bootstrap Servers</Label>
-                        <InputGroup>
-                            <Input type="text" name="bootstrapServers" id="bootstrapServers" defaultValue={this.state.bootstrapServers} />
-                            <InputGroupAddon addonType="append">
-                                <Button color="secondary" onClick={this.getDefaultBootstrapServers}>Load Defaults</Button>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </FormGroup>
                     <FormGroup>
                         <Label for="topic">Topic:</Label>
 

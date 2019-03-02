@@ -6,14 +6,14 @@ import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
-@Controller
+import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
+
+@RestController
+@RequestMapping(API_ENDPOINT)
 public class AdminController {
 
     private final KafkaResourceProvider resourceProvider;
@@ -24,7 +24,7 @@ public class AdminController {
     }
 
     @Async
-    @GetMapping("/admin/listTopics")
+    @GetMapping("/listTopics")
     @ResponseBody
     public CompletableFuture<TopicList> listTopics(@RequestParam(required = false) String bootStrapServers){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
