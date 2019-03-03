@@ -21,7 +21,11 @@ class JsonEditor extends Component {
     }
 
     updateState(event){
-        this.props.updateMessage(event.target.value);
+        let newValue = event.target.value;
+        this.setState({
+            local: newValue
+        })
+        this.props.updateMessage(newValue);
     }
 
     format(messagedata, pretty) {
@@ -53,12 +57,12 @@ class JsonEditor extends Component {
                        id={this.state.id}
                        bsSize="large"
                        rows={30}
-                       height="400px"
+                       height="200px"
                        onChange={this.updateState}
                        value={this.state.local}
                 />
-                <Label for="exampleFile">Send Message From File:</Label>
-                <Input type="file" name="file" id="exampleFile" />
+                {/*<Label for="exampleFile">Send Message From File:</Label>
+                <Input type="file" name="file" id="exampleFile" />*/}
             </FormGroup>
         )
     };

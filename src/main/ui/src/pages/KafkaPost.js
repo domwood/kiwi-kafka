@@ -50,7 +50,8 @@ class KafkaPost extends Component {
             dropdownOpen: false,
             currentKafkaHeaderKey: "",
             currentKafkaHeaderValue: "",
-            alerts: []
+            alerts: [],
+            produceResponse: ""
         };
     }
 
@@ -147,7 +148,21 @@ class KafkaPost extends Component {
     }
 
     submit(){
-
+        ApiService.produce(
+            this.state.targetTopic,
+            this.state.kafkaKey,
+            this.state.message,
+            this.state.kafkaHeaders,
+            (response) =>{
+                let msg = `Produced to Topic ${response.topic} on partition ${response.partition} at offset ${response.offset}`
+                this.setState({
+                    produceResponse: <Alert color="success">{msg}</Alert>
+                });
+            }, (error) => {
+                this.setState({
+                    produceResponse: <Alert color="danger">{error.message}</Alert>
+                });
+            })
     }
 
     render() {
@@ -168,7 +183,10 @@ class KafkaPost extends Component {
                         <Label for="topic">Topic:</Label>
 
                         <InputGroup>
-                            <Input type="text" name="topic" id="topic" defaultValue={this.state.targetTopic}  />
+                            <Input type="text" name="topic" id="topic"
+                                   defaultValue={this.state.targetTopic}
+                                   onChange={event => this.setTargetTopic(event.target.value)} />
+
                             <InputGroupButtonDropdown addonType="append" isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown}>
 
                                 <DropdownToggle caret>
@@ -184,7 +202,11 @@ class KafkaPost extends Component {
                     <FormGroup>
                         <Label for="kafkaKey">Kafka Key</Label>
                         <InputGroup>
-                            <Input type="text" name="kafkaKey" id="kafkaKey" defaultValue={this.state.kafkaKey} />
+                            <Input type="text" name="kafkaKey"
+                                   id="kafkaKey"
+                                   defaultValue={this.state.kafkaKey}
+                                   onChange={event => this.setKafkaKey(event.target.value)}
+                                    />
                             <InputGroupAddon addonType="append">
                                 <Button color="secondary" onClick={this.setRandomKafkaKey}>Random</Button>
                             </InputGroupAddon>
@@ -227,9 +249,18 @@ class KafkaPost extends Component {
 
                     </FormGroup>
                     <JsonEditor addAlert={this.addAlert} updateMessage={this.updateMessage} id="kafkaPost" name="kafkaPost"/>
+
+                    <div>
+                        {this.state.produceResponse}
+                    </div>
+
+                    <div className="mt-lg-1"></div>
+
                     <Button onClick={this.submit}>Send!</Button>
 
+                    <div className="mt-lg-1"></div>
                 </Form>
+
             </Container>
         );
     }
