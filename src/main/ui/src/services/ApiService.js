@@ -15,8 +15,8 @@ export const getTopics = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error, "major");
 
     fetch(api.listTopics)
-        .then(res => res.json())
         .then(statusHandler)
+        .then(res => res.json())
         .then(result => cb(result.topics))
         .catch(errorhandler)
 };

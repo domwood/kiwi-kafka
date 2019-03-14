@@ -1,7 +1,7 @@
 package com.github.domwood.kiwi.kafka.task.admin;
 
-import com.github.domwood.kiwi.api.output.ImmutableTopicList;
-import com.github.domwood.kiwi.api.output.TopicList;
+import com.github.domwood.kiwi.data.output.ImmutableTopicList;
+import com.github.domwood.kiwi.data.output.TopicList;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
 import org.apache.kafka.clients.admin.AdminClient;

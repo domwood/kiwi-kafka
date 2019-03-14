@@ -1,4 +1,4 @@
-package com.github.domwood.kiwi.api.output;
+package com.github.domwood.kiwi.data.output;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

@@ -1,7 +1,7 @@
-package com.github.domwood.kiwi.rest;
+package com.github.domwood.kiwi.api;
 
-import com.github.domwood.kiwi.api.input.ProducerRequest;
-import com.github.domwood.kiwi.api.output.ProducerResponse;
+import com.github.domwood.kiwi.data.input.ProducerRequest;
+import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
@@ -30,9 +30,7 @@ public class ProducerController {
     @ResponseBody
     public CompletableFuture<ProducerResponse> sendToTopic(@RequestParam(required = false) String bootStrapServers,
                                                            @RequestBody ProducerRequest input){
-        KafkaProducerResource<String, String> producerResource =
-                resourceProvider.kafkaProducerResource(bootStrapServers);
-
+        KafkaProducerResource<String, String> producerResource = resourceProvider.kafkaProducerResource(bootStrapServers);
         ProduceSingleMessage singleMessage = new ProduceSingleMessage();
         return singleMessage.execute(producerResource, input);
     }

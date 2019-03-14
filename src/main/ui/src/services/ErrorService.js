@@ -16,7 +16,7 @@ const handleError = (error, level) => {
     });
 
     //TODO convert to a toast or something
-    console.error(`${level} error`);
+    console.error(`${level} ${error}`);
 };
 
 export default handleError;

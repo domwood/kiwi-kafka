@@ -19,7 +19,7 @@ public class KafkaConsumerConfig extends KafkaConfig{
 
     public Properties createConfig(){
         Properties properties = super.createConfig();
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId + Thread.currentThread().getName()); //Expects to be called on a kiwi task thread
         properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutCommit);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializerClass);

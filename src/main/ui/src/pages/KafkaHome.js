@@ -8,7 +8,7 @@ class KafkaHome extends Component {
                 <Container>
                     <Row>
                         <Col>
-                            <h1>Kafka Home</h1>
+                            <h1>Kafka Interactive Web Interface</h1>
                         </Col>
                     </Row>
                 </Container>

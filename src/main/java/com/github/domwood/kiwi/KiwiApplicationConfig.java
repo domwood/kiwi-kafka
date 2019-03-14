@@ -15,4 +15,5 @@ public class KiwiApplicationConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
         ;
     }
+
 }

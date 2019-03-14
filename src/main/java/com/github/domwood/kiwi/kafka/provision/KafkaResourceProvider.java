@@ -28,12 +28,12 @@ public class KafkaResourceProvider {
         this.producerConfig = producerConfig;
     }
 
-    public <K, V> KafkaConsumerResource<K, V> kafkaConsumerResource(){
-        return new KafkaConsumerResource<>(consumerConfig.createConfig());
+    public <K, V> KafkaConsumerResource<K, V> kafkaConsumerResource(String bootStrapServers){
+        return new KafkaConsumerResource<>(consumerConfig.createConfig(bootStrapServers));
     }
 
     public <K, V> KafkaProducerResource<K, V> kafkaProducerResource(String bootStrapServers){
-        return new KafkaProducerResource<>(producerConfig.createConfig());
+        return new KafkaProducerResource<>(producerConfig.createConfig(bootStrapServers));
     }
 
     public KafkaAdminResource kafkaAdminResource(String bootStrapServers){

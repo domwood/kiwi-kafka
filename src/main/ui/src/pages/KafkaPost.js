@@ -9,16 +9,14 @@ import {
     Container,
     InputGroup,
     InputGroupAddon,
-    InputGroupButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem,
     Table
 } from 'reactstrap';
 import JsonEditor from "./../components/JsonEditor"
+import TopicInput from "./../components/TopicInput";
 
 import uuid from "uuid/v4";
 import * as ApiService from "../services/ApiService";
+
 
 class KafkaPost extends Component {
 
@@ -28,8 +26,6 @@ class KafkaPost extends Component {
         this.addAlert = this.addAlert.bind(this);
         this.removeAlert = this.removeAlert.bind(this);
         this.setTargetTopic = this.setTargetTopic.bind(this);
-        this.toggleDropDown = this.toggleDropDown.bind(this);
-        this.getTopicList = this.getTopicList.bind(this);
         this.setKafkaKey = this.setKafkaKey.bind(this);
         this.setRandomKafkaKey = this.setRandomKafkaKey.bind(this);
         this.addHeader = this.addHeader.bind(this);
@@ -45,9 +41,6 @@ class KafkaPost extends Component {
             kafkaKey: "",
             kafkaHeaders: {},
             message: "",
-            topicList: [],
-            toggleDropDown: false,
-            dropdownOpen: false,
             currentKafkaHeaderKey: "",
             currentKafkaHeaderValue: "",
             alerts: [],
@@ -69,23 +62,6 @@ class KafkaPost extends Component {
         let alertList = this.state.alerts.filter(a => a.id !== alertId);
         this.setState({
             alerts: alertList
-        });
-    }
-
-    getTopicList() {
-        if(this.state.topicList.length === 0){
-            ApiService.getTopics((topics) => {
-                this.setState({
-                    topicList:topics
-                });
-            });
-        }
-    }
-
-    toggleDropDown() {
-        this.getTopicList();
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
         });
     }
 
@@ -179,26 +155,9 @@ class KafkaPost extends Component {
                     }
                 </div>
                 <Form>
-                    <FormGroup>
-                        <Label for="topic">Topic:</Label>
 
-                        <InputGroup>
-                            <Input type="text" name="topic" id="topic"
-                                   defaultValue={this.state.targetTopic}
-                                   onChange={event => this.setTargetTopic(event.target.value)} />
+                    <TopicInput onUpdate={this.setTargetTopic}/>
 
-                            <InputGroupButtonDropdown addonType="append" isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown}>
-
-                                <DropdownToggle caret>
-                                    Topic List
-                                </DropdownToggle>
-                                <DropdownMenu>{
-                                    this.state.topicList.map(topic =>
-                                        <DropdownItem key={topic} name={topic} onClick={() => this.setTargetTopic(topic)}>{topic}</DropdownItem>)
-                                }</DropdownMenu>
-                            </InputGroupButtonDropdown>
-                        </InputGroup>
-                    </FormGroup>
                     <FormGroup>
                         <Label for="kafkaKey">Kafka Key</Label>
                         <InputGroup>

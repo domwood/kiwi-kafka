@@ -11,6 +11,9 @@ import java.util.Properties;
 @ConfigurationProperties(prefix = "kafka.producer")
 public class KafkaProducerConfig extends KafkaConfig {
 
+    public String keyDeserializerClass;
+    public String valueDeserilizerClass;
+
     public Properties createConfig(){
         Properties properties = super.createConfig();
 

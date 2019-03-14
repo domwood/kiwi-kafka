@@ -2,5 +2,6 @@ const baseUrl = process.env.REACT_APP_LOCAL_SPRING_API ? process.env.REACT_APP_L
 
 export default {
     listTopics: baseUrl + "listTopics",
-    produce: baseUrl + "produce"
+    produce: baseUrl + "produce",
+    consumer: baseUrl + "consume"
 }

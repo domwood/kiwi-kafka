@@ -1,6 +1,6 @@
-package com.github.domwood.kiwi.rest;
+package com.github.domwood.kiwi.api;
 
-import com.github.domwood.kiwi.api.output.TopicList;
+import com.github.domwood.kiwi.data.output.TopicList;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.admin.ListTopics;

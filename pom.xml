@@ -24,6 +24,8 @@
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
         <immutables.version>2.7.4</immutables.version>
         <kafka.version>2.1.0</kafka.version>
+        <guava.version>27.0.1-jre</guava.version>
+        <commons.collections.version>4.3</commons.collections.version>
     </properties>
 
     <dependencies>
@@ -71,6 +73,18 @@
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons.collections.version}</version>
+        </dependency>
+
 
         <!--                -->
         <!--                -->

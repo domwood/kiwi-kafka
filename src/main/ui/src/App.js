@@ -13,8 +13,9 @@ import {
 } from 'reactstrap';
 import {HashRouter as Router, Link, Route, Switch} from "react-router-dom";
 import KafkaHome from "./pages/KafkaHome";
-import KafkaPost from "./pages/KafkaPost";
 import KafkaTopics from "./pages/KafkaTopics";
+import KafkaPost from "./pages/KafkaPost";
+import KafkaGet from "./pages/KafkaGet";
 
 class App extends Component {
     constructor(props) {
@@ -44,10 +45,13 @@ class App extends Component {
                             <Collapse isOpen={this.state.isOpen} navbar>
                                 <Nav className="ml-0" navbar>
                                     <NavItem>
+                                        <NavLink tag={Link} to="/topics" replace={true}>Kafka Topics</NavLink>
+                                    </NavItem>
+                                    <NavItem>
                                         <NavLink tag={Link} to="/post" replace={true}>Kafka Post</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink tag={Link} to="/topics" replace={true}>Kafka Topics</NavLink>
+                                        <NavLink tag={Link} to="/get" replace={true}>Kafka Get</NavLink>
                                     </NavItem>
                                 </Nav>
                                 <Nav className="ml-auto" navbar>
@@ -61,8 +65,9 @@ class App extends Component {
                         </Navbar>
                         <Switch>
                             <Route exact path="/" component={KafkaHome} />
-                            <Route path="/post" component={KafkaPost} />
                             <Route path="/topics" component={KafkaTopics} />
+                            <Route path="/post" component={KafkaPost} />
+                            <Route path="/get" component={KafkaGet} />
                             <Route redirectTo="/"/>
                         </Switch>
                     </div>

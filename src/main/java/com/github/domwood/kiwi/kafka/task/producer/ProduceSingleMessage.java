@@ -1,8 +1,8 @@
 package com.github.domwood.kiwi.kafka.task.producer;
 
-import com.github.domwood.kiwi.api.input.ProducerRequest;
-import com.github.domwood.kiwi.api.output.ImmutableProducerResponse;
-import com.github.domwood.kiwi.api.output.ProducerResponse;
+import com.github.domwood.kiwi.data.input.ProducerRequest;
+import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
+import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
 import org.apache.kafka.clients.producer.KafkaProducer;
