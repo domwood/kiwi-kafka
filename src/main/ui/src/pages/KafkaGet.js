@@ -1,9 +1,18 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {
     Alert,
     Button,
+    ButtonDropdown,
     Container,
-    Form
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Form,
+    FormGroup,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    Label
 } from "reactstrap";
 
 import TopicInput from "./../components/TopicInput"
@@ -14,18 +23,36 @@ class KafkaGet extends Component {
         super(props);
 
         this.setTargetTopic = this.setTargetTopic.bind(this);
+        this.setMessageLimit = this.setMessageLimit.bind(this);
+        this.toggleMessageStartDropdown = this.toggleMessageStartDropdown.bind(this);
+        this.setMessageFromEnd = this.setMessageFromEnd.bind(this);
 
         this.state = {
             alerts: [],
             bootstrapServers: "",
             targetTopic: "",
-            dropdownOpen: false
+            messageLimit: 10,
+            messageFromEnd: true,
+            messageStartToggle: false
         }
+    }
+
+    setMessageLimit(messageLimit){
+        this.setState({messageLimit:messageLimit})
     }
 
     setTargetTopic(target){
         this.setState({targetTopic:target})
     }
+
+    setMessageFromEnd(fromEnd){
+        this.setState({messageFromEnd:fromEnd})
+    }
+
+    toggleMessageStartDropdown(){
+        this.setState({messageStartToggle:!this.state.messageStartToggle})
+    }
+
 
     render() {
         return (
@@ -45,7 +72,32 @@ class KafkaGet extends Component {
 
                     <div className="mt-lg-1"></div>
 
-                    <Button onClick={this.submit}>Get</Button>
+                    <FormGroup>
+                        <Label for="messageLimit">Message Limit</Label>
+                        <InputGroup>
+                            <Input type="number"
+                                   name="messageLimit"
+                                   id="messageLimit"
+                                   defaultValue={this.state.messageLimit}
+                                   onChange={event => this.setMessageLimit(event.target.value)}
+                            />
+                            <InputGroupAddon addonType="append">
+                                <ButtonDropdown direction="down"
+                                                isOpen={this.state.messageStartToggle}
+                                                toggle={this.toggleMessageStartDropdown}>
+                                    <DropdownToggle caret>
+                                        {this.state.messageFromEnd ? "From End" : "From Start"}
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem onClick={() => this.setMessageFromEnd(true)}>Limit From End</DropdownItem>
+                                        <DropdownItem onClick={() => this.setMessageFromEnd(false)}>Limit From Start</DropdownItem>
+                                    </DropdownMenu>
+                                </ButtonDropdown>
+                            </InputGroupAddon>
+                        </InputGroup>
+                    </FormGroup>
+
+                    <Button onClick={this.submit}>Consume From Kafka</Button>
 
                     <div className="mt-lg-1"></div>
                 </Form>
