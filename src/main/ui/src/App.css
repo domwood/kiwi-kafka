@@ -30,3 +30,8 @@
     transform: rotate(360deg);
   }
 }
+
+.scrollTable {
+  height: 100px;
+  overflow: scroll;
+}

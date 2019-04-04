@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @JsonDeserialize(as = ImmutableConsumerRequest.class)
 @Value.Immutable
+@Value.Style(depluralize = true)
 public interface ConsumerRequest {
     List<String> topics();
     Integer limit();

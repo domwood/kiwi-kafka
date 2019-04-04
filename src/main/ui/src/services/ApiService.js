@@ -6,7 +6,6 @@ const statusHandler = (response) => {
         return response;
     }
     else{
-        console.log(response);
         throw new Error(`${response.status} Error response from Server`);
     }
 }
@@ -59,7 +58,7 @@ export const consume = (topics, limit, fromStart, cb, eb) => {
         errorhandler(new Error("Topic must be defined to consume from kafka"));
     }
     else{
-        fetch(api.produce, {
+        fetch(api.consume, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -67,7 +66,7 @@ export const consume = (topics, limit, fromStart, cb, eb) => {
             body: JSON.stringify({
                 topics: topics,
                 limit: limit||1,
-                fromStart: fromStart||false,
+                limitAppliesFromStart: fromStart||false,
                 filter: null
             })
         })

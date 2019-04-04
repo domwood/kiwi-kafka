@@ -13,46 +13,45 @@ import {
 
 import React, {Component} from "react";
 import DataStore from "../services/GlobalStore";
+import { MdRefresh } from "react-icons/md";
+import PropTypes from "prop-types";
 
-class TopicList extends Component {
+class TopicInput extends Component {
 
     constructor(props) {
         super(props);
 
-        this.setTargetTopic = this.setTargetTopic.bind(this);
-        this.toggleDropDown = this.toggleDropDown.bind(this);
-        this.getTopicList = this.getTopicList.bind(this);
         this.state = {
             topicList: DataStore.get("topicList") || [],
             targetTopic: ""
         }
     }
 
-    getTopicList(reload) {
+    getTopicList = (reload) => {
         if(this.state.topicList.length === 0 || reload){
             ApiService.getTopics((topics) => {
                 DataStore.put("topicList", topics);
                 this.setState({
-                    topicList:topics
+                    topicList:topics,
+                    dropdownOpen: true
                 });
             });
         }
-    }
+    };
 
-    toggleDropDown() {
+    toggleDropDown = () => {
         this.getTopicList();
         this.setState({
             dropdownOpen: !this.state.dropdownOpen
         });
-    }
+    };
 
-    setTargetTopic(topic){
+    setTargetTopic = (topic) => {
         this.setState({
             targetTopic: topic
         });
         this.props.onUpdate(topic);
-
-    }
+    };
 
     render() {
         return (
@@ -94,7 +93,7 @@ class TopicList extends Component {
                             }
                             <DropdownItem divider />
                             <DropdownItem onClick={() => this.getTopicList(true)} >
-                               Reload Topics
+                                <MdRefresh /> Reload Topics
                             </DropdownItem>
                         </DropdownMenu>
 
@@ -102,7 +101,11 @@ class TopicList extends Component {
                 </InputGroup>
             </FormGroup>
         )
-    };
+    }
 }
 
-export default TopicList;
+TopicInput.propTypes = {
+    onUpdate: PropTypes.func.isRequired,
+};
+
+export default TopicInput;

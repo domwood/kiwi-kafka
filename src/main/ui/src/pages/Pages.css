@@ -1,0 +1,6 @@
+.WrappedTable{
+    word-break:break-word;
+    overflow: auto;
+    width: 100%;
+    font-size: small;
+}

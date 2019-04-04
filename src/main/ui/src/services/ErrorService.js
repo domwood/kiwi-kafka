@@ -15,6 +15,7 @@ const handleError = (error, level) => {
         time: time()
     });
 
+    /*eslint no-console: "off"*/
     //TODO convert to a toast or something
     console.error(`${level} ${error}`);
 };

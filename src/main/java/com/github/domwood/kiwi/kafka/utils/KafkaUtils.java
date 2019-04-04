@@ -3,9 +3,11 @@ package com.github.domwood.kiwi.kafka.utils;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -20,8 +22,12 @@ public class KafkaUtils {
 
 
     public static Map<String, Object> fromKafkaHeaders(Headers headers){
-        return asList(headers.toArray()).stream()
-                .collect(toMap(header -> header.key(), header -> header.value()));
+        return Optional.ofNullable(headers)
+                .map(Headers::toArray)
+                .map(Arrays::asList)
+                .orElse(emptyList())
+                .stream()
+                .collect(toMap(Header::key, Header::value));
     }
 
 }

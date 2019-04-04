@@ -1,6 +1,7 @@
 package com.github.domwood.kiwi.kafka.configs;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -11,19 +12,47 @@ import java.util.Properties;
 public class KafkaConsumerConfig extends KafkaConfig{
 
     public String groupId;
-    public String enableAutCommit;
+    public String enableAutoCommit;
     public String autoOffsetReset;
-    public String keyDeserializerClass;
-    public String valueDeserilizerClass;
 
+    public String getGroupId() {
+        return groupId;
+    }
 
-    public Properties createConfig(){
-        Properties properties = super.createConfig();
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getEnableAutoCommit() {
+        return enableAutoCommit;
+    }
+
+    public void setEnableAutoCommit(String enableAutoCommit) {
+        this.enableAutoCommit = enableAutoCommit;
+    }
+
+    public String getAutoOffsetReset() {
+        return autoOffsetReset;
+    }
+
+    public void setAutoOffsetReset(String autoOffsetReset) {
+        this.autoOffsetReset = autoOffsetReset;
+    }
+
+    public Properties createStringConfig(String bootstrapServers){
+        Properties props = baseConfig(bootstrapServers);
+        props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        return props;
+    }
+
+    private Properties baseConfig(String bootstrapServers){
+        Properties properties = super.createConfig(bootstrapServers);
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId + Thread.currentThread().getName()); //Expects to be called on a kiwi task thread
-        properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutCommit);
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, groupId + Thread.currentThread().getName());
+        properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-        properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializerClass);
-        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserilizerClass);
+
         return properties;
     }
 

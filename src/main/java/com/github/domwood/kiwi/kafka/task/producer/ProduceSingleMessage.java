@@ -5,6 +5,7 @@ import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;

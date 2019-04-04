@@ -11,17 +11,10 @@ import java.util.Properties;
 @ConfigurationProperties(prefix = "kafka.producer")
 public class KafkaProducerConfig extends KafkaConfig {
 
-    public String keyDeserializerClass;
-    public String valueDeserilizerClass;
-
-    public Properties createConfig(){
-        Properties properties = super.createConfig();
-
-        //TODO assume strings for now
+    public Properties createStringConfig(String localServers){
+        Properties properties = super.createConfig(localServers);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
         return properties;
     }
-
 }

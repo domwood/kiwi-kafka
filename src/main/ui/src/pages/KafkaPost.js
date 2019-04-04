@@ -23,18 +23,6 @@ class KafkaPost extends Component {
     constructor(props) {
         super(props);
 
-        this.addAlert = this.addAlert.bind(this);
-        this.removeAlert = this.removeAlert.bind(this);
-        this.setTargetTopic = this.setTargetTopic.bind(this);
-        this.setKafkaKey = this.setKafkaKey.bind(this);
-        this.setRandomKafkaKey = this.setRandomKafkaKey.bind(this);
-        this.addHeader = this.addHeader.bind(this);
-        this.removeHeader = this.removeHeader.bind(this);
-        this.handleCurrentHeaderKeyChange = this.handleCurrentHeaderKeyChange.bind(this);
-        this.handleCurrentHeaderValueChange = this.handleCurrentHeaderValueChange.bind(this);
-        this.updateMessage = this.updateMessage.bind(this);
-        this.submit = this.submit.bind(this);
-
         this.state = {
             bootstrapServers: "",
             targetTopic: "",
@@ -48,7 +36,7 @@ class KafkaPost extends Component {
         };
     }
 
-    addAlert(alert){
+    addAlert = (alert) => {
         let id = uuid();
         let alerts = this.state.alerts;
         alert.id = id;
@@ -56,46 +44,46 @@ class KafkaPost extends Component {
         this.state.setState({
             alerts: alerts
         });
-    }
+    };
 
-    removeAlert(alertId){
+    removeAlert = (alertId) => {
         let alertList = this.state.alerts.filter(a => a.id !== alertId);
         this.setState({
             alerts: alertList
         });
-    }
+    };
 
-    setRandomKafkaKey(){
+    setRandomKafkaKey = () => {
         this.setState({
             kafkaKey: uuid()
         })
-    }
+    };
 
-    setTargetTopic(topic){
+    setTargetTopic = (topic) => {
         this.setState({
             targetTopic: topic
         })
-    }
+    };
 
-    setKafkaKey(kafkaKey){
+    setKafkaKey = (kafkaKey) => {
         this.setState({
             kafkaKey: kafkaKey
         })
-    }
+    };
 
-    handleCurrentHeaderKeyChange(event){
+    handleCurrentHeaderKeyChange = (event) => {
         this.setState({
             currentKafkaHeaderKey: event.target.value
         });
-    }
+    };
 
-    handleCurrentHeaderValueChange(event){
+    handleCurrentHeaderValueChange = (event) => {
         this.setState({
             currentKafkaHeaderValue: event.target.value
         });
-    }
+    };
 
-    addHeader(){
+    addHeader = () => {
         let headers = this.state.kafkaHeaders;
         let currentKey = this.state.currentKafkaHeaderKey;
         let currentValue = this.state.currentKafkaHeaderValue;
@@ -107,23 +95,23 @@ class KafkaPost extends Component {
                 kafkaHeaders: headers
             })
         }
-    }
+    };
 
-    removeHeader(key){
+    removeHeader = (key) => {
         let headers = this.state.kafkaHeaders;
         delete headers[key];
         this.setState({
             kafkaHeaders: headers
         })
-    }
+    };
 
-    updateMessage(data){
+    updateMessage = (data) => {
         this.setState({
             message: data
         })
-    }
+    };
 
-    submit(){
+    submit = () => {
         ApiService.produce(
             this.state.targetTopic,
             this.state.kafkaKey,
@@ -139,18 +127,18 @@ class KafkaPost extends Component {
                     produceResponse: <Alert color="danger">{error.message}</Alert>
                 });
             })
-    }
+    };
 
     render() {
         return (
             <Container>
-                <div className="mt-lg-4"></div>
+                <div className="mt-lg-4" />
                 <h1>Post Data to Kafka</h1>
-                <div className="mt-lg-4"></div>
+                <div className="mt-lg-4" />
                 <div>
                     {
                         this.state.alerts.length > 0 ? this.state.alerts.map(a => {
-                            return <Alert color="primary">{a.error}</Alert>
+                            return <Alert color="primary" key={alert.id}>{a.error}</Alert>
                         }) : ""
                     }
                 </div>

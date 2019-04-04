@@ -5,6 +5,7 @@ import com.github.domwood.kiwi.kafka.task.KiwiTaskExecutor;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
 
 public class FutureUtils {
 
@@ -22,5 +23,9 @@ public class FutureUtils {
         CompletableFuture<T> future = new CompletableFuture<>();
         future.completeExceptionally(ex);
         return future;
+    }
+
+    public static <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier){
+        return CompletableFuture.supplyAsync(supplier, KiwiTaskExecutor.getInstance());
     }
 }

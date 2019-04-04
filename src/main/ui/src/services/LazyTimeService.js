@@ -5,7 +5,8 @@ const register = {};
 const handleTime = () => {
     let timestamp = time();
     Object.keys(register).forEach(key => {
-        register[key](timestamp);
+        let remove = register[key](timestamp);
+        if(remove) delete register[key];
     });
 };
 

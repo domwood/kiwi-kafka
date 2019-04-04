@@ -37,9 +37,9 @@ class App extends Component {
             <div>
                 <Router>
                     <div>
-                        <Navbar color="light" light expand="md">
+                        <Navbar color="light" light expand="md" className={"pt-0 pb-0"}>
                             <NavbarBrand tag={Link} to="/" replace={true}>
-                                <img src={logo} height="20" width="20" alt="Kiwi - Kafka Interactive Web Interface" />
+                                <img src={logo} height="40" width="40" alt="Kiwi - Kafka Interactive Web Interface" />
                             </NavbarBrand>
                             <NavbarToggler onClick={this.toggle} />
                             <Collapse isOpen={this.state.isOpen} navbar>

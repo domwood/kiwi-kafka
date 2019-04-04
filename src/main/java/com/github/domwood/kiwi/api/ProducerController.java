@@ -3,9 +3,11 @@ package com.github.domwood.kiwi.api;
 import com.github.domwood.kiwi.data.input.ProducerRequest;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
+import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,19 +21,22 @@ import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 public class ProducerController {
 
     private final KafkaResourceProvider resourceProvider;
+    private final KafkaTaskProvider taskProvider;
 
     @Autowired
-    public ProducerController(KafkaResourceProvider resourceProvider){
+    public ProducerController(KafkaTaskProvider taskProvider,
+                              KafkaResourceProvider resourceProvider){
         this.resourceProvider = resourceProvider;
+        this.taskProvider = taskProvider;
     }
 
     @Async
-    @PostMapping("/produce")
+    @PostMapping(value = "/produce")
     @ResponseBody
     public CompletableFuture<ProducerResponse> sendToTopic(@RequestParam(required = false) String bootStrapServers,
                                                            @RequestBody ProducerRequest input){
-        KafkaProducerResource<String, String> producerResource = resourceProvider.kafkaProducerResource(bootStrapServers);
-        ProduceSingleMessage singleMessage = new ProduceSingleMessage();
+        KafkaProducerResource<String, String> producerResource = resourceProvider.kafkaStringProducerResource(bootStrapServers);
+        ProduceSingleMessage singleMessage = taskProvider.produceSingleMessage();
         return singleMessage.execute(producerResource, input);
     }
 

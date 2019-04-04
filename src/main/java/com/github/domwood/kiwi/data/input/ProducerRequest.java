@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @JsonDeserialize(as = ImmutableProducerRequest.class)
 @Value.Immutable
+@Value.Style(depluralize = true)
 public interface ProducerRequest {
     String topic();
     String key();

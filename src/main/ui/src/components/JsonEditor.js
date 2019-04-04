@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import {Input, Label} from "reactstrap";
 import FormGroup from "reactstrap/es/FormGroup";
+import PropTypes from 'prop-types';
 
 
 class JsonEditor extends Component {
@@ -56,7 +57,7 @@ class JsonEditor extends Component {
                        name={this.state.name}
                        id={this.state.id}
                        bsSize="large"
-                       rows={30}
+                       rows={15}
                        height="200px"
                        onChange={this.updateState}
                        value={this.state.local}
@@ -65,7 +66,14 @@ class JsonEditor extends Component {
                 <Input type="file" name="file" id="exampleFile" />*/}
             </FormGroup>
         )
-    };
+    }
 }
+
+JsonEditor.propTypes = {
+    name: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    addAlert: PropTypes.func.isRequired,
+    updateMessage: PropTypes.func.isRequired
+};
 
 export default JsonEditor;
