@@ -12,15 +12,16 @@ import {
     Input,
     InputGroup,
     InputGroupAddon,
-    Label, Row, Table
+    Label, Table
 } from "reactstrap";
 
 import TopicInput from "./../components/TopicInput"
 import * as ApiService from "../services/ApiService";
-import LazyTimeService from "../services/LazyTimeService";
 import * as GeneralUtilities from "../services/GeneralUtilities";
 import ButtonGroup from "reactstrap/es/ButtonGroup";
 import "./Pages.css";
+import FilterConfigurer from "../components/FilterConfigurer";
+import {toast} from "react-toastify";
 
 class KafkaGet extends Component {
 
@@ -34,10 +35,9 @@ class KafkaGet extends Component {
             messageLimit: 10,
             messageFromEnd: true,
             messageStartToggle: false,
-            messages: []
+            messages: [],
+            filter: null,
         };
-
-        ;
     }
 
     setMessageLimit = (messageLimit) => {
@@ -56,37 +56,25 @@ class KafkaGet extends Component {
         this.setState({messageStartToggle:!this.state.messageStartToggle})
     };
 
-    getKafkaMessage = () => {
-        let addClear = (count) => LazyTimeService("kafkaGet", () => {
-            if(count < 1){
-                this.setState({consumerResponse:null});
-                return true;
-            }
-            else {
-                count--;
-                return false;
-            }
-        })
+    setFilter = (filter) => {
+        this.setState({
+            filter: filter
+        });
+    };
 
+    getKafkaMessage = () => {
         ApiService.consume(
             [this.state.targetTopic],
             this.state.messageLimit,
-            this.messageFromEnd,
+            this.state.messageFromEnd,
+            this.state.filter,
             (response) =>{
                 this.setState({
-                    consumerResponse: <Alert color="success">Successfully retrieved {response.messages.length} Records</Alert>,
                     messages: response.messages
-                });
-                addClear(3);
-            }, (error) => {
-                this.setState({
-                    consumerResponse: <Alert color="danger">{error.message}</Alert>
-                });
-                addClear(3);
-            }
-        )
+                }, () => toast.info(`Retrieved ${response.messages.length} records from ${this.state.targetTopic}`));
+            }, (error) => toast.error(`Failed to retrieve data from server ${error.message}`)
+        );
     };
-
 
     render() {
         return (
@@ -94,13 +82,6 @@ class KafkaGet extends Component {
                 <div className="mt-lg-4"/>
                 <h1>Get Data From Kafka</h1>
                 <div className="mt-lg-4"/>
-                <div>
-                    {
-                        this.state.alerts.length > 0 ? this.state.alerts.map(a => {
-                            return <Alert color="primary" key={alert.id}>{a.error}</Alert>
-                        }) : ""
-                    }
-                </div>
                 <Form>
                     <TopicInput onUpdate={this.setTargetTopic}/>
 
@@ -129,6 +110,8 @@ class KafkaGet extends Component {
                                 </ButtonDropdown>
                             </InputGroupAddon>
                         </InputGroup>
+
+                        <FilterConfigurer name={"filterConfigurer"} id={"filterConfigurer"} onUpdate={this.setFilter}/>
                     </FormGroup>
 
                     <ButtonGroup>
@@ -141,7 +124,7 @@ class KafkaGet extends Component {
                         </div>
                     <div className="mt-lg-4"/>
                 </Form>
-                <Row>
+                <div>
                 {
                     this.state.messages.length > 0 ?
                         <Table size="sm" bordered >
@@ -173,7 +156,7 @@ class KafkaGet extends Component {
                             </tbody>
                         </Table> : ''
                 }
-                </Row>
+                </div>
             </Container>
         );
     }

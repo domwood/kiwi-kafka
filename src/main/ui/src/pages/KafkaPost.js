@@ -16,6 +16,7 @@ import TopicInput from "./../components/TopicInput";
 
 import uuid from "uuid/v4";
 import * as ApiService from "../services/ApiService";
+import {toast} from "react-toastify";
 
 
 class KafkaPost extends Component {
@@ -35,23 +36,6 @@ class KafkaPost extends Component {
             produceResponse: ""
         };
     }
-
-    addAlert = (alert) => {
-        let id = uuid();
-        let alerts = this.state.alerts;
-        alert.id = id;
-        alerts.push(alert);
-        this.state.setState({
-            alerts: alerts
-        });
-    };
-
-    removeAlert = (alertId) => {
-        let alertList = this.state.alerts.filter(a => a.id !== alertId);
-        this.setState({
-            alerts: alertList
-        });
-    };
 
     setRandomKafkaKey = () => {
         this.setState({
@@ -117,31 +101,18 @@ class KafkaPost extends Component {
             this.state.kafkaKey,
             this.state.message,
             this.state.kafkaHeaders,
-            (response) =>{
-                let msg = `Produced to Topic ${response.topic} on partition ${response.partition} at offset ${response.offset}`
-                this.setState({
-                    produceResponse: <Alert color="success">{msg}</Alert>
-                });
-            }, (error) => {
-                this.setState({
-                    produceResponse: <Alert color="danger">{error.message}</Alert>
-                });
-            })
+            (response) => toast.info(`Produced to Topic ${response.topic} on partition ${response.partition} at offset ${response.offset}`),
+            (error) => toast.error(`Failed to produce data: ${error.message}`))
     };
 
     render() {
         return (
             <Container>
+
+
                 <div className="mt-lg-4" />
                 <h1>Post Data to Kafka</h1>
                 <div className="mt-lg-4" />
-                <div>
-                    {
-                        this.state.alerts.length > 0 ? this.state.alerts.map(a => {
-                            return <Alert color="primary" key={alert.id}>{a.error}</Alert>
-                        }) : ""
-                    }
-                </div>
                 <Form>
 
                     <TopicInput onUpdate={this.setTargetTopic}/>
@@ -151,7 +122,7 @@ class KafkaPost extends Component {
                         <InputGroup>
                             <Input type="text" name="kafkaKey"
                                    id="kafkaKey"
-                                   defaultValue={this.state.kafkaKey}
+                                   value={this.state.kafkaKey}
                                    onChange={event => this.setKafkaKey(event.target.value)}
                                     />
                             <InputGroupAddon addonType="append">
@@ -195,7 +166,7 @@ class KafkaPost extends Component {
                         }
 
                     </FormGroup>
-                    <JsonEditor addAlert={this.addAlert} updateMessage={this.updateMessage} id="kafkaPost" name="kafkaPost"/>
+                    <JsonEditor updateMessage={this.updateMessage} id="kafkaPost" name="kafkaPost"/>
 
                     <div>
                         {this.state.produceResponse}

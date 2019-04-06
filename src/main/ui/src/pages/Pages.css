@@ -1,6 +1,7 @@
 .WrappedTable{
-    word-break:break-word;
+    word-break:break-all;
     overflow: auto;
     width: 100%;
     font-size: small;
+    word-wrap: break-word;
 }

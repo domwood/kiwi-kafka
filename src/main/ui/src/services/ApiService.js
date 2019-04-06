@@ -50,8 +50,7 @@ export const produce = (topic, key, value, headers, cb, eb) => {
 
 };
 
-//TODO filters
-export const consume = (topics, limit, fromStart, cb, eb) => {
+export const consume = (topics, limit, fromStart, filter, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error, "major");
 
     if(!topics){
@@ -67,7 +66,7 @@ export const consume = (topics, limit, fromStart, cb, eb) => {
                 topics: topics,
                 limit: limit||1,
                 limitAppliesFromStart: fromStart||false,
-                filter: null
+                filter: filter || null
             })
         })
             .then(statusHandler)

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {Input, Label} from "reactstrap";
 import FormGroup from "reactstrap/es/FormGroup";
 import PropTypes from 'prop-types';
+import {toast} from "react-toastify";
 
 
 class JsonEditor extends Component {
@@ -12,24 +13,18 @@ class JsonEditor extends Component {
             name : props.name,
             local: ""
         };
-        this.addAlert = this.addAlert.bind(this);
-        this.format = this.format.bind(this);
-        this.updateState = this.updateState.bind(this);
     }
 
-    addAlert(alert){
-        this.props.addAlert(alert);
-    }
+    error = (msg) => toast.error(msg);
 
-    updateState(event){
+    updateState = (event) => {
         let newValue = event.target.value;
         this.setState({
             local: newValue
-        })
-        this.props.updateMessage(newValue);
-    }
+        }, () => this.props.updateMessage(newValue));
+    };
 
-    format(messagedata, pretty) {
+    format = (messagedata, pretty) => {
         try {
             if (/^{/.test(messagedata)) {
                 let obj = JSON.parse(messagedata);
@@ -40,14 +35,11 @@ class JsonEditor extends Component {
                 return JSON.stringify(obj);
             }
         } catch (err) {
-            this.addAlert({
-                text: 'Cannot format message which is not valid json',
-                class: 'primary'
-            });
+            this.error('Cannot format message which is not valid json');
         }
 
         return messagedata;
-    }
+    };
 
     render() {
         return (

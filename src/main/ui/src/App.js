@@ -16,6 +16,8 @@ import KafkaHome from "./pages/KafkaHome";
 import KafkaTopics from "./pages/KafkaTopics";
 import KafkaPost from "./pages/KafkaPost";
 import KafkaGet from "./pages/KafkaGet";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 class App extends Component {
     constructor(props) {
@@ -25,6 +27,7 @@ class App extends Component {
         this.state = {
             isOpen: false
         };
+
     }
     toggle() {
         this.setState({
@@ -37,6 +40,17 @@ class App extends Component {
             <div>
                 <Router>
                     <div>
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={3000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnVisibilityChange
+                            draggable={false}
+                            pauseOnHover
+                        />
                         <Navbar color="light" light expand="md" className={"pt-0 pb-0"}>
                             <NavbarBrand tag={Link} to="/" replace={true}>
                                 <img src={logo} height="40" width="40" alt="Kiwi - Kafka Interactive Web Interface" />
@@ -76,5 +90,7 @@ class App extends Component {
         );
     }
 }
+
+
 
 export default App;

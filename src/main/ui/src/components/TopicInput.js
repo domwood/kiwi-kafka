@@ -15,6 +15,7 @@ import React, {Component} from "react";
 import DataStore from "../services/GlobalStore";
 import { MdRefresh } from "react-icons/md";
 import PropTypes from "prop-types";
+import {toast} from "react-toastify";
 
 class TopicInput extends Component {
 
@@ -35,7 +36,7 @@ class TopicInput extends Component {
                     topicList:topics,
                     dropdownOpen: true
                 });
-            });
+            }, () => toast.warn("Could not retrieve topic list from server"));
         }
     };
 
