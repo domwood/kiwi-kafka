@@ -20,6 +20,26 @@ export const getTopics = (cb, eb) => {
         .catch(errorhandler)
 };
 
+export const getBrokers = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+
+    fetch(api.brokers)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.brokerInfo))
+        .catch(errorhandler)
+};
+
+export const getLogs = (id, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+
+    fetch(api.logs + '?brokerId='+id)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.brokerLogInfo))
+        .catch(errorhandler)
+};
+
 export const produce = (topic, key, value, headers, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error, "major");
 

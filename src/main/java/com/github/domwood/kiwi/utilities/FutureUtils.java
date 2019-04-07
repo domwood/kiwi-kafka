@@ -12,7 +12,8 @@ public class FutureUtils {
     public static <T> CompletableFuture<T> toCompletable(Future<T> future){
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return future.get();
+                T result = future.get();
+                return result;
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

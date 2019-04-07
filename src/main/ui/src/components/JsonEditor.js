@@ -64,7 +64,6 @@ class JsonEditor extends Component {
 JsonEditor.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
-    addAlert: PropTypes.func.isRequired,
     updateMessage: PropTypes.func.isRequired
 };
 

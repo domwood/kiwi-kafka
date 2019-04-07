@@ -27,7 +27,7 @@ public class KafkaUtils {
                 .map(Arrays::asList)
                 .orElse(emptyList())
                 .stream()
-                .collect(toMap(Header::key, Header::value));
+                .collect(toMap(Header::key, h -> KafkaHeader.valueAsString(h.value())));
     }
 
 }

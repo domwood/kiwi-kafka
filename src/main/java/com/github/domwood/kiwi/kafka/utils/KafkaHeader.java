@@ -2,10 +2,13 @@ package com.github.domwood.kiwi.kafka.utils;
 
 import org.apache.kafka.common.header.Header;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
 public class KafkaHeader implements Header {
+
+    private static final Charset format = Charset.forName("UTF-8");
 
     private final String key;
     private final byte[] value;
@@ -19,9 +22,8 @@ public class KafkaHeader implements Header {
         this.key = key;
         this.value = asBytes(value);
     }
-
     private byte[] asBytes(String value){
-        return value != null ? value.getBytes(Charset.forName("UTF-8")) : new byte[0];
+        return value != null ? value.getBytes(format) : new byte[0];
     }
 
     @Override
@@ -32,5 +34,9 @@ public class KafkaHeader implements Header {
     @Override
     public byte[] value() {
         return this.value;
+    }
+
+    public static String valueAsString(byte[] value) {
+        return new String(value, format);
     }
 }

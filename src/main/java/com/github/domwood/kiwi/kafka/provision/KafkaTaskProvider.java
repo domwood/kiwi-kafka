@@ -1,5 +1,7 @@
 package com.github.domwood.kiwi.kafka.provision;
 
+import com.github.domwood.kiwi.kafka.task.admin.BrokerInformation;
+import com.github.domwood.kiwi.kafka.task.admin.BrokerLogInformation;
 import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
@@ -19,4 +21,13 @@ public class KafkaTaskProvider {
     public ListTopics listTopics(){
         return new ListTopics();
     }
+
+    public BrokerInformation brokerInformation(){
+        return new BrokerInformation();
+    }
+
+    public BrokerLogInformation brokerLogInformation(){
+        return new BrokerLogInformation();
+    }
+
 }

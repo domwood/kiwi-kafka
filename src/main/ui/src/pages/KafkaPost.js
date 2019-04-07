@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import {
-    Alert,
     Button,
     Form,
     FormGroup,
@@ -17,7 +16,7 @@ import TopicInput from "./../components/TopicInput";
 import uuid from "uuid/v4";
 import * as ApiService from "../services/ApiService";
 import {toast} from "react-toastify";
-
+import "./Pages.css";
 
 class KafkaPost extends Component {
 
@@ -101,7 +100,7 @@ class KafkaPost extends Component {
             this.state.kafkaKey,
             this.state.message,
             this.state.kafkaHeaders,
-            (response) => toast.info(`Produced to Topic ${response.topic} on partition ${response.partition} at offset ${response.offset}`),
+            (response) => toast.info(`Produced to ${response.topic} on partition ${response.partition} at offset ${response.offset}`),
             (error) => toast.error(`Failed to produce data: ${error.message}`))
     };
 
@@ -143,7 +142,7 @@ class KafkaPost extends Component {
                         </InputGroup>
                         {
                             Object.keys(this.state.kafkaHeaders).length > 0 ?
-                            <Table striped>
+                            <Table striped className="WrappedTable">
                                 <thead>
                                 <tr>
                                     <th>Header</th>
@@ -155,9 +154,9 @@ class KafkaPost extends Component {
                                 {Object.keys(this.state.kafkaHeaders).map(headerKey => {
                                     return (
                                     <tr key={headerKey}>
-                                        <td>{headerKey}</td>
-                                        <td>{this.state.kafkaHeaders[headerKey]}</td>
-                                        <td><Button color="primary" onClick={() => this.removeHeader(headerKey)}>Remove Header</Button></td>
+                                        <td width={"40%"}>{headerKey}</td>
+                                        <td width={"40%"}>{this.state.kafkaHeaders[headerKey]}</td>
+                                        <td width={"20%"}><Button onClick={() => this.removeHeader(headerKey)}>Remove Header</Button></td>
                                     </tr>
                                     )
                                 })}

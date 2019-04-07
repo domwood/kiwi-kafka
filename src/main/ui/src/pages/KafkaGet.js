@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {
-    Alert,
     Button,
     ButtonDropdown,
     Container,
@@ -37,6 +36,7 @@ class KafkaGet extends Component {
             messageStartToggle: false,
             messages: [],
             filter: null,
+            consumerResponse: null
         };
     }
 
