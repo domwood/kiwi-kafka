@@ -9,8 +9,7 @@ import org.apache.kafka.clients.admin.DescribeLogDirsResult;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.requests.DescribeLogDirsResponse;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
@@ -35,10 +34,13 @@ public class BrokerLogInformation implements KafkaTask<Integer, BrokerLogInfoLis
     }
 
     private BrokerLogInfo fromMapEntry(String kafkaLogName, DescribeLogDirsResponse.LogDirInfo infoForNode){
+        List<BrokerLogTopicInfo> topicInfo = extract(infoForNode.replicaInfos, this::fromMapEntry);
+        topicInfo.sort(Comparator.comparing(BrokerLogTopicInfo::topic).thenComparing(BrokerLogTopicInfo::partition));
+
         return ImmutableBrokerLogInfo.builder()
                 .logName(kafkaLogName)
                 .errorType(infoForNode.error.name())
-                .addAllTopicInfoList(extract(infoForNode.replicaInfos, this::fromMapEntry))
+                .addAllTopicInfoList(topicInfo)
                 .build();
     }
 

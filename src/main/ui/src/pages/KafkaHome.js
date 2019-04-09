@@ -3,6 +3,7 @@ import {Button, Container, Table} from "reactstrap";
 import * as ApiService from "../services/ApiService";
 import DataStore from "../services/GlobalStore";
 import {toast} from "react-toastify";
+import "./Pages.css";
 
 class KafkaHome extends Component {
     constructor(props) {
@@ -49,6 +50,7 @@ class KafkaHome extends Component {
                     <h1>Kafka Broker Information</h1>
                     <div className="mt-lg-4"/>
 
+
                     {
                         this.state.brokers.length > 0 ?
                             <Table size="sm" bordered striped>
@@ -83,7 +85,13 @@ class KafkaHome extends Component {
                     <div className="mt-lg-4"/>
 
                     {
-                        this.state.logFiles.length > 0 ? <h3>Log Files for Broker {this.state.activeNode}</h3> : ''
+                        this.state.logFiles.length > 0 ?
+                            <div>
+                                <h3>Log Files for Broker {this.state.activeNode}</h3>
+                                <div className={"Gap"}/>
+                                <div className={"Gap"}/>
+                            </div> : ''
+
                     }
                     {
                         this.state.logFiles.length > 0 ?
@@ -92,41 +100,31 @@ class KafkaHome extends Component {
                                     <tr>
                                         <th>Log Name</th>
                                         <th>Error</th>
+                                        <th>Topic</th>
+                                        <th>Partition</th>
+                                        <th>Lag</th>
+                                        <th>Reported Size</th>
                                     </tr>
                                     </thead>
-                                    <tbody className="WrappedTable">
+                                    <tbody className="WrappedTable" >
                                     {
                                         this.state.logFiles.map(log => {
-                                            return (
-                                                <tr key={log.logName}>
-                                                    <td width={"15%"}>{log.logName}</td>
-                                                    <td width={"10%"}>{log.errorType}</td>
-                                                    <td width={"75%"}>
-                                                        <Table size="sm" bordered striped>
-                                                            <thead>
-                                                            <tr>
-                                                                <th>Topic</th>
-                                                                <th>Partition</th>
-                                                                <th>Lag</th>
-                                                                <th>Reported Size</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {log.topicInfoList.map(info => {
-                                                                return (
-                                                                    <tr key={info.topic +"_"+info.partition}>
-                                                                        <td>{info.topic}</td>
-                                                                        <td>{info.partition}</td>
-                                                                        <td>{info.lag}</td>
-                                                                        <td>{info.size}</td>
-                                                                    </tr>
-                                                                )
-                                                            })}
-                                                            </tbody>
+                                            let topicName = '';
+                                            return log.topicInfoList.map((info, index) => {
+                                                    let lastTopicName = topicName;
+                                                    topicName = info.topic;
+                                                    return (
+                                                        <tr key={info.topic +"_"+info.partition}>
 
-                                                        </Table>
-                                                    </td>
-                                                </tr>
+                                                            <td width={"20%"}>{index === 0 ? log.logName : ''}</td>
+                                                            <td width={"10%"}>{index === 0 ? log.errorType: ''}</td>
+                                                            <td>{lastTopicName === topicName ? '' : info.topic}</td>
+                                                            <td>{info.partition}</td>
+                                                            <td>{info.lag}</td>
+                                                            <td>{info.size}</td>
+                                                        </tr>
+                                                    )
+                                                }
                                             )
                                         })
                                     }
