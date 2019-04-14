@@ -39,3 +39,11 @@
 .Gap{
   margin-top: 1rem;
 }
+
+.btn-group.WideBoiGroup {
+  display: flex;
+}
+
+.WideBoiGroup.btn {
+  flex: 1
+}

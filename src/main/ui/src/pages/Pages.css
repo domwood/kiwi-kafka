@@ -5,3 +5,8 @@
     font-size: small;
     word-wrap: break-word;
 }
+
+
+.WideBoi {
+    max-width:90%;
+}

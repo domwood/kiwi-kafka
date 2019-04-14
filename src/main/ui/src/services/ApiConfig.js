@@ -5,6 +5,7 @@ export default {
     brokers: baseUrl + "brokers",
     logs: baseUrl + "logs",
     listTopics: baseUrl + "listTopics",
+    topicInfo: baseUrl + "topicInfo",
     produce: baseUrl + "produce",
     consume: baseUrl + "consume"
 }

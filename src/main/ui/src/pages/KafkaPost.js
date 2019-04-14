@@ -106,7 +106,7 @@ class KafkaPost extends Component {
 
     render() {
         return (
-            <Container>
+            <Container className={"WideBoi"}>
 
 
                 <div className="mt-lg-4" />

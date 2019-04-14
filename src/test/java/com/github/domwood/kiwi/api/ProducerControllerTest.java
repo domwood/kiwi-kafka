@@ -8,16 +8,12 @@ import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
-import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
-import com.google.common.collect.ImmutableMap;
 import org.json.JSONException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,17 +22,17 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProducerControllerTest {
 
@@ -63,7 +59,7 @@ public class ProducerControllerTest {
 
     private String url;
 
-    @Before
+    @BeforeEach
     public void beforeEach(){
         this.url = "http://localhost:" + port + "/api/produce";
         when(kafkaTaskProvider.produceSingleMessage()).thenReturn(produceSingleMessage);

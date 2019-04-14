@@ -1,5 +1,10 @@
 import api from "./ApiConfig";
-import errorHandler from "./ErrorService";
+import {toast} from "react-toastify";
+
+const errorHandler = (error) => {
+    console.error(error);
+    toast.error(error);
+};
 
 const statusHandler = (response) => {
     if(response.ok){
@@ -8,40 +13,50 @@ const statusHandler = (response) => {
     else{
         throw new Error(`${response.status} Error response from Server`);
     }
-}
+};
 
 export const getTopics = (cb, eb) => {
-    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+    let errorhandler = (error) => (eb||errorHandler)(error);
 
     fetch(api.listTopics)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.topics))
-        .catch(errorhandler)
+        .catch(errorhandler);
+};
+
+export const getTopicInfo = (topic, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.topicInfo + '?topic='+topic)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result))
+        .catch(errorhandler);
 };
 
 export const getBrokers = (cb, eb) => {
-    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+    let errorhandler = (error) => (eb||errorHandler)(error);
 
     fetch(api.brokers)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.brokerInfo))
-        .catch(errorhandler)
+        .catch(errorhandler);
 };
 
 export const getLogs = (id, cb, eb) => {
-    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+    let errorhandler = (error) => (eb||errorHandler)(error);
 
     fetch(api.logs + '?brokerId='+id)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.brokerLogInfo))
-        .catch(errorhandler)
+        .catch(errorhandler);
 };
 
 export const produce = (topic, key, value, headers, cb, eb) => {
-    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+    let errorhandler = (error) => (eb||errorHandler)(error);
 
     if(!topic){
         errorhandler(new Error("Topic must be defined to produce to kafka"));
@@ -62,10 +77,10 @@ export const produce = (topic, key, value, headers, cb, eb) => {
                 payload: value||null
             })
         })
-            .then(statusHandler)
-            .then(res => res.json())
-            .then(result => cb(result))
-            .catch(errorhandler)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result))
+        .catch(errorhandler);
     }
 
 };
@@ -89,9 +104,9 @@ export const consume = (topics, limit, fromStart, filter, cb, eb) => {
                 filter: filter || null
             })
         })
-            .then(statusHandler)
-            .then(res => res.json())
-            .then(result => cb(result))
-            .catch(errorhandler)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result))
+        .catch(errorhandler);
     }
 };

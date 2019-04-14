@@ -1,15 +1,13 @@
 package com.github.domwood.kiwi.api;
 
-import com.github.domwood.kiwi.data.output.BrokerInfoList;
-import com.github.domwood.kiwi.data.output.BrokerLogInfo;
-import com.github.domwood.kiwi.data.output.BrokerLogInfoList;
-import com.github.domwood.kiwi.data.output.TopicList;
+import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.admin.BrokerInformation;
 import com.github.domwood.kiwi.kafka.task.admin.BrokerLogInformation;
 import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
+import com.github.domwood.kiwi.kafka.task.admin.TopicInformation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +37,16 @@ public class AdminController {
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         ListTopics listTopics = this.taskProvider.listTopics();
         return listTopics.execute(adminResource, null);
+    }
+
+    @Async
+    @GetMapping("/topicInfo")
+    @ResponseBody
+    public CompletableFuture<TopicInfo> listTopics(@RequestParam(required = false) String bootStrapServers,
+                                                   @RequestParam String topic){
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        TopicInformation topicInformation = this.taskProvider.topicInfo();
+        return topicInformation.execute(adminResource, topic);
     }
 
     @Async

@@ -78,7 +78,7 @@ class KafkaGet extends Component {
 
     render() {
         return (
-            <Container>
+            <Container className={"WideBoi"}>
                 <div className="mt-lg-4"/>
                 <h1>Get Data From Kafka</h1>
                 <div className="mt-lg-4"/>

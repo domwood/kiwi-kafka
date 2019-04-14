@@ -27,7 +27,8 @@
  - [X] Basic Producer Page
  - [X] Basic Consumer Page
  - [ ] Basic Create Topics Page
- - [ ] Basic View Topics Page
+ - [X] Basic View Topics Page
+ - [ ] Basic Consumer Groups Page
  - [ ] Reasonable Java Unit Test Coverage
 
 ##### M2
