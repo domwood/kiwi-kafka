@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {
     Button,
-    ButtonDropdown,
+    ButtonDropdown, ButtonGroup,
     Container,
     DropdownItem,
     DropdownMenu,
@@ -17,7 +17,6 @@ import {
 import TopicInput from "./../components/TopicInput"
 import * as ApiService from "../services/ApiService";
 import * as GeneralUtilities from "../services/GeneralUtilities";
-import ButtonGroup from "reactstrap/es/ButtonGroup";
 import "./Pages.css";
 import FilterConfigurer from "../components/FilterConfigurer";
 import {toast} from "react-toastify";

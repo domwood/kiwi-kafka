@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import {Input, Label} from "reactstrap";
-import FormGroup from "reactstrap/es/FormGroup";
+import {FormGroup, Input, Label} from "reactstrap";
 import PropTypes from 'prop-types';
 import {toast} from "react-toastify";
 

@@ -14,10 +14,13 @@ class KafkaHome extends Component {
             logFiles: [],
             activeNode: null
         };
+    }
 
+    componentDidMount(){
         if(DataStore.get("brokerList")){
-            console.log(DataStore.get("brokerList"));
-            this.state.brokers =DataStore.get("brokerList");
+            this.setState({
+                brokers:  DataStore.get("brokerList")
+            })
         }
         else{
             ApiService.getBrokers((brokers) => {
@@ -27,7 +30,6 @@ class KafkaHome extends Component {
                 });
             }, () => toast.error("Could not retrieve broker list from server"));
         }
-
     }
 
     logFiles = (id) => {
@@ -40,7 +42,6 @@ class KafkaHome extends Component {
         }, () => toast.error("Could not retrieve Log files for broker " + id))
     };
 
-
     //TODO Improve display of this data
     render() {
         return (
@@ -48,7 +49,6 @@ class KafkaHome extends Component {
                 <div className="mt-lg-4"/>
                 <h1>Kafka Broker Information</h1>
                 <div className="mt-lg-4"/>
-
 
                 {
                     this.state.brokers.length > 0 ?

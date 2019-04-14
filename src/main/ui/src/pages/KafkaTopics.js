@@ -15,15 +15,10 @@ class KafkaTopics extends Component {
         this.state = {
             topicList: DataStore.get("topicList") || []
         };
+    }
 
-        if(this.state.topicList.length === 0){
-            ApiService.getTopics((topics) => {
-                DataStore.put("topicList", topics);
-                this.setState({
-                    topicList: topics || []
-                });
-            }, () => toast.warn("Could not retrieve topic list from server"));
-        }
+    componentDidMount(){
+        this.reloadTopics();
     }
 
     reloadTopics = () => {
@@ -84,7 +79,7 @@ class KafkaTopics extends Component {
                     {
                         this.state.topicList.map(topic => {
                             return (
-                                <ListGroupItem key={topic+"_parent"}>
+                                <ListGroupItem key={topic+"_parent"} id={topic}>
                                     <Button size="sm" onClick={() => this.loadDetails(topic)} block>{topic}</Button>
                                     {
                                         this.state[topic] && this.state[topic].toggle ? <div>
