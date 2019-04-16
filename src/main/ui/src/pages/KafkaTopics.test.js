@@ -65,7 +65,7 @@ it('check kafka topics loaded on start', async () => {
 
     const wrapper = mount(<KafkaTopics />);
 
-    await waitForState(wrapper, state => state.topicList.length > 0);
+    await waitForState(wrapper, state => state.topicList && state.topicList.length > 0);
 
     expect(wrapper.exists('#exampleTestTopicOne')).toBeTruthy();
     expect(wrapper.exists('#exampleTestTopicTwo')).toBeTruthy();

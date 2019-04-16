@@ -1,5 +1,16 @@
 import React, { Component } from "react";
-import {Button, ButtonGroup, Container, Label, ListGroup, ListGroupItem, Table} from "reactstrap";
+import {
+    Button,
+    ButtonGroup,
+    Container,
+    Input,
+    InputGroup, InputGroupAddon,
+    InputGroupText,
+    Label,
+    ListGroup,
+    ListGroupItem,
+    Table
+} from "reactstrap";
 import DataStore from "../services/GlobalStore";
 import * as ApiService from "../services/ApiService";
 import * as GeneralUtilities from "../services/GeneralUtilities";
@@ -13,28 +24,42 @@ class KafkaTopics extends Component {
         super(props);
 
         this.state = {
-            topicList: DataStore.get("topicList") || []
+            topicList: [],
+            filteredTopicList: [],
+            topicFilter: ""
         };
     }
 
     componentDidMount(){
-        this.reloadTopics();
+        let topicList = DataStore.get("topicList");
+        if(topicList && topicList.length > 0){
+            this.setState({
+                topicList: topicList,
+                filteredTopicList: topicList,
+            })
+        }
+        else{
+            this.reloadTopics();
+        }
     }
 
     reloadTopics = () => {
         ApiService.getTopics((topics) => {
             DataStore.put("topicList", topics);
             this.setState({
-                topicList: topics || []
+                topicList: topics || [],
+                filteredTopicList: topics || []
+            }, () => {
+                this.filterTopicList();
+                toast.info("Refreshed topic list from server");
             });
-            toast.info("Refreshed topic list from server")
         }, () => toast.error("Could not retrieve topic list from server"));
     };
 
     loadDetails = (topic) => {
-        if(this.state[topic] && this.state[topic].toggle){
+        if(this.state[topic]){
             let topicState = this.state[topic];
-            topicState.toggle = false;
+            topicState.toggle = !topicState.toggle;
             this.setState({
                 [topic]: topicState
             });
@@ -61,6 +86,21 @@ class KafkaTopics extends Component {
         }
     };
 
+    filterTopicList = (filter) => {
+        if(filter && filter.length > 0){
+            this.setState({
+                filteredTopicList: this.state.topicList.filter(topic => topic.toLowerCase().search(filter.toLowerCase()) !== -1),
+                topicFilter: filter
+            })
+        }
+        else{
+            this.setState({
+                filteredTopicList: this.state.topicList,
+                topicFilter: ""
+            })
+        }
+    };
+
     render() {
         return (
             <Container className={"WideBoi"}>
@@ -75,9 +115,21 @@ class KafkaTopics extends Component {
                 <div className={"Gap"} />
                 <div className={"Gap"} />
 
+
                 <ListGroup>
+                    <ListGroupItem>
+                        <InputGroup>
+                            <InputGroupAddon addonType="prepend">
+                                <InputGroupText>Topic Filter:</InputGroupText>
+                            </InputGroupAddon>
+                            <Input type="text" name="topicSearch" id="topicSearch"
+                                   defaultValue=""
+                                   onChange={event => this.filterTopicList(event.target.value)} />
+                        </InputGroup>
+                    </ListGroupItem>
+
                     {
-                        this.state.topicList.map(topic => {
+                        this.state.filteredTopicList.map(topic => {
                             return (
                                 <ListGroupItem key={topic+"_parent"} id={topic}>
                                     <Button size="sm" onClick={() => this.loadDetails(topic)} block>{topic}</Button>

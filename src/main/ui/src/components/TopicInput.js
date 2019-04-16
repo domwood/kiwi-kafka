@@ -28,6 +28,10 @@ class TopicInput extends Component {
         }
     }
 
+    componentDidMount(){
+        this.getTopicList();
+    }
+
     getTopicList = (reload) => {
         if(this.state.topicList.length === 0 || reload){
             ApiService.getTopics((topics) => {
