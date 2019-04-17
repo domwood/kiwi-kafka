@@ -40,6 +40,14 @@
   margin-top: 1rem;
 }
 
+.TwoGap{
+  margin-top: 2rem;
+}
+
+.ThreeGap{
+  margin-top: 3rem;
+}
+
 .btn-group.WideBoiGroup {
   display: flex;
 }

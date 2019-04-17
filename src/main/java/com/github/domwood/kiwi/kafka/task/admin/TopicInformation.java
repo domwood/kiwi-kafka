@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -76,6 +77,7 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
 
     public Map<String, String> toKeyValueMap(Collection<ConfigEntry> configEntries){
         return configEntries.stream()
+                .sorted(Comparator.comparing(ConfigEntry::name))
                 .collect(toMap(ConfigEntry::name, ConfigEntry::value, StreamUtils::arbitrary));
     }
 

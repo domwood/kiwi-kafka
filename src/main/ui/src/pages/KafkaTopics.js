@@ -17,6 +17,7 @@ import * as GeneralUtilities from "../services/GeneralUtilities";
 import {toast} from "react-toastify";
 import "./Pages.css";
 import {MdRefresh} from "react-icons/md";
+import CreateTopic from "../components/CreateTopic";
 
 class KafkaTopics extends Component {
 
@@ -46,10 +47,12 @@ class KafkaTopics extends Component {
     reloadTopics = () => {
         ApiService.getTopics((topics) => {
             DataStore.put("topicList", topics);
-            this.setState({
-                topicList: topics || [],
-                filteredTopicList: topics || []
-            }, () => {
+            let topicState = this.state;
+            topicState.topicList = topics || [];
+            topicState.filteredTopicList = topicState.topicList;
+            topics.forEach(t => topicState[t] = undefined)
+
+            this.setState(topicState, () => {
                 this.filterTopicList();
                 toast.info("Refreshed topic list from server");
             });
@@ -101,6 +104,12 @@ class KafkaTopics extends Component {
         }
     };
 
+    addTopic = (toggle) => {
+        this.setState({
+            addTopic:toggle
+        })
+    };
+
     render() {
         return (
             <Container className={"WideBoi"}>
@@ -108,15 +117,23 @@ class KafkaTopics extends Component {
                 <div className="mt-lg-4" />
                 <h1>Kafka Topics</h1>
                 <div className="mt-lg-4" />
-                <div className={"Gap"} />
+                <div className={"ThreeGap"} />
 
-                <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh /></Button>
-                <div className={"Gap"} />
-                <div className={"Gap"} />
-                <div className={"Gap"} />
+                <ButtonGroup>
+                    <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh /></Button>
+                    <Button onClick={() => this.addTopic(true)}>Add Topic +</Button>
+                </ButtonGroup>
 
 
+
+                {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)}/> : ''}
+
+                <div className={"ThreeGap"} />
+
+                <h3>Topic List</h3>
                 <ListGroup>
+
+
                     <ListGroupItem>
                         <InputGroup>
                             <InputGroupAddon addonType="prepend">
@@ -127,6 +144,7 @@ class KafkaTopics extends Component {
                                    onChange={event => this.filterTopicList(event.target.value)} />
                         </InputGroup>
                     </ListGroupItem>
+
 
                     {
                         this.state.filteredTopicList.map(topic => {
