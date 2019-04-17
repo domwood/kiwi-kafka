@@ -25,3 +25,4 @@ target/
 src/main/ui/node_modules/
 src/main/ui/build
 .idea/
+package-lock.json
