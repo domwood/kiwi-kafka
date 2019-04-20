@@ -37,8 +37,7 @@ class TopicInput extends Component {
             ApiService.getTopics((topics) => {
                 DataStore.put("topicList", topics);
                 this.setState({
-                    topicList:topics,
-                    dropdownOpen: true
+                    topicList:topics
                 });
             }, () => toast.warn("Could not retrieve topic list from server"));
         }

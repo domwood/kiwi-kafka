@@ -53,7 +53,19 @@ export const getLogs = (id, cb, eb) => {
         .then(res => res.json())
         .then(result => cb(result.brokerLogInfo))
         .catch(errorhandler);
-};
+}
+
+export const getConsumerGroupTopicDetails = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.getConsumerGroupTopicDetails)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.topicDetails))
+        .catch(errorhandler);
+};;
+
+
 
 export const getCreateTopicConfig = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);

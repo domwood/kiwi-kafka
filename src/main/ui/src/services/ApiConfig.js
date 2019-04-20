@@ -9,5 +9,6 @@ export default {
     produce: baseUrl + "produce",
     consume: baseUrl + "consume",
     createTopic: baseUrl + "createTopic",
-    createTopicConfig: baseUrl + "createTopicConfig"
+    createTopicConfig: baseUrl + "createTopicConfig",
+    getConsumerGroupTopicDetails: baseUrl + "listConsumerGroupTopicDetails"
 }

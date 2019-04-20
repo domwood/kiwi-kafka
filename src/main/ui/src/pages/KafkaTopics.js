@@ -98,6 +98,23 @@ class KafkaTopics extends Component {
                 [topic]: topicState
             });
         }
+
+        if(viewName === 'consumers' && (!this.state.consumers || !this.state.consumers[topic]) ){
+            let consumers = DataStore.get("topicConsumerGroups");
+            if(!consumers || consumers.length === 0){
+                ApiService.getConsumerGroupTopicDetails(consumers => {
+                    this.setState({
+                        consumers: consumers
+                    });
+                    toast.info("Retrieved Consumer Group Details")
+                }, (err) => toast.error(`${err.message} Failed to retrieve consumer group details`))
+            }
+            else{
+                this.setState({
+                    consumers: consumers
+                });
+            }
+        }
     };
 
     filterTopicList = (filter) => {
@@ -244,7 +261,33 @@ class KafkaTopics extends Component {
                                                             </tbody>
                                                         </Table>
                                                             :
-                                                        <div>TODO Consumer Groups</div>
+                                                        <div>
+                                                            {
+                                                                this.state.consumers && this.state.consumers[topic] ? Object.keys(this.state.consumers[topic]).map(groupId =>{
+                                                                    return (<Table>
+                                                                        <thead>
+                                                                        <tr>
+                                                                            <th>GroupId</th>
+                                                                            <th>Partition</th>
+                                                                            <th>ClientId</th>
+                                                                            <th>ConsumerId</th>
+                                                                        </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                        {this.state.consumers[topic][groupId].map(assignment => {
+                                                                            return (<tr>
+                                                                                <td>{assignment.groupId}</td>
+                                                                                <td>{assignment.partition}</td>
+                                                                                <td>{assignment.clientId}</td>
+                                                                                <td>{assignment.consumerId}</td>
+                                                                            </tr>)
+                                                                        })}
+                                                                        </tbody>
+                                                                    </Table>)
+                                                                })
+                                                                : ''
+                                                            }
+                                                        </div>
                                                     }
 
                                                 </ListGroupItem>

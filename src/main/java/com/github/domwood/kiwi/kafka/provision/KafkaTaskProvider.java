@@ -1,5 +1,7 @@
 package com.github.domwood.kiwi.kafka.provision;
 
+import com.github.domwood.kiwi.data.output.ConsumerGroupList;
+import com.github.domwood.kiwi.data.output.ConsumerGroupTopicDetails;
 import com.github.domwood.kiwi.kafka.task.admin.*;
 import com.github.domwood.kiwi.kafka.task.config.CreateTopicConfig;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
@@ -41,4 +43,11 @@ public class KafkaTaskProvider {
         return new CreateTopic();
     }
 
+    public ConsumerGroupInformation consumerGroups(){
+        return new ConsumerGroupInformation();
+    }
+
+    public ConsumerGroupTopicInformation consumerGroupTopicInformation() {
+        return new ConsumerGroupTopicInformation();
+    }
 }

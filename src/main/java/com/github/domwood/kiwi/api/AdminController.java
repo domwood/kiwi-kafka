@@ -1,10 +1,7 @@
 package com.github.domwood.kiwi.api;
 
 import com.github.domwood.kiwi.data.input.CreateTopicRequest;
-import com.github.domwood.kiwi.data.output.BrokerInfoList;
-import com.github.domwood.kiwi.data.output.BrokerLogInfoList;
-import com.github.domwood.kiwi.data.output.TopicInfo;
-import com.github.domwood.kiwi.data.output.TopicList;
+import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
@@ -49,6 +46,25 @@ public class AdminController {
         TopicInformation topicInformation = this.taskProvider.topicInfo();
         return topicInformation.execute(adminResource, topic);
     }
+
+    @Async
+    @GetMapping("/listConsumerGroups")
+    @ResponseBody
+    public CompletableFuture<ConsumerGroupList> consumerGroups(@RequestParam(required = false) String bootStrapServers){
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        ConsumerGroupInformation consumerGroupInformation = this.taskProvider.consumerGroups();
+        return consumerGroupInformation.execute(adminResource, null);
+    }
+
+    @Async
+    @GetMapping("/listConsumerGroupTopicDetails")
+    @ResponseBody
+    public CompletableFuture<ConsumerGroupTopicDetails> consumerGroupTopicDetails(@RequestParam(required = false) String bootStrapServers){
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        ConsumerGroupTopicInformation consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation();
+        return consumerGroupInformation.execute(adminResource, null);
+    }
+
 
     @Async
     @GetMapping("/brokers")
