@@ -1,13 +1,14 @@
 package com.github.domwood.kiwi.api;
 
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.input.CreateTopicRequest;
+import com.github.domwood.kiwi.data.output.BrokerInfoList;
+import com.github.domwood.kiwi.data.output.BrokerLogInfoList;
+import com.github.domwood.kiwi.data.output.TopicInfo;
+import com.github.domwood.kiwi.data.output.TopicList;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.admin.BrokerInformation;
-import com.github.domwood.kiwi.kafka.task.admin.BrokerLogInformation;
-import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
-import com.github.domwood.kiwi.kafka.task.admin.TopicInformation;
+import com.github.domwood.kiwi.kafka.task.admin.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -68,5 +69,14 @@ public class AdminController {
         return brokerInformation.execute(adminResource, brokerId);
     }
 
+    @Async
+    @PostMapping("/createTopic")
+    @ResponseBody
+    public CompletableFuture<Void> createTopic(@RequestParam(required = false) String bootStrapServers,
+                                                              @RequestBody CreateTopicRequest createTopicRequest){
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        CreateTopic createTopic = this.taskProvider.createTopic();
+        return createTopic.execute(adminResource, createTopicRequest);
+    }
 
 }

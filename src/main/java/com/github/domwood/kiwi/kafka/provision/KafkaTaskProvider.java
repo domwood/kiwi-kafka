@@ -1,9 +1,7 @@
 package com.github.domwood.kiwi.kafka.provision;
 
-import com.github.domwood.kiwi.kafka.task.admin.BrokerInformation;
-import com.github.domwood.kiwi.kafka.task.admin.BrokerLogInformation;
-import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
-import com.github.domwood.kiwi.kafka.task.admin.TopicInformation;
+import com.github.domwood.kiwi.kafka.task.admin.*;
+import com.github.domwood.kiwi.kafka.task.config.CreateTopicConfig;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
 import org.springframework.stereotype.Component;
@@ -33,6 +31,14 @@ public class KafkaTaskProvider {
 
     public BrokerLogInformation brokerLogInformation(){
         return new BrokerLogInformation();
+    }
+
+    public CreateTopicConfig createTopicConfigOptions(){
+        return new CreateTopicConfig();
+    }
+
+    public CreateTopic createTopic(){
+        return new CreateTopic();
     }
 
 }

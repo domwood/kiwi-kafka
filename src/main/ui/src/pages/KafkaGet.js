@@ -11,7 +11,7 @@ import {
     Input,
     InputGroup,
     InputGroupAddon,
-    Label, Table
+    Label, Spinner, Table
 } from "reactstrap";
 
 import TopicInput from "./../components/TopicInput"
@@ -62,17 +62,28 @@ class KafkaGet extends Component {
     };
 
     getKafkaMessage = () => {
-        ApiService.consume(
-            [this.state.targetTopic],
-            this.state.messageLimit,
-            this.state.messageFromEnd,
-            this.state.filter,
-            (response) =>{
-                this.setState({
-                    messages: response.messages
-                }, () => toast.info(`Retrieved ${response.messages.length} records from ${this.state.targetTopic}`));
-            }, (error) => toast.error(`Failed to retrieve data from server ${error.message}`)
-        );
+        this.setState({
+            consuming: true
+        }, () =>{
+            ApiService.consume(
+                [this.state.targetTopic],
+                this.state.messageLimit,
+                this.state.messageFromEnd,
+                this.state.filter,
+                (response) =>{
+                    this.setState({
+                        consuming: false,
+                        messages: response.messages
+                    }, () => toast.info(`Retrieved ${response.messages.length} records from ${this.state.targetTopic}`));
+                }, (error) => {
+                    this.setState({
+                        consuming: false
+                    });
+                    toast.error(`Failed to retrieve data from server ${error.message}`)
+                }
+            );
+        })
+
     };
 
     render() {
@@ -115,6 +126,7 @@ class KafkaGet extends Component {
 
                     <ButtonGroup>
                         <Button onClick={this.getKafkaMessage}>Consume From Kafka</Button>
+                        {this.state.consuming ? <Spinner color="secondary" /> : ''}
                     </ButtonGroup>
 
                     <div className="mt-lg-4"/>

@@ -8,7 +8,7 @@ import {
     InputGroupText,
     Label,
     ListGroup,
-    ListGroupItem,
+    ListGroupItem, Spinner,
     Table
 } from "reactstrap";
 import DataStore from "../services/GlobalStore";
@@ -27,7 +27,8 @@ class KafkaTopics extends Component {
         this.state = {
             topicList: [],
             filteredTopicList: [],
-            topicFilter: ""
+            topicFilter: "",
+            loading: false
         };
     }
 
@@ -36,7 +37,7 @@ class KafkaTopics extends Component {
         if(topicList && topicList.length > 0){
             this.setState({
                 topicList: topicList,
-                filteredTopicList: topicList,
+                filteredTopicList: topicList
             })
         }
         else{
@@ -45,18 +46,28 @@ class KafkaTopics extends Component {
     }
 
     reloadTopics = () => {
-        ApiService.getTopics((topics) => {
-            DataStore.put("topicList", topics);
-            let topicState = this.state;
-            topicState.topicList = topics || [];
-            topicState.filteredTopicList = topicState.topicList;
-            topics.forEach(t => topicState[t] = undefined)
+        this.setState({
+            loading:true
+        }, () => {
+            ApiService.getTopics((topics) => {
+                DataStore.put("topicList", topics);
+                let topicState = this.state;
+                topicState.topicList = topics || [];
+                topicState.filteredTopicList = topicState.topicList;
+                topicState.loading = false;
+                topics.forEach(t => topicState[t] = undefined)
 
-            this.setState(topicState, () => {
-                this.filterTopicList();
-                toast.info("Refreshed topic list from server");
+                this.setState(topicState, () => {
+                    this.filterTopicList();
+                    toast.info("Refreshed topic list from server");
+                });
+            }, () => {
+                this.setState({
+                    loading:false
+                });
+                toast.error("Could not retrieve topic list from server")
             });
-        }, () => toast.error("Could not retrieve topic list from server"));
+        });
     };
 
     loadDetails = (topic) => {
@@ -117,22 +128,28 @@ class KafkaTopics extends Component {
                 <div className="mt-lg-4" />
                 <h1>Kafka Topics</h1>
                 <div className="mt-lg-4" />
-                <div className={"ThreeGap"} />
+                <div className={"TwoGap"} />
+
+                {this.state.addTopic ?
+                    <div>
+                        <CreateTopic onClose={() => this.addTopic(false)} onCreate={this.reloadTopics}/>
+                    </div>
+                    :
+                    <div>
+                        <Button onClick={() => this.addTopic(true)}>Add Topic +</Button>
+                    </div>
+                }
+
+                <div className={"Gap"} />
 
                 <ButtonGroup>
                     <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh /></Button>
-                    <Button onClick={() => this.addTopic(true)}>Add Topic +</Button>
+                    {this.state.loading ? <Spinner color="secondary" /> : ''}
                 </ButtonGroup>
 
+                <div className={"Gap"} />
 
-
-                {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)}/> : ''}
-
-                <div className={"ThreeGap"} />
-
-                <h3>Topic List</h3>
                 <ListGroup>
-
 
                     <ListGroupItem>
                         <InputGroup>

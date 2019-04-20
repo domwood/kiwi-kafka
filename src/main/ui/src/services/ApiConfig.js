@@ -7,5 +7,7 @@ export default {
     listTopics: baseUrl + "listTopics",
     topicInfo: baseUrl + "topicInfo",
     produce: baseUrl + "produce",
-    consume: baseUrl + "consume"
+    consume: baseUrl + "consume",
+    createTopic: baseUrl + "createTopic",
+    createTopicConfig: baseUrl + "createTopicConfig"
 }

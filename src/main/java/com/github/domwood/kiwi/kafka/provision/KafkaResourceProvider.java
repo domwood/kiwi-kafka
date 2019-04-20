@@ -6,6 +6,7 @@ import com.github.domwood.kiwi.kafka.configs.KafkaProducerConfig;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
+import com.github.domwood.kiwi.kafka.resources.KafkaTopicConfigResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,5 +40,9 @@ public class KafkaResourceProvider {
     public KafkaAdminResource kafkaAdminResource(String bootStrapServers){
         Properties props = adminConfig.createConfig(bootStrapServers);
         return new KafkaAdminResource(props);
+    }
+
+    public KafkaTopicConfigResource kafkaTopicConfigResource(){
+        return new KafkaTopicConfigResource(null);
     }
 }

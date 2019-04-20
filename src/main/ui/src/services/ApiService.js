@@ -55,6 +55,32 @@ export const getLogs = (id, cb, eb) => {
         .catch(errorhandler);
 };
 
+export const getCreateTopicConfig = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.createTopicConfig)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.configOptions))
+        .catch(errorhandler);
+};
+
+export const createTopic = (topicData, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.createTopic, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(topicData)
+    })
+    .then(statusHandler)
+    .then(() => cb())
+    .catch(errorhandler);
+};
+
+
 export const produce = (topic, key, value, headers, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 

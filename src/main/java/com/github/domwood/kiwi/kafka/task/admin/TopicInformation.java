@@ -6,7 +6,7 @@ import com.github.domwood.kiwi.data.output.PartitionInfo;
 import com.github.domwood.kiwi.data.output.TopicInfo;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
-import com.github.domwood.kiwi.utilities.StreamUtils;
+import com.google.common.collect.ImmutableSortedMap;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartitionInfo;
@@ -15,16 +15,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
-import static com.github.domwood.kiwi.utilities.StreamUtils.*;
+import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
+import static com.github.domwood.kiwi.utilities.StreamUtils.maximum;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toMap;
 
 public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdminResource> {
 
@@ -40,7 +39,7 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
 
             CompletableFuture<TopicInfo> topicInfo = toCompletable(topicDescription.values().get(topic))
                     .thenApply(this::asTopicInfo);
-            CompletableFuture<Map<String, String>> configuration = toCompletable(configsResult.values().get(configResource))
+            CompletableFuture<SortedMap<String, String>> configuration = toCompletable(configsResult.values().get(configResource))
                     .thenApply(config -> toKeyValueMap(config.entries()));
 
             return topicInfo.thenCombine(configuration, this::mergeInConfiguration);
@@ -75,13 +74,13 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
         return extract(nodes, Node::id);
     }
 
-    public Map<String, String> toKeyValueMap(Collection<ConfigEntry> configEntries){
-        return configEntries.stream()
-                .sorted(Comparator.comparing(ConfigEntry::name))
-                .collect(toMap(ConfigEntry::name, ConfigEntry::value, StreamUtils::arbitrary));
+    public SortedMap<String, String> toKeyValueMap(Collection<ConfigEntry> configEntries){
+        ImmutableSortedMap.Builder<String, String> sortedMap = ImmutableSortedMap.naturalOrder();
+        configEntries.stream().forEach(kv -> sortedMap.put(kv.name(), kv.value()));
+        return sortedMap.build();
     }
 
-    public TopicInfo mergeInConfiguration(TopicInfo topicInfo, Map<String, String> config){
+    public TopicInfo mergeInConfiguration(TopicInfo topicInfo, SortedMap<String, String> config){
         return ImmutableTopicInfo.builder()
                 .from(topicInfo)
                 .configuration(config)

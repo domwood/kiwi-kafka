@@ -41,7 +41,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
     }
 
     private ConsumerResponse<String, String> executeSync(KafkaConsumerResource<String, String> resource,
-                                                               ConsumerRequest input) {
+                                                         ConsumerRequest input) {
 
         try{
             KafkaConsumer<String, String> consumer = resource.provisionResource();
