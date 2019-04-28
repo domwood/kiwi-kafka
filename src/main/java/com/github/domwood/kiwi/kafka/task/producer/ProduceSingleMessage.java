@@ -5,8 +5,6 @@ import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
-import com.github.domwood.kiwi.utilities.FutureUtils;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -16,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.toKafkaHeaders;
 import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;
-import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 
 public class ProduceSingleMessage implements KafkaTask<ProducerRequest, ProducerResponse, KafkaProducerResource<String, String>> {
 
@@ -25,8 +22,6 @@ public class ProduceSingleMessage implements KafkaTask<ProducerRequest, Producer
     @Override
     public CompletableFuture<ProducerResponse> execute(KafkaProducerResource<String, String> resource, ProducerRequest input) {
         try {
-            KafkaProducer<String, String> producer = resource.provisionResource();
-
             ProducerRecord<String, String> record =
                     new ProducerRecord<>(input.topic(), null, input.key(), input.payload().orElse(null), toKafkaHeaders(input.headers()));
 
@@ -38,8 +33,8 @@ public class ProduceSingleMessage implements KafkaTask<ProducerRequest, Producer
                 logger.info("Attempting to tombstone on {} for key {}", input.topic(), input.key());
             }
 
-            return toCompletable(producer.send(record))
-                    .thenApply(this::onSuccess);
+            return resource.send(record)
+                    .thenApply(result -> onSuccess(result, resource));
         }
         catch (Exception e){
             logger.error("Failed to execute produce single message task", e);
@@ -48,12 +43,14 @@ public class ProduceSingleMessage implements KafkaTask<ProducerRequest, Producer
         }
     }
 
-    private ProducerResponse onSuccess(RecordMetadata recordMetadata){
+    private ProducerResponse onSuccess(RecordMetadata recordMetadata, KafkaProducerResource resource){
         String topic = recordMetadata.topic();
         int partition = recordMetadata.partition();
         long offset = recordMetadata.offset();
 
         logger.info("Produced successfully to {} on partition {} at offset {}", topic, partition, offset);
+
+        resource.discard();
 
         return ImmutableProducerResponse.builder()
                 .topic(topic)

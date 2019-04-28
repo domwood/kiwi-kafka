@@ -65,7 +65,7 @@ public class FilterBuilder {
 
     private static  Boolean headerKeyExtractor(ConsumerRecord<String, String> record, Predicate<String> headerMatcher){
         return KafkaUtils.fromKafkaHeaders(record.headers()).entrySet().stream()
-                .map(kv -> kv.getKey())
+                .map(Map.Entry::getKey)
                 .anyMatch(headerMatcher);
     }
 

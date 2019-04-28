@@ -18,4 +18,8 @@ public class KafkaTopicConfigResource extends KafkaResource<TopicConfig>{
     protected void closeClient() throws Exception {
         //Do nothing
     }
+
+    public TopicConfig getConfig(){
+        return this.client;
+    }
 }

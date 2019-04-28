@@ -7,7 +7,10 @@ import com.github.domwood.kiwi.data.output.TopicGroupAssignment;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
 import com.github.domwood.kiwi.utilities.StreamUtils;
-import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.clients.admin.ConsumerGroupDescription;
+import org.apache.kafka.clients.admin.ConsumerGroupListing;
+import org.apache.kafka.clients.admin.DescribeConsumerGroupsResult;
+import org.apache.kafka.clients.admin.MemberDescription;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -25,13 +28,12 @@ public class ConsumerGroupTopicInformation implements KafkaTask<Void, ConsumerGr
     @Override
     public CompletableFuture<ConsumerGroupTopicDetails> execute(KafkaAdminResource resource, Void input) {
 
-        AdminClient adminClient = resource.provisionResource();
-        return toCompletable(adminClient.listConsumerGroups().all())
-                .thenCompose(list -> fromConsumerGroupList(adminClient, list));
+        return toCompletable(resource.listConsumerGroups().all())
+                .thenCompose(list -> fromConsumerGroupList(resource, list));
     }
 
-    private CompletableFuture<ConsumerGroupTopicDetails> fromConsumerGroupList(AdminClient adminClient, Collection<ConsumerGroupListing> groupListings){
-        DescribeConsumerGroupsResult result = adminClient.describeConsumerGroups(groupListings.stream()
+    private CompletableFuture<ConsumerGroupTopicDetails> fromConsumerGroupList(KafkaAdminResource resource, Collection<ConsumerGroupListing> groupListings){
+        DescribeConsumerGroupsResult result = resource.describeConsumerGroups(groupListings.stream()
                 .map(ConsumerGroupListing::groupId).collect(toList()));
         return toCompletable(result.all())
                 .thenApply(resolved -> ImmutableConsumerGroupTopicDetails.builder()

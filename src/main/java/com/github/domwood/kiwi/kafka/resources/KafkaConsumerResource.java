@@ -1,39 +1,55 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.OffsetCommitCallback;
+import org.apache.kafka.common.TopicPartition;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-public class KafkaConsumerResource<K, V>  extends KafkaResource<KafkaConsumer<K, V>>{
+public class KafkaConsumerResource<K, V> extends KafkaResource<KafkaConsumer<K, V>> {
 
-    private KafkaConsumer<K,V> kafkaConsumer;
-
-    public KafkaConsumerResource(Properties config){
+    public KafkaConsumerResource(Properties config) {
         super(config);
-    }
-
-    public void finish() {
-        this.kafkaConsumer.unsubscribe();
-    }
-
-    public void discard() {
-        this.kafkaConsumer.close();
-        this.kafkaConsumer = null;
     }
 
     @Override
     protected KafkaConsumer<K, V> createClient(Properties props) {
-        if(kafkaConsumer == null){
-            this.kafkaConsumer = new KafkaConsumer<>(this.config);
-        }
-        return this.kafkaConsumer;
+        return new KafkaConsumer<>(this.config);
     }
 
     @Override
     protected void closeClient() throws Exception {
-        this.kafkaConsumer.close();
-        this.kafkaConsumer = null;
+        this.client.close();
+    }
+
+    public void subscribe(List<String> topics){
+        this.client.subscribe(topics);
+    }
+
+    public Set<TopicPartition> assignment(){
+        return this.client.assignment();
+    }
+
+    public ConsumerRecords<K, V> poll(Duration timeout){
+        return this.client.poll(timeout);
+    }
+
+    public void seekToBeginning(Set<TopicPartition> topicPartitions){
+        this.client.seekToBeginning(topicPartitions);
+    }
+
+    public Map<TopicPartition, Long> endOffsets(Set<TopicPartition> topicPartitions){
+        return this.client.endOffsets(topicPartitions);
+    }
+
+    public void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback){
+        this.client.commitAsync(offsets, callback);
     }
 
 }

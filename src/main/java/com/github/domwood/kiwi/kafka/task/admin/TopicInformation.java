@@ -7,7 +7,10 @@ import com.github.domwood.kiwi.data.output.TopicInfo;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
 import com.google.common.collect.ImmutableSortedMap;
-import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.DescribeConfigsResult;
+import org.apache.kafka.clients.admin.DescribeTopicsResult;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartitionInfo;
 import org.apache.kafka.common.config.ConfigResource;
@@ -32,10 +35,9 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
     @Override
     public CompletableFuture<TopicInfo> execute(KafkaAdminResource resource, String topic) {
         try{
-            AdminClient adminClient = resource.provisionResource();
             ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
-            DescribeConfigsResult configsResult = adminClient.describeConfigs(singletonList(configResource));
-            DescribeTopicsResult topicDescription = adminClient.describeTopics(singletonList(topic));
+            DescribeConfigsResult configsResult = resource.describeConfigs(singletonList(configResource));
+            DescribeTopicsResult topicDescription = resource.describeTopics(singletonList(topic));
 
             CompletableFuture<TopicInfo> topicInfo = toCompletable(topicDescription.values().get(topic))
                     .thenApply(this::asTopicInfo);

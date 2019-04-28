@@ -7,7 +7,6 @@ import com.github.domwood.kiwi.data.output.ImmutableBrokerInfoList;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
 import com.github.domwood.kiwi.utilities.FutureUtils;
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeClusterResult;
 import org.apache.kafka.common.Node;
 
@@ -19,8 +18,7 @@ public class BrokerInformation implements KafkaTask<Void, BrokerInfoList, KafkaA
 
     @Override
     public CompletableFuture<BrokerInfoList> execute(KafkaAdminResource resource, Void input) {
-        AdminClient adminClient = resource.provisionResource();
-        DescribeClusterResult clusterResult = adminClient.describeCluster();
+        DescribeClusterResult clusterResult = resource.describeCluster();
 
         return FutureUtils.toCompletable(clusterResult.nodes())
                 .thenApply(nodes -> ImmutableBrokerInfoList.builder()

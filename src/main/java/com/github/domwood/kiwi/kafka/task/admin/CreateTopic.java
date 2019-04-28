@@ -14,10 +14,8 @@ import static java.util.Arrays.asList;
 public class CreateTopic implements KafkaTask<CreateTopicRequest, Void, KafkaAdminResource> {
     @Override
     public CompletableFuture<Void> execute(KafkaAdminResource resource, CreateTopicRequest input) {
-        AdminClient adminClient = resource.provisionResource();
-
         NewTopic newTopic = asNewTopic(input);
-        return toCompletable(adminClient.createTopics(asList(newTopic))
+        return toCompletable(resource.createTopics(asList(newTopic))
                 .values()
                 .get(input.name()));
     }

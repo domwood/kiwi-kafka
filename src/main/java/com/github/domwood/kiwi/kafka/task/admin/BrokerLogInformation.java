@@ -4,12 +4,13 @@ import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
 import com.github.domwood.kiwi.utilities.FutureUtils;
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeLogDirsResult;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.requests.DescribeLogDirsResponse;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
@@ -19,8 +20,7 @@ public class BrokerLogInformation implements KafkaTask<Integer, BrokerLogInfoLis
 
     @Override
     public CompletableFuture<BrokerLogInfoList> execute(KafkaAdminResource resource, Integer input) {
-        AdminClient adminClient = resource.provisionResource();
-        DescribeLogDirsResult result = adminClient.describeLogDirs(singletonList(input));
+        DescribeLogDirsResult result = resource.describeLogDirs(singletonList(input));
 
         return FutureUtils.toCompletable(result.values().get(input))
                 .thenApply(data -> ImmutableBrokerLogInfoList.builder()

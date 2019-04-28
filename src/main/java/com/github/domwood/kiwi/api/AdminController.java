@@ -40,8 +40,8 @@ public class AdminController {
     @Async
     @GetMapping("/topicInfo")
     @ResponseBody
-    public CompletableFuture<TopicInfo> listTopics(@RequestParam(required = false) String bootStrapServers,
-                                                   @RequestParam String topic){
+    public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) String bootStrapServers,
+                                                  @RequestParam String topic){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         TopicInformation topicInformation = this.taskProvider.topicInfo();
         return topicInformation.execute(adminResource, topic);
@@ -89,7 +89,7 @@ public class AdminController {
     @PostMapping("/createTopic")
     @ResponseBody
     public CompletableFuture<Void> createTopic(@RequestParam(required = false) String bootStrapServers,
-                                                              @RequestBody CreateTopicRequest createTopicRequest){
+                                               @RequestBody CreateTopicRequest createTopicRequest){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         CreateTopic createTopic = this.taskProvider.createTopic();
         return createTopic.execute(adminResource, createTopicRequest);

@@ -1,11 +1,10 @@
 package com.github.domwood.kiwi.kafka.task.consumer;
 
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
-import com.github.domwood.kiwi.data.output.ConsumedMessages;
+import com.github.domwood.kiwi.data.output.ConsumedMessage;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
-import com.github.domwood.kiwi.data.output.ImmutableConsumedMessages;
+import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
 import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
-import com.github.domwood.kiwi.kafka.exceptions.ConsumerDataTooLargeException;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
@@ -13,7 +12,6 @@ import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -26,7 +24,6 @@ import java.util.function.Predicate;
 
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>> {
@@ -44,17 +41,23 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                                                          ConsumerRequest input) {
 
         try{
-            KafkaConsumer<String, String> consumer = resource.provisionResource();
-            consumer.subscribe(input.topics());
-            Set<TopicPartition> topicPartitionSet = consumer.assignment();
-            while(topicPartitionSet.isEmpty()){
-                consumer.poll(Duration.of(1, MILLIS));
-                topicPartitionSet = consumer.assignment();
-            }
-            consumer.seekToBeginning(topicPartitionSet);
-            Map<TopicPartition, Long> endOffsets = consumer.endOffsets(topicPartitionSet);
+            resource.subscribe(input.topics());
+            Set<TopicPartition> topicPartitionSet = resource.assignment();
 
-            Queue<ConsumedMessages<String, String>> queue;
+            logger.debug("Consumer awaiting assignment for {} ...", input.topics());
+
+            while(topicPartitionSet.isEmpty()){
+                resource.poll(Duration.of(10, MILLIS));
+                topicPartitionSet = resource.assignment();
+            }
+            logger.debug("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, input.topics());
+
+            resource.seekToBeginning(topicPartitionSet);
+            Map<TopicPartition, Long> endOffsets = resource.endOffsets(topicPartitionSet);
+
+            logger.debug("Consumer sought to beginning, polling for records");
+
+            Queue<ConsumedMessage<String, String>> queue;
             if(input.limit() > 0 && !input.limitAppliesFromStart()){
                 queue = new CircularFifoQueue<>(input.limit());
             }
@@ -67,13 +70,15 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
             Predicate<ConsumerRecord<String, String>> filter = input.filter().map(FilterBuilder::compileFilter)
                     .orElse(FilterBuilder.dummyFilter());
 
-
             while(running){
-                ConsumerRecords<String, String> records = consumer.poll(Duration.of(200, MILLIS));
-                if(records.isEmpty() ){
+                ConsumerRecords<String, String> records = resource.poll(Duration.of(200, MILLIS));
+                if(records.isEmpty()){
+                    logger.debug("No records polled updating empty count");
                     pollEmptyCount++;
                 }
                 else{
+                    logger.debug("Polled {} messages from {} topic ", records.count(), input.topics());
+
                     pollEmptyCount = 0;
                     Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
                     Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
@@ -81,7 +86,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                         ConsumerRecord<String, String> record = recordIterator.next();
                         String payload = record.value();
                         if(filter.test(record)){
-                            queue.add(ImmutableConsumedMessages.<String, String>builder()
+                            queue.add(ImmutableConsumedMessage.<String, String>builder()
                                     .timestamp(record.timestamp())
                                     .offset(record.offset())
                                     .partition(record.partition())
@@ -94,7 +99,8 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                         }
                     }
                     if(!toCommit.isEmpty()){
-                        consumer.commitAsync(toCommit, this::logCommit);
+                        resource.commitAsync(toCommit, this::logCommit);
+                        resource.keepAlive();
                     }
 
                     boolean maxQueueReached = input.limit() > 1 && input.limitAppliesFromStart();
@@ -102,9 +108,11 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                     running = ! ( maxQueueReached || endOfData );
 
                     if(maxQueueReached) logger.debug("Max queue size reached");
-                    if(maxQueueReached) logger.debug("End of data reached");
+                    if(endOfData) logger.debug("End of data reached");
                 }
                 if(pollEmptyCount >= 3){
+                    logger.debug("Polled empty 3 times, closing consumer");
+
                     running = false;
                 }
             }
@@ -112,16 +120,14 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
             resource.discard();
             return ImmutableConsumerResponse.<String, String>builder()
                     .messages(queue.stream()
-                            .sorted(Comparator.comparingLong(ConsumedMessages::timestamp))
+                            .sorted(Comparator.comparingLong(ConsumedMessage::timestamp))
                             .collect(toList()))
                     .build();
         }
         catch (Exception e){
             logger.error("Failed to complete task of consuming from topics " + input.topics(), e);
             resource.discard();
-            return ImmutableConsumerResponse.<String, String>builder()
-                    .messages(emptyList())
-                    .build();
+            throw e;
         }
     }
 
@@ -142,7 +148,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                     }
                     else{
                         OffsetAndMetadata latestCommit = lastCommit.get(kv.getKey());
-                        return latestCommit != null && latestCommit.offset()-1 >= kv.getValue();
+                        return latestCommit != null && latestCommit.offset()+1 >= kv.getValue();
                     }
                 });
     }

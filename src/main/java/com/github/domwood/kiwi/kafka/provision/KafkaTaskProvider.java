@@ -1,7 +1,5 @@
 package com.github.domwood.kiwi.kafka.provision;
 
-import com.github.domwood.kiwi.data.output.ConsumerGroupList;
-import com.github.domwood.kiwi.data.output.ConsumerGroupTopicDetails;
 import com.github.domwood.kiwi.kafka.task.admin.*;
 import com.github.domwood.kiwi.kafka.task.config.CreateTopicConfig;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;

@@ -4,7 +4,6 @@ import com.github.domwood.kiwi.data.output.ImmutableTopicList;
 import com.github.domwood.kiwi.data.output.TopicList;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.slf4j.Logger;
@@ -23,8 +22,7 @@ public class ListTopics implements KafkaTask<Void, TopicList, KafkaAdminResource
     @Override
     public CompletableFuture<TopicList> execute(KafkaAdminResource resource, Void input) {
         try{
-            AdminClient adminClient = resource.provisionResource();
-            ListTopicsResult topicsResult = adminClient.listTopics();
+            ListTopicsResult topicsResult = resource.listTopics();
 
             return toCompletable(topicsResult.listings())
                     .thenApply(result -> ImmutableTopicList.builder()

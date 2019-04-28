@@ -16,8 +16,7 @@ import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 public class ConsumerGroupInformation implements KafkaTask<Void, ConsumerGroupList, KafkaAdminResource> {
     @Override
     public CompletableFuture<ConsumerGroupList> execute(KafkaAdminResource resource, Void input) {
-        AdminClient adminClient = resource.provisionResource();
-        return toCompletable(adminClient.listConsumerGroups().all())
+        return toCompletable(resource.listConsumerGroups().all())
                 .thenApply(this::consumerGroupList);
     }
 

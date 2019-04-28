@@ -1,7 +1,6 @@
 package com.github.domwood.kiwi.api;
 
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
-import com.github.domwood.kiwi.data.output.ConsumedMessages;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;

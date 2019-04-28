@@ -26,8 +26,12 @@
         <kafka.version>2.1.0</kafka.version>
         <guava.version>27.0.1-jre</guava.version>
         <commons.collections.version>4.3</commons.collections.version>
+        <commons.lang.version>3.9</commons.lang.version>
         <junit.jupiter.version>5.4.1</junit.jupiter.version>
         <junit.platform.version>1.4.1</junit.platform.version>
+        <awaitility.version>3.1.6</awaitility.version>
+        <spring.kafka.test.version>2.2.5.RELEASE</spring.kafka.test.version>
+        <apache.curator.version>2.13.0</apache.curator.version>
     </properties>
 
     <dependencies>
@@ -76,6 +80,8 @@
             <version>${kafka.version}</version>
         </dependency>
 
+
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -92,6 +98,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${commons.collections.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang.version}</version>
         </dependency>
 
 
@@ -111,6 +123,39 @@
                     <groupId>junit</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.12</artifactId>
+            <version>${kafka.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>${apache.curator.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.25.0-GA</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

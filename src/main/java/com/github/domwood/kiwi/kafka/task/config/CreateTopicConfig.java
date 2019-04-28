@@ -21,7 +21,7 @@ public class CreateTopicConfig  implements KafkaTask<Void, CreateTopicConfigOpti
 
     @Override
     public CompletableFuture<CreateTopicConfigOptions> execute(KafkaTopicConfigResource resource, Void input) {
-        TopicConfig topicConfig = resource.provisionResource();
+        TopicConfig topicConfig = resource.getConfig();
         Set<String> configs = Stream.of(topicConfig.getClass().getFields())
                 .filter(field -> field.getName().endsWith("_CONFIG"))
                 .map(field -> getValue(field, topicConfig))
