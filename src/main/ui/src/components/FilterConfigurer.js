@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {
-    Button,
+    Button, ButtonGroup,
     DropdownItem,
     DropdownMenu,
     DropdownToggle, Input,
@@ -9,7 +9,6 @@ import {
 } from "reactstrap";
 import PropTypes from "prop-types";
 import "./../App.css";
-import ButtonGroup from "reactstrap/es/ButtonGroup";
 
 class FilterConfigurer extends Component {
 

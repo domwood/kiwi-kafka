@@ -46,7 +46,12 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
 
             logger.debug("Consumer awaiting assignment for {} ...", input.topics());
 
-            Set<TopicPartition> topicPartitionSet = KafkaTaskUtils.assignment(resource);
+            Set<TopicPartition> topicPartitionSet = resource.assignment();
+
+            while(topicPartitionSet.isEmpty()){
+                resource.poll(Duration.of(10, MILLIS));
+                topicPartitionSet = resource.assignment();
+            }
 
             logger.debug("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, input.topics());
 

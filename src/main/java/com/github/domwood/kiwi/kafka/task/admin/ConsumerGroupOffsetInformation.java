@@ -14,17 +14,23 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 
 public class ConsumerGroupOffsetInformation implements KafkaTask<String, ConsumerGroupOffsetDetails, Pair<KafkaAdminResource, KafkaConsumerResource<?,?>>> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public CompletableFuture<ConsumerGroupOffsetDetails> execute(Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>> resource,
@@ -75,14 +81,23 @@ public class ConsumerGroupOffsetInformation implements KafkaTask<String, Consume
     }
 
     //Appears to be how the ConsumerGroupCommand.scala finds the offset/lag
-    private CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> withOffsets(KafkaConsumerResource<?,?> consumerResource, Map<TopicPartition, OffsetAndMetadata> offsetData){
+    private CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> withOffsets(KafkaConsumerResource<?,?> resource, Map<TopicPartition, OffsetAndMetadata> offsetData){
         return FutureUtils.supplyAsync(() -> {
             List<String> topics = offsetData.keySet().stream().map(TopicPartition::topic).distinct().collect(toList());
             if(topics.isEmpty()) return Collections.emptyMap();
 
-            consumerResource.subscribe(topics);
-            Set<TopicPartition> partitions = KafkaTaskUtils.assignment(consumerResource);
-            return mapToOffset(offsetData, consumerResource.endOffsets(partitions));
+            resource.subscribe(topics);
+            Set<TopicPartition> topicPartitionSet = resource.assignment();
+
+            logger.debug("Consumer awaiting assignment for {} ...", topics);
+
+            while(topicPartitionSet.isEmpty()){
+                resource.poll(Duration.of(10, MILLIS));
+                topicPartitionSet = resource.assignment();
+            }
+
+            Set<TopicPartition> partitions = KafkaTaskUtils.assignment(resource);
+            return mapToOffset(offsetData, resource.endOffsets(partitions));
         });
     }
 
