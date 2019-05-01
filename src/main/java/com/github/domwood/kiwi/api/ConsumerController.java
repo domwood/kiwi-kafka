@@ -32,7 +32,7 @@ public class ConsumerController {
     @PostMapping("/consume")
     @ResponseBody
     public CompletableFuture<ConsumerResponse<String, String>> sendToTopic(@RequestParam(required = false) String bootStrapServers,
-                                                           @RequestBody ConsumerRequest request) {
+                                                                           @RequestBody ConsumerRequest request) {
 
         KafkaConsumerResource<String, String> resource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
         BasicConsumeMessages consumeMessages = taskProvider.basicConsumeMessages();

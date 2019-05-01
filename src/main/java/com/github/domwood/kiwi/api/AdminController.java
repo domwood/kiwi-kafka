@@ -5,7 +5,9 @@ import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
+import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.admin.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +67,16 @@ public class AdminController {
         return consumerGroupInformation.execute(adminResource, null);
     }
 
+    @Async
+    @GetMapping("/listConsumerGroupOffsetDetails")
+    @ResponseBody
+    public CompletableFuture<ConsumerGroupOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) String bootStrapServers,
+                                                                                  String groupId){
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        KafkaConsumerResource consumerResource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
+        ConsumerGroupOffsetInformation consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
+        return consumerGroupInformation.execute(Pair.of(adminResource, consumerResource), groupId);
+    }
 
     @Async
     @GetMapping("/brokers")

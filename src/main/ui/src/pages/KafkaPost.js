@@ -16,7 +16,7 @@ import TopicInput from "./../components/TopicInput";
 import uuid from "uuid/v4";
 import * as ApiService from "../services/ApiService";
 import {toast} from "react-toastify";
-import "./Pages.css";
+import "./../App.css";
 
 class KafkaPost extends Component {
 

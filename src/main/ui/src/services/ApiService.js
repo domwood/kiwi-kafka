@@ -123,7 +123,7 @@ export const produce = (topic, key, value, headers, cb, eb) => {
 
 };
 
-export const consume = (topics, limit, fromStart, filter, cb, eb) => {
+export const consume = (topics, limit, fromStart, filters, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error, "major");
 
     if(!topics){
@@ -139,7 +139,7 @@ export const consume = (topics, limit, fromStart, filter, cb, eb) => {
                 topics: topics,
                 limit: limit||1,
                 limitAppliesFromStart: fromStart||false,
-                filter: filter || null
+                filters: filters || []
             })
         })
         .then(statusHandler)

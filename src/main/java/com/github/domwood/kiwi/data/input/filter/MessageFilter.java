@@ -14,6 +14,5 @@ public interface MessageFilter {
     FilterApplication filterApplication();
     Boolean isCaseSensitive();
     String filter();
-    Optional<String> headerKey();
 
 }

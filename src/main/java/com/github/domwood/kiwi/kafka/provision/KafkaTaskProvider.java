@@ -48,4 +48,8 @@ public class KafkaTaskProvider {
     public ConsumerGroupTopicInformation consumerGroupTopicInformation() {
         return new ConsumerGroupTopicInformation();
     }
+
+    public ConsumerGroupOffsetInformation consumerGroupOffsetInformation() {
+        return new ConsumerGroupOffsetInformation();
+    }
 }

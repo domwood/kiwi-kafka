@@ -8,6 +8,7 @@ import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -42,14 +43,11 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
 
         try{
             resource.subscribe(input.topics());
-            Set<TopicPartition> topicPartitionSet = resource.assignment();
 
             logger.debug("Consumer awaiting assignment for {} ...", input.topics());
 
-            while(topicPartitionSet.isEmpty()){
-                resource.poll(Duration.of(10, MILLIS));
-                topicPartitionSet = resource.assignment();
-            }
+            Set<TopicPartition> topicPartitionSet = KafkaTaskUtils.assignment(resource);
+
             logger.debug("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, input.topics());
 
             resource.seekToBeginning(topicPartitionSet);
@@ -67,8 +65,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
 
             boolean running = true;
             int pollEmptyCount = 0;
-            Predicate<ConsumerRecord<String, String>> filter = input.filter().map(FilterBuilder::compileFilter)
-                    .orElse(FilterBuilder.dummyFilter());
+            Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(input.filters());
 
             while(running){
                 ConsumerRecords<String, String> records = resource.poll(Duration.of(200, MILLIS));

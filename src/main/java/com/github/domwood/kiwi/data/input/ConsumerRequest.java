@@ -16,5 +16,5 @@ public interface ConsumerRequest {
     List<String> topics();
     Integer limit();
     Boolean limitAppliesFromStart();
-    Optional<MessageFilter> filter();
+    List<MessageFilter> filters();
 }

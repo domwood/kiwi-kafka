@@ -15,7 +15,7 @@ import DataStore from "../services/GlobalStore";
 import * as ApiService from "../services/ApiService";
 import * as GeneralUtilities from "../services/GeneralUtilities";
 import {toast} from "react-toastify";
-import "./Pages.css";
+import "./../App.css";
 import {MdRefresh} from "react-icons/md";
 import CreateTopic from "../components/CreateTopic";
 

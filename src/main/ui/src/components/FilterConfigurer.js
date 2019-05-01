@@ -5,10 +5,11 @@ import {
     DropdownMenu,
     DropdownToggle, Input,
     InputGroup,
-    InputGroupButtonDropdown, Jumbotron
+    InputGroupButtonDropdown, ListGroup, ListGroupItem
 } from "reactstrap";
 import PropTypes from "prop-types";
 import "./../App.css";
+import ButtonGroup from "reactstrap/es/ButtonGroup";
 
 class FilterConfigurer extends Component {
 
@@ -18,34 +19,35 @@ class FilterConfigurer extends Component {
             id : props.id,
             name : props.name,
             useFilter: false,
-            filterTypeButtonOpen: false,
-            filterApplicationButtonOpen: false,
-            filter: '',
-            filterType: 'STARTS_WITH',
-            filterApplication: 'KEY',
-            isCaseSensitive: false
+            filters: [{
+                filterTypeButtonOpen: false,
+                filterApplicationButtonOpen: false,
+                filter: '',
+                filterType: 'STARTS_WITH',
+                filterApplication: 'KEY',
+                isCaseSensitive: false
+            }]
         };
     }
 
     updateParent = () => {
-        if(this.validateFilter()){
-            let filterObject = {
-                filter: this.state.filter,
-                filterType: this.state.filterType,
-                filterApplication: this.state.filterApplication,
-                isCaseSensitive: this.state.isCaseSensitive,
-                headerKey: undefined
-            };
-            this.props.onUpdate(filterObject);
+        if(this.state.useFilter && this.state.filters.every(this.validateFilter)){
+            this.props.onUpdate(this.state.filters.map(filter => {
+                return {
+                    filter: filter.filter,
+                    filterType: filter.filterType,
+                    filterApplication: filter.filterApplication,
+                    isCaseSensitive: filter.isCaseSensitive
+                }
+            }));
         }
-        else this.props.onUpdate(null);
+        else this.props.onUpdate([]);
     };
 
-    validateFilter = () =>
-        this.state.useFilter &&
-        this.state.filter &&
-        this.state.filterType &&
-        this.state.filterApplication;
+    validateFilter = (filter) =>
+        filter.filter &&
+        filter.filterType &&
+        filter.filterApplication;
 
     toggleFilter = () => {
         this.setState({
@@ -53,42 +55,80 @@ class FilterConfigurer extends Component {
         }, this.updateParent)
     };
 
-    toggleFilterTypeButton = () => {
+    toggleFilterTypeButton = (index) => {
+        let filters = this.state.filters;
+        filters[index].filterTypeButtonOpen = !filters[index].filterTypeButtonOpen;
         this.setState({
-            filterTypeButtonOpen: !this.state.filterTypeButtonOpen
+            filters: filters
         }, this.updateParent);
     };
 
-    toggleFilterTypeApplicationButton = () => {
+    toggleFilterTypeApplicationButton = (index) => {
+        let filters = this.state.filters;
+        filters[index].filterApplicationButtonOpen = !filters[index].filterApplicationButtonOpen;
         this.setState({
             filterApplicationButtonOpen: !this.state.filterApplicationButtonOpen
         }, this.updateParent);
     };
 
-    setFilter = (filter) => {
+    setFilter = (filter, index) => {
+        let filters = this.state.filters;
+        filters[index].filter = filter;
         this.setState({
-            filter:filter
+            filters:filters
         }, this.updateParent);
     };
 
-    setFilterType = (filterType) => {
+    setFilterType = (filterType, index) => {
+        let filters = this.state.filters;
+        filters[index].filterType = filterType;
         this.setState({
-            filterType: filterType
+            filters: filters
         }, this.updateParent)
     };
 
-    setFilterApplication = (filterApplication) => {
+    setFilterApplication = (filterApplication, index) => {
+        let filters = this.state.filters;
+        filters[index].filterApplication = filterApplication;
+
         this.setState({
-            filterApplication: filterApplication
+            filters: filters
         }, this.updateParent)
     };
 
-    setCaseSensitive = () => {
+    setCaseSensitive = (index) => {
+        let filters = this.state.filters;
+        filters[index].isCaseSensitive = !filters[index].isCaseSensitive;
         this.setState({
-            isCaseSensitive: !this.state.isCaseSensitive
+            filters: filters
         }, this.updateParent)
     };
 
+    addFilter = () => {
+        this.setState({
+            filters: [...this.state.filters, {
+                filterTypeButtonOpen: false,
+                filterApplicationButtonOpen: false,
+                filter: '',
+                filterType: 'STARTS_WITH',
+                filterApplication: 'KEY',
+                isCaseSensitive: false
+            }]
+        }, this.updateParent);
+    };
+
+    removeFilter = () => {
+        if(this.state.filters.length === 1){
+            this.setState({
+                useFilter: false
+            });
+        }
+        else{
+            this.setState({
+                filters: this.state.filters.slice(0, -1)
+            }, this.updateParent);
+        }
+    };
 
     render() {
         return (
@@ -98,51 +138,78 @@ class FilterConfigurer extends Component {
                 <div className="Gap"/>
                 {   this.state.useFilter ?
 
-                    <Jumbotron>
-                        <InputGroup>
-                            <InputGroupButtonDropdown addonType="prepend" isOpen={this.state.filterApplicationButtonOpen} toggle={this.toggleFilterTypeApplicationButton}>
-                            <DropdownToggle split outline />
-                                <DropdownMenu>
-                                <DropdownItem header>Filter Applies To</DropdownItem>
-                                <DropdownItem onClick={() => this.setFilterApplication("KEY")}>Key</DropdownItem>
-                                <DropdownItem onClick={() => this.setFilterApplication("MESSAGE")}>Message</DropdownItem>
-                                <DropdownItem onClick={() => this.setFilterApplication("HEADER_KEY")}>Header Key</DropdownItem>
-                                <DropdownItem onClick={() => this.setFilterApplication("HEADER_VALUE")}>Header Value</DropdownItem>
-                            </DropdownMenu>
-                            <Button disabled>{this.state.filterApplication}</Button>
-                            </InputGroupButtonDropdown>
-                            <InputGroupButtonDropdown addonType="prepend" isOpen={this.state.filterTypeButtonOpen} toggle={this.toggleFilterTypeButton}>
-                                <DropdownToggle split outline />
-                                <DropdownMenu>
-                                    <DropdownItem header>Filter Type</DropdownItem>
-                                    <DropdownItem onClick={() => this.setFilterType("MATCHES")}>Matches</DropdownItem>
-                                    <DropdownItem onClick={() => this.setFilterType("STARTS_WITH")}>Starts With</DropdownItem>
-                                    <DropdownItem onClick={() => this.setFilterType("ENDS_WITH")}>Ends With</DropdownItem>
-                                    <DropdownItem onClick={() => this.setFilterType("CONTAINS")}>Contains</DropdownItem>
-                                    <DropdownItem onClick={() => this.setFilterType("REGEX")}>Regex</DropdownItem>
-                                </DropdownMenu>
-                                <Button disabled>{this.state.filterType}</Button>
-                            </InputGroupButtonDropdown>
-                            <Input
-                                type="text"
-                                name="filter"
-                                id="filter"
-                                defaultValue={this.state.filter}
-                                onChange={event => this.setFilter(event.target.value)}
-                            />
-                            {
-                                this.state.filterType !== 'REGEX' ?
-                                    <Button onClick={() => this.setCaseSensitive()}>
-                                        {this.state.isCaseSensitive ? 'Case Insensitive' : 'Case Sensitive'}
-                                    </Button>
-                                    : ''
-                            }
-                        </InputGroup>
-                    </Jumbotron>
-                    : ''
-                }
+                    <ListGroup>
+                        {
+                            this.state.filters.map((filter, index) => {
+                                return (
+                                        <ListGroupItem key={index}>
+                                            <InputGroup>
+                                            <InputGroupButtonDropdown addonType="prepend"
+                                                                      isOpen={this.state.filters[index].filterApplicationButtonOpen}
+                                                                      toggle={() => this.toggleFilterTypeApplicationButton(index)}>
+                                                <DropdownToggle split outline />
+                                                <DropdownMenu>
+                                                    <DropdownItem header>Filter Applies To</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterApplication("KEY", index)}>Key</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterApplication("VALUE", index)}>Message</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterApplication("HEADER_KEY", index)}>Header Key</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header Value</DropdownItem>
+                                                </DropdownMenu>
+                                                <Button disabled>{this.state.filters[index].filterApplication}</Button>
+                                            </InputGroupButtonDropdown>
+                                            <InputGroupButtonDropdown addonType="prepend"
+                                                                      isOpen={this.state.filters[index].filterTypeButtonOpen}
+                                                                      toggle={() => this.toggleFilterTypeButton(index)}>
+                                                <DropdownToggle split outline />
+                                                <DropdownMenu>
+                                                    <DropdownItem header>Filter Type</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterType("MATCHES", index)}>Matches</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts With</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends With</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
+                                                </DropdownMenu>
+                                                <Button disabled>{this.state.filters[index].filterType}</Button>
+                                            </InputGroupButtonDropdown>
+                                            <Input
+                                                type="text"
+                                                name="filter"
+                                                id="filter"
+                                                value={this.state.filters[index].filter}
+                                                onChange={event => this.setFilter(event.target.value, index)}
+                                            />
+                                            {
+                                                this.state.filters[index].filterType !== 'REGEX' ?
+                                                    <Button onClick={() => this.setCaseSensitive(index)}>
+                                                        {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive' }
+                                                    </Button>
+                                                    : ''
+                                            }
+                                        </InputGroup>
+                                            {
+                                                index === this.state.filters.length-1 ?
+                                                    <div className={"Gap"}>
+                                                        <ButtonGroup>
+                                                            <Button onClick={() => this.addFilter()}>
+                                                                + Add
+                                                            </Button>
+                                                            <Button onClick={() => this.removeFilter()}>
+                                                                - Remove
+                                                            </Button>
+                                                        </ButtonGroup>
+                                                    </div>
+                                                    : ''
+                                            }
 
-                <Button size="sm" block onClick={this.toggleFilter} width={'100%'}>{this.state.useFilter ? 'Remove Filter' : 'Include Message Filter'}</Button>
+                                    </ListGroupItem>
+                                )
+                            })
+                        }
+
+                    </ListGroup>
+                    :
+                    <Button size="sm" block onClick={this.toggleFilter} width={'100%'}>Include Message Filter</Button>
+                }
 
                 <div className="mt-lg-1"/>
             </div>

@@ -31,6 +31,14 @@ public class KafkaAdminResource extends KafkaResource<AdminClient>{
         return this.client.describeLogDirs(nodes);
     }
 
+    public DescribeConfigsResult describeConfigs(Collection<ConfigResource> resources) {
+        return this.client.describeConfigs(resources);
+    }
+
+    public DescribeTopicsResult describeTopics(Collection<String> topicNames) {
+        return this.client.describeTopics(topicNames);
+    }
+
     public ListConsumerGroupsResult listConsumerGroups() {
         return this.client.listConsumerGroups();
     }
@@ -47,12 +55,8 @@ public class KafkaAdminResource extends KafkaResource<AdminClient>{
         return this.client.listTopics();
     }
 
-    public DescribeConfigsResult describeConfigs(Collection<ConfigResource> resources) {
-        return this.client.describeConfigs(resources);
-    }
-
-    public DescribeTopicsResult describeTopics(Collection<String> topicNames) {
-        return this.client.describeTopics(topicNames);
+    public ListConsumerGroupOffsetsResult listConsumerGroupOffsets(String groupId){
+        return this.client.listConsumerGroupOffsets(groupId);
     }
 
 }

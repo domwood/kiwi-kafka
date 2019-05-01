@@ -3,7 +3,7 @@ import {Button, Container, Table} from "reactstrap";
 import * as ApiService from "../services/ApiService";
 import DataStore from "../services/GlobalStore";
 import {toast} from "react-toastify";
-import "./Pages.css";
+import "./../App.css";
 
 class KafkaHome extends Component {
     constructor(props) {

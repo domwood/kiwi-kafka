@@ -55,3 +55,15 @@
 .WideBoiGroup.btn {
   flex: 1
 }
+
+.WrappedTable{
+  word-break:break-all;
+  overflow: auto;
+  width: 100%;
+  font-size: small;
+  word-wrap: break-word;
+}
+
+.WideBoi {
+  max-width:90%;
+}

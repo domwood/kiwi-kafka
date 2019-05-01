@@ -49,7 +49,7 @@ public class ConsumerGroupTopicInformation implements KafkaTask<Void, ConsumerGr
                 .stream()
                 .map(kv -> new AbstractMap.SimpleEntry<>(kv.getKey(), kv.getValue().stream()
                         .collect(Collectors.groupingBy(TopicGroupAssignment::groupId))))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, StreamUtils::arbitrary));
+                .collect(StreamUtils.mapCollector());
     }
 
     private List<TopicGroupAssignment> asTopicAssignments(Map.Entry<String, ConsumerGroupDescription> description){

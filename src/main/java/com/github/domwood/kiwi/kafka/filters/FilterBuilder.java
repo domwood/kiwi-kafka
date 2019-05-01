@@ -4,18 +4,22 @@ import com.github.domwood.kiwi.data.input.filter.MessageFilter;
 import com.github.domwood.kiwi.kafka.utils.KafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class FilterBuilder {
 
-    public static Predicate<ConsumerRecord<String, String>> dummyFilter(){
-        return record -> true;
+
+
+    public static Predicate<ConsumerRecord<String, String>> compileFilters(List<MessageFilter> messageFilterList){
+        return messageFilterList.stream().map(FilterBuilder::compileFilter)
+                .reduce(Predicate::and)
+                .orElse(dummyFilter());
     }
 
-    public static Predicate<ConsumerRecord<String, String>> compileFilter(MessageFilter messageFilter){
+    private static Predicate<ConsumerRecord<String, String>> compileFilter(MessageFilter messageFilter){
         switch(messageFilter.filterApplication()){
             case KEY:
                 return record -> buildFilterType(messageFilter).test(keyExtractor(record));
@@ -24,11 +28,7 @@ public class FilterBuilder {
             case HEADER_KEY:
                 return record -> headerKeyExtractor(record, buildFilterType(messageFilter));
             case HEADER_VALUE:
-                return record -> {
-                    Optional<String> headerKey = messageFilter.headerKey();
-                    Predicate<String> headerMatcher = buildFilterType(messageFilter);
-                    return headerKeyValueExtractor(record, headerMatcher, messageFilter.headerKey(), messageFilter.isCaseSensitive());
-                };
+                return record -> headerValueExtractor(record, buildFilterType(messageFilter));
             default:
                 return dummyFilter();
         }
@@ -64,26 +64,18 @@ public class FilterBuilder {
     }
 
     private static  Boolean headerKeyExtractor(ConsumerRecord<String, String> record, Predicate<String> headerMatcher){
-        return KafkaUtils.fromKafkaHeaders(record.headers()).entrySet().stream()
-                .map(Map.Entry::getKey)
+        return KafkaUtils.fromKafkaHeaders(record.headers())
+                .keySet()
+                .stream()
                 .anyMatch(headerMatcher);
     }
 
-    private static boolean headerKeyValueExtractor(ConsumerRecord<String, String> record,
-                                          Predicate<String> headerMatcher,
-                                          Optional<String> optionalKey,
-                                          boolean caseInsensitive){
-        return KafkaUtils.fromKafkaHeaders(record.headers()).entrySet().stream()
-                .filter(kv -> headerKeyFilter(kv, optionalKey, caseInsensitive))
-                .map(kv -> String.valueOf(kv.getValue()))
+    private static  Boolean headerValueExtractor(ConsumerRecord<String, String> record, Predicate<String> headerMatcher){
+        return KafkaUtils.fromKafkaHeaders(record.headers())
+                .values()
+                .stream()
+                .map(String::valueOf)
                 .anyMatch(headerMatcher);
-    }
-
-    private static boolean headerKeyFilter(Map.Entry<String, Object> entry, Optional<String> optionalKey, boolean caseInsensitive){
-        return optionalKey
-                .map(targetKey -> caseInsensitive ?
-                    targetKey.equals(entry.getKey()) : targetKey.equalsIgnoreCase(entry.getKey()))
-                .orElse(true);
     }
 
     private static Predicate<String> startsWithCaseInsensitive(String filterString){
@@ -121,5 +113,9 @@ public class FilterBuilder {
     private static Predicate<String> regex(String filterString){
         Pattern p = Pattern.compile(filterString);
         return (String value) -> p.matcher(value).find();
+    }
+
+    private static Predicate<ConsumerRecord<String, String>> dummyFilter(){
+        return record -> true;
     }
 }

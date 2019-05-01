@@ -17,7 +17,7 @@ import {
 import TopicInput from "./../components/TopicInput"
 import * as ApiService from "../services/ApiService";
 import * as GeneralUtilities from "../services/GeneralUtilities";
-import "./Pages.css";
+import "./../App.css";
 import FilterConfigurer from "../components/FilterConfigurer";
 import {toast} from "react-toastify";
 
@@ -34,7 +34,7 @@ class KafkaGet extends Component {
             messageFromEnd: true,
             messageStartToggle: false,
             messages: [],
-            filter: null,
+            filters: [],
             consumerResponse: null
         };
     }
@@ -55,9 +55,9 @@ class KafkaGet extends Component {
         this.setState({messageStartToggle:!this.state.messageStartToggle})
     };
 
-    setFilter = (filter) => {
+    setFilter = (filters) => {
         this.setState({
-            filter: filter
+            filters: filters
         });
     };
 
@@ -69,7 +69,7 @@ class KafkaGet extends Component {
                 [this.state.targetTopic],
                 this.state.messageLimit,
                 this.state.messageFromEnd,
-                this.state.filter,
+                this.state.filters,
                 (response) =>{
                     this.setState({
                         consuming: false,

@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
+import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Selection of helper methods which remove some boiler plate
@@ -74,6 +76,10 @@ public class StreamUtils {
      */
     public static <T> T arbitrary(T o1, T o2){
         return o1;
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> mapCollector(){
+        return toMap(Map.Entry::getKey, Map.Entry::getValue, StreamUtils::arbitrary);
     }
 
 }

@@ -22,8 +22,11 @@ public class ConsumerGroupInformation implements KafkaTask<Void, ConsumerGroupLi
 
     private ConsumerGroupList consumerGroupList(Collection<ConsumerGroupListing> listing){
         return ImmutableConsumerGroupList.builder()
-                .groups(listing.stream().map(ConsumerGroupListing::groupId).collect(Collectors.toSet()))
+                .groups(listing.stream()
+                        .map(ConsumerGroupListing::groupId)
+                        .collect(Collectors.toSet()))
                 .build();
     }
+
 
 }
