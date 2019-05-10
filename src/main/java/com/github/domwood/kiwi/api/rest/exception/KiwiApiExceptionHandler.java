@@ -1,4 +1,4 @@
-package com.github.domwood.kiwi.api.exception;
+package com.github.domwood.kiwi.api.rest.exception;
 
 import com.github.domwood.kiwi.data.error.ApiError;
 import com.github.domwood.kiwi.data.error.ImmutableApiError;
@@ -9,7 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;

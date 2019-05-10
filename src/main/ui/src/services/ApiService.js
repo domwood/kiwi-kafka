@@ -53,18 +53,17 @@ export const getLogs = (id, cb, eb) => {
         .then(res => res.json())
         .then(result => cb(result.brokerLogInfo))
         .catch(errorhandler);
-}
+};
 
 export const getConsumerGroupTopicDetails = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(api.getConsumerGroupTopicDetails)
+    fetch(api.listConsumerGroupTopicDetails)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.topicDetails))
         .catch(errorhandler);
-};;
-
+};
 
 
 export const getCreateTopicConfig = (cb, eb) => {
@@ -79,6 +78,8 @@ export const getCreateTopicConfig = (cb, eb) => {
 
 export const createTopic = (topicData, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
+
+    topicData.requestType = ".CreateTopicRequest";
 
     fetch(api.createTopic, {
         method: 'POST',
@@ -109,6 +110,7 @@ export const produce = (topic, key, value, headers, cb, eb) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                requestType: ".ProducerRequest",
                 topic: topic,
                 key: key,
                 headers: headers||{},
@@ -136,6 +138,7 @@ export const consume = (topics, limit, fromStart, filters, cb, eb) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                requestType: ".ConsumerRequest",
                 topics: topics,
                 limit: limit||1,
                 limitAppliesFromStart: fromStart||false,

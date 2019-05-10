@@ -9,7 +9,7 @@ import org.immutables.value.Value;
 @JsonSerialize(as = ImmutableConsumerGroupOffset.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerGroupOffset {
+public interface ConsumerGroupOffset extends OutboundResponse{
     String topic();
     String groupId();
     Integer partition();

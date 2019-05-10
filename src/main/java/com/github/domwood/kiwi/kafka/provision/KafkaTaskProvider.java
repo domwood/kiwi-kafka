@@ -3,6 +3,7 @@ package com.github.domwood.kiwi.kafka.provision;
 import com.github.domwood.kiwi.kafka.task.admin.*;
 import com.github.domwood.kiwi.kafka.task.config.CreateTopicConfig;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
+import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
 import org.springframework.stereotype.Component;
 
@@ -51,5 +52,9 @@ public class KafkaTaskProvider {
 
     public ConsumerGroupOffsetInformation consumerGroupOffsetInformation() {
         return new ConsumerGroupOffsetInformation();
+    }
+
+    public ContinuousConsumeMessages continousConsumeMessages() {
+        return new ContinuousConsumeMessages();
     }
 }

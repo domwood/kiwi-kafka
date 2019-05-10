@@ -29,4 +29,5 @@ public class FutureUtils {
     public static <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier){
         return CompletableFuture.supplyAsync(supplier, KiwiTaskExecutor.getInstance());
     }
+
 }

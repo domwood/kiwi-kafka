@@ -10,6 +10,6 @@ import java.util.Set;
 @JsonSerialize(as = ImmutableConsumerGroupList.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerGroupList {
+public interface ConsumerGroupList extends OutboundResponse{
     Set<String> groups();
 }

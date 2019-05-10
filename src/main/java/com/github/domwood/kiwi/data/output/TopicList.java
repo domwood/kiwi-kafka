@@ -11,6 +11,6 @@ import java.util.List;
 @JsonSerialize(as = ImmutableTopicList.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface TopicList {
+public interface TopicList extends OutboundResponse{
     List<String> topics();
 }

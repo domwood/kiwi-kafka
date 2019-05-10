@@ -10,6 +10,6 @@ import java.util.Set;
 @JsonSerialize(as = ImmutableCreateTopicConfigOptions.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface CreateTopicConfigOptions {
+public interface CreateTopicConfigOptions extends OutboundResponse {
     Set<String> configOptions();
 }

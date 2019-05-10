@@ -11,7 +11,7 @@ import java.util.SortedMap;
 @Value.Immutable
 @JsonSerialize(as = ImmutableTopicInfo.class)
 @JsonDeserialize(as = ImmutableTopicInfo.class)
-public interface TopicInfo {
+public interface TopicInfo extends OutboundResponse{
     String topic();
     Integer partitionCount();
     Integer replicaCount();

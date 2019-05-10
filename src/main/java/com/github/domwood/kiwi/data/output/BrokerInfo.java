@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 @JsonDeserialize(as = ImmutableBrokerInfo.class)
 @JsonSerialize(as = ImmutableBrokerInfo.class)
 @Value.Immutable
-public interface BrokerInfo {
+public interface BrokerInfo extends OutboundResponse{
 
     public Integer nodeNumber();
 

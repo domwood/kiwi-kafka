@@ -8,7 +8,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableProducerResponse.class)
 @JsonSerialize(as = ImmutableProducerResponse.class)
 @Value.Immutable
-public interface ProducerResponse {
+public interface ProducerResponse extends OutboundResponse{
     String topic();
     Integer partition();
     Long offset();

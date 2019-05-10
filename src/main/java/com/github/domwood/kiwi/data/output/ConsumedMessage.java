@@ -11,7 +11,7 @@ import java.util.Map;
 @JsonSerialize(as = ImmutableConsumedMessage.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumedMessage<K, V> {
+public interface ConsumedMessage<K, V> extends OutboundResponse{
 
     long timestamp();
 

@@ -12,7 +12,7 @@ import java.util.Optional;
 @JsonDeserialize(as = ImmutableConsumerRequest.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerRequest {
+public interface ConsumerRequest extends InboundRequest {
     List<String> topics();
     Integer limit();
     Boolean limitAppliesFromStart();

@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -43,13 +44,13 @@ public class KafkaResourceProvider {
         resources.clear();
     }
 
-    public KafkaConsumerResource<String, String> kafkaStringConsumerResource(String bootStrapServers){
+    public KafkaConsumerResource<String, String> kafkaStringConsumerResource(Optional<String> bootStrapServers){
         KafkaConsumerResource consumerResource = new KafkaConsumerResource<>(consumerConfig.createStringConfig(bootStrapServers));
         resources.add(consumerResource);
         return consumerResource;
     }
 
-    public KafkaProducerResource<String, String> kafkaStringProducerResource(String bootStrapServers){
+    public KafkaProducerResource<String, String> kafkaStringProducerResource(Optional<String> bootStrapServers){
         KafkaProducerResource producerResource = new KafkaProducerResource<>(producerConfig.createStringConfig(bootStrapServers));
         resources.add(producerResource);
         return producerResource;

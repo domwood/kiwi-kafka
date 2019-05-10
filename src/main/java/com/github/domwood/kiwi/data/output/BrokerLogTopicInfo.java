@@ -7,7 +7,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableBrokerLogTopicInfo.class)
 @JsonSerialize(as = ImmutableBrokerLogTopicInfo.class)
 @Value.Immutable
-public interface BrokerLogTopicInfo {
+public interface BrokerLogTopicInfo extends OutboundResponse{
     Integer partition();
     String topic();
     Long size();

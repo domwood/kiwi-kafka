@@ -5,6 +5,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Properties;
 
 @Component
@@ -39,14 +40,14 @@ public class KafkaConsumerConfig extends KafkaConfig{
         this.autoOffsetReset = autoOffsetReset;
     }
 
-    public Properties createStringConfig(String bootstrapServers){
+    public Properties createStringConfig(Optional<String> bootstrapServers){
         Properties props = baseConfig(bootstrapServers);
         props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         return props;
     }
 
-    private Properties baseConfig(String bootstrapServers){
+    private Properties baseConfig(Optional<String>  bootstrapServers){
         Properties properties = super.createConfig(bootstrapServers);
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId + Thread.currentThread().getName()); //Expects to be called on a kiwi task thread
         properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, groupId + Thread.currentThread().getName());

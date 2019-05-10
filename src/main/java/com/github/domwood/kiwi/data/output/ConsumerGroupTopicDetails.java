@@ -11,6 +11,6 @@ import java.util.Map;
 @JsonSerialize(as = ImmutableConsumerGroupTopicDetails.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerGroupTopicDetails {
+public interface ConsumerGroupTopicDetails extends OutboundResponse{
     Map<String, Map<String, List<TopicGroupAssignment>>> topicDetails();
 }

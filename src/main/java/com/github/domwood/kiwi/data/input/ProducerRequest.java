@@ -11,7 +11,7 @@ import java.util.Optional;
 @JsonDeserialize(as = ImmutableProducerRequest.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ProducerRequest {
+public interface ProducerRequest extends InboundRequest  {
     String topic();
     String key();
     Map<String, String> headers();

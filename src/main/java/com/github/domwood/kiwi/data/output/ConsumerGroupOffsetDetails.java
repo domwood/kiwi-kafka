@@ -11,6 +11,6 @@ import java.util.Map;
 @JsonSerialize(as = ImmutableConsumerGroupOffsetDetails.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerGroupOffsetDetails {
+public interface ConsumerGroupOffsetDetails extends OutboundResponse{
     Map<String, List<ConsumerGroupOffset>> offsets();
 }

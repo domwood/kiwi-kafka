@@ -9,7 +9,7 @@ import java.util.List;
 @JsonDeserialize(as = ImmutableBrokerInfoList.class)
 @JsonSerialize(as = ImmutableBrokerInfoList.class)
 @Value.Immutable
-public interface BrokerInfoList {
+public interface BrokerInfoList extends OutboundResponse{
 
     List<BrokerInfo> brokerInfo();
 

@@ -9,7 +9,7 @@ import java.util.Map;
 @JsonSerialize(as = ImmutableCreateTopicRequest.class)
 @JsonDeserialize(as = ImmutableCreateTopicRequest.class)
 @Value.Immutable
-public interface CreateTopicRequest {
+public interface CreateTopicRequest extends InboundRequest {
     String name();
     Integer partitions();
     Integer replicationFactor();

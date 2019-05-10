@@ -1,4 +1,4 @@
-package com.github.domwood.kiwi.api;
+package com.github.domwood.kiwi.api.rest;
 
 import com.github.domwood.kiwi.data.input.CreateTopicRequest;
 import com.github.domwood.kiwi.data.output.*;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
@@ -71,9 +72,9 @@ public class AdminController {
     @GetMapping("/listConsumerGroupOffsetDetails")
     @ResponseBody
     public CompletableFuture<ConsumerGroupOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) String bootStrapServers,
-                                                                                  String groupId){
+                                                                                   String groupId){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        KafkaConsumerResource consumerResource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
+        KafkaConsumerResource<String, String> consumerResource = resourceProvider.kafkaStringConsumerResource(Optional.ofNullable(bootStrapServers));
         ConsumerGroupOffsetInformation consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
         return consumerGroupInformation.execute(Pair.of(adminResource, consumerResource), groupId);
     }

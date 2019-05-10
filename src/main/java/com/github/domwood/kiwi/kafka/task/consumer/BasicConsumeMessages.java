@@ -27,7 +27,8 @@ import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.stream.Collectors.toList;
 
-public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>> {
+
+public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>>{
 
     //TODO Add configuration mechanism
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,23 +43,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                                                          ConsumerRequest input) {
 
         try{
-            resource.subscribe(input.topics());
-
-            logger.debug("Consumer awaiting assignment for {} ...", input.topics());
-
-            Set<TopicPartition> topicPartitionSet = resource.assignment();
-
-            while(topicPartitionSet.isEmpty()){
-                resource.poll(Duration.of(10, MILLIS));
-                topicPartitionSet = resource.assignment();
-            }
-
-            logger.debug("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, input.topics());
-
-            resource.seekToBeginning(topicPartitionSet);
-            Map<TopicPartition, Long> endOffsets = resource.endOffsets(topicPartitionSet);
-
-            logger.debug("Consumer sought to beginning, polling for records");
+            Map<TopicPartition, Long> endOffsets = ConsumerUtils.subscribeAndSeek(resource, input);
 
             Queue<ConsumedMessage<String, String>> queue;
             if(input.limit() > 0 && !input.limitAppliesFromStart()){
@@ -128,8 +113,10 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
         }
         catch (Exception e){
             logger.error("Failed to complete task of consuming from topics " + input.topics(), e);
-            resource.discard();
             throw e;
+        }
+        finally {
+            resource.discard();
         }
     }
 

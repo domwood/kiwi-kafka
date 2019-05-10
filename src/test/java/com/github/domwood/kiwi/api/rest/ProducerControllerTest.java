@@ -1,7 +1,8 @@
-package com.github.domwood.kiwi.api;
+package com.github.domwood.kiwi.api.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.domwood.kiwi.api.rest.ProducerController;
 import com.github.domwood.kiwi.data.input.ImmutableProducerRequest;
 import com.github.domwood.kiwi.data.input.ProducerRequest;
 import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;

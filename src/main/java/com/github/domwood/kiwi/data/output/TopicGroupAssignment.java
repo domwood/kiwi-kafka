@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 @JsonSerialize(as = ImmutableTopicGroupAssignment.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface TopicGroupAssignment {
+public interface TopicGroupAssignment extends OutboundResponse{
 
     String topic();
     Integer partition();

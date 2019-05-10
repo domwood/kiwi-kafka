@@ -1,4 +1,4 @@
-package com.github.domwood.kiwi.api;
+package com.github.domwood.kiwi.api.rest;
 
 import com.github.domwood.kiwi.data.output.CreateTopicConfigOptions;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;

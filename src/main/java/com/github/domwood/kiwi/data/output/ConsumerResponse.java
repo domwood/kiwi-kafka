@@ -10,6 +10,6 @@ import java.util.List;
 @JsonSerialize(as = ImmutableConsumerResponse.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerResponse<K, V> {
+public interface ConsumerResponse<K, V> extends OutboundResponse{
     List<ConsumedMessage<K, V>> messages();
 }

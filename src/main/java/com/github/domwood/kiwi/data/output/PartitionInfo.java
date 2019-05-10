@@ -10,7 +10,7 @@ import java.util.List;
 @JsonDeserialize(as = ImmutablePartitionInfo.class)
 @JsonSerialize(as = ImmutablePartitionInfo.class)
 @Value.Immutable
-public interface PartitionInfo {
+public interface PartitionInfo extends OutboundResponse{
 
     Integer partition();
     Integer replicationfactor();

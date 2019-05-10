@@ -1,7 +1,8 @@
-package com.github.domwood.kiwi.api;
+package com.github.domwood.kiwi.api.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.domwood.kiwi.api.rest.AdminController;
 import com.github.domwood.kiwi.data.output.ImmutableTopicList;
 import com.github.domwood.kiwi.data.output.TopicList;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;

@@ -9,7 +9,7 @@ import java.util.List;
 @JsonDeserialize(as = ImmutableBrokerLogInfo.class)
 @JsonSerialize(as = ImmutableBrokerLogInfo.class)
 @Value.Immutable
-public interface BrokerLogInfo {
+public interface BrokerLogInfo extends OutboundResponse{
 
     String logName();
 

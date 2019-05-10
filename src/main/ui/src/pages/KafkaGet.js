@@ -20,6 +20,7 @@ import * as GeneralUtilities from "../services/GeneralUtilities";
 import "./../App.css";
 import FilterConfigurer from "../components/FilterConfigurer";
 import {toast} from "react-toastify";
+import WebSocketService from "../services/WebSocketService";
 
 class KafkaGet extends Component {
 
@@ -35,7 +36,9 @@ class KafkaGet extends Component {
             messageStartToggle: false,
             messages: [],
             filters: [],
-            consumerResponse: null
+            consumerResponse: null,
+            continuous: false,
+            continuousToastId: null
         };
     }
 
@@ -83,7 +86,41 @@ class KafkaGet extends Component {
                 }
             );
         })
+    };
 
+    startContinuousConsumer = () => {
+        WebSocketService.connect();
+        WebSocketService.consume(
+            [this.state.targetTopic],
+            this.state.filters,
+            (response) => {
+                this.setState({
+                    messages: this.state.messages.concat(response.messages)
+                }, () => {
+                    if(this.state.continuousToastId){
+                        toast.update(this.state.continuousToastId, `Retrieved ${(this.state.messages||[]).length} messages `)
+                    }
+                    else{
+                        this.setState({
+                            continuousToastId: toast.success(`Retrieved ${(this.state.messages||[]).length} messages`)
+                        });
+                    }
+                });
+            },
+            (error) => {
+                this.setState({
+                    consuming: false
+                });
+                toast.error(`Failed to retrieve data from server ${error.message}`)
+            },
+            () => {
+                this.setState({
+                    consuming: false,
+                    continuousToastId: null
+                });
+                toast.info("Consumer connection closed");
+            }
+        );
     };
 
     render() {
@@ -125,8 +162,10 @@ class KafkaGet extends Component {
                     </FormGroup>
 
                     <ButtonGroup>
-                        <Button onClick={this.getKafkaMessage}>Consume From Kafka</Button>
+                        <Button onClick={this.getKafkaMessage}>Get From Kafka</Button>
+                        <Button onClick={this.startContinuousConsumer}>Stream From Kafka</Button>
                         {this.state.consuming ? <Spinner color="secondary" /> : ''}
+
                     </ButtonGroup>
 
                     <div className="mt-lg-4"/>
