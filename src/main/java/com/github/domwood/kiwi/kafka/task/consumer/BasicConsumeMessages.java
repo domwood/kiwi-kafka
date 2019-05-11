@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
+import static com.github.domwood.kiwi.kafka.task.consumer.ConsumerUtils.asConsumedRecord;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.stream.Collectors.toList;
@@ -71,17 +72,8 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                     Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
                     while(recordIterator.hasNext() && (queue.size() < input.limit() || input.limit() < 1 || !input.limitAppliesFromStart())){
                         ConsumerRecord<String, String> record = recordIterator.next();
-                        String payload = record.value();
                         if(filter.test(record)){
-                            queue.add(ImmutableConsumedMessage.<String, String>builder()
-                                    .timestamp(record.timestamp())
-                                    .offset(record.offset())
-                                    .partition(record.partition())
-                                    .key(record.key())
-                                    .message(payload)
-                                    .headers(fromKafkaHeaders(record.headers()))
-                                    .build());
-
+                            queue.add(asConsumedRecord(record));
                             toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         }
                     }
@@ -90,13 +82,14 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                         resource.keepAlive();
                     }
 
-                    boolean maxQueueReached = input.limit() > 1 && input.limitAppliesFromStart();
+                    boolean maxQueueReached = input.limit() > 1 && input.limitAppliesFromStart() && queue.size() > input.limit();
                     boolean endOfData = isEndofData(endOffsets, toCommit);
                     running = ! ( maxQueueReached || endOfData );
 
                     if(maxQueueReached) logger.debug("Max queue size reached");
                     if(endOfData) logger.debug("End of data reached");
                 }
+
                 if(pollEmptyCount >= 3){
                     logger.debug("Polled empty 3 times, closing consumer");
 

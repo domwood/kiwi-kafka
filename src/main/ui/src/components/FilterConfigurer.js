@@ -117,16 +117,11 @@ class FilterConfigurer extends Component {
     };
 
     removeFilter = () => {
-        if(this.state.filters.length === 1){
-            this.setState({
-                useFilter: false
-            });
-        }
-        else{
-            this.setState({
-                filters: this.state.filters.slice(0, -1)
-            }, this.updateParent);
-        }
+        let useFilter = this.state.filters.length > 0;
+        this.setState({
+            useFilter: useFilter,
+            filters: useFilter ? this.state.filters.slice(0, -1) : []
+        }, this.updateParent);
     };
 
     render() {

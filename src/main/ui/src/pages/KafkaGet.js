@@ -31,15 +31,20 @@ class KafkaGet extends Component {
             alerts: [],
             bootstrapServers: "",
             targetTopic: "",
-            messageLimit: 10,
+            messageLimit: 100,
             messageFromEnd: true,
             messageStartToggle: false,
             messages: [],
             filters: [],
             consumerResponse: null,
             continuous: false,
-            continuousToastId: null
+            consumeCount: 0,
+            isReversed: true
         };
+    }
+
+    componentWillUnmount() {
+        WebSocketService.disconnect();
     }
 
     setMessageLimit = (messageLimit) => {
@@ -88,40 +93,52 @@ class KafkaGet extends Component {
         })
     };
 
-    startContinuousConsumer = () => {
+    startConsumer = () => {
+        this.setState({
+            continuous: true,
+            messages:[],
+            consumeCount:0
+        });
         WebSocketService.connect();
         WebSocketService.consume(
             [this.state.targetTopic],
             this.state.filters,
             (response) => {
                 this.setState({
-                    messages: this.state.messages.concat(response.messages)
-                }, () => {
-                    if(this.state.continuousToastId){
-                        toast.update(this.state.continuousToastId, `Retrieved ${(this.state.messages||[]).length} messages `)
-                    }
-                    else{
-                        this.setState({
-                            continuousToastId: toast.success(`Retrieved ${(this.state.messages||[]).length} messages`)
-                        });
-                    }
+                    continuous: true,
+                    consumeCount: this.state.consumeCount+response.messages.length,
+                    messages: this.state.isReversed ?
+                        response.messages.reverse()
+                            .concat(this.state.messages)
+                            .slice(0, this.state.messageLimit) :
+                        this.state.messages
+                            .concat(response.messages)
+                            .slice(this.state.messages.length + response.messages.length > this.state.messageLimit ?  -this.state.messageLimit : 0)
                 });
             },
             (error) => {
-                this.setState({
-                    consuming: false
-                });
                 toast.error(`Failed to retrieve data from server ${error.message}`)
+                this.setState({
+                    continuous: false,
+                });
+                WebSocketService.disconnect();
             },
             () => {
                 this.setState({
-                    consuming: false,
-                    continuousToastId: null
+                    continuous: false,
                 });
                 toast.info("Consumer connection closed");
             }
         );
     };
+
+    stopConsumer = () => {
+        this.setState({
+            continuous: false
+        });
+        WebSocketService.disconnect();
+    };
+
 
     render() {
         return (
@@ -162,8 +179,20 @@ class KafkaGet extends Component {
                     </FormGroup>
 
                     <ButtonGroup>
-                        <Button onClick={this.getKafkaMessage}>Get From Kafka</Button>
-                        <Button onClick={this.startContinuousConsumer}>Stream From Kafka</Button>
+                        {
+                            !this.state.continuous ?
+                                <div>
+                                    <Button onClick={this.getKafkaMessage}>Read and Close</Button>
+                                    <Button onClick={this.startConsumer}>Consume Continuously</Button>
+                                </div>
+                                :
+                                <div>
+                                    <Button onClick={this.getKafkaMessage} disabled={true}>Read and Close</Button>
+                                    <Button color="warning" onClick={this.stopConsumer}>Stop Consuming</Button>
+                                    <span>Limited to {this.state.messages.length} of {this.state.consumeCount} consumed </span>
+                                    <Spinner color="secondary" />
+                                </div>
+                        }
                         {this.state.consuming ? <Spinner color="secondary" /> : ''}
 
                     </ButtonGroup>

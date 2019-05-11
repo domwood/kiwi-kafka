@@ -25,6 +25,7 @@ public class KafkaConsumerResource<K, V> extends KafkaResource<KafkaConsumer<K, 
 
     @Override
     protected void closeClient() throws Exception {
+        //TODO sort out concurrent modification issue
         this.client.close();
     }
 

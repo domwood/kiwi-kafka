@@ -3,7 +3,9 @@ package com.github.domwood.kiwi.kafka.task.consumer;
 
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.output.ConsumedMessage;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
+import com.github.domwood.kiwi.data.output.OutboundResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
@@ -22,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
+import static com.github.domwood.kiwi.kafka.task.consumer.ConsumerUtils.asConsumedRecord;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
 
@@ -74,6 +76,7 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
                 ConsumerUtils.subscribeAndSeek(resource, input);
 
                 boolean running = true;
+                int idleCount = 0;
                 while(running) {
                     if(this.paused.get()){
                         Thread.sleep(20);
@@ -85,10 +88,14 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
                         logger.info("Task set to close, closing...");
                     }
                     else{
-                        ConsumerRecords<String, String> records = resource.poll(Duration.of(10, MILLIS));
+                        ConsumerRecords<String, String> records = resource.poll(Duration.of(Integer.max(10^(idleCount+1), 5000), MILLIS));
                         if (records.isEmpty()) {
+                            idleCount++;
                             logger.debug("No records polled for topic {} ", input.topics());
+                            resource.keepAlive();
+
                         } else {
+                            idleCount = 0;
                             Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(this.filters);
                             ArrayList<ConsumedMessage<String, String>> messages = new ArrayList<>(batchSize);
 
@@ -96,34 +103,18 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
                             Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
                             while (recordIterator.hasNext()) {
                                 ConsumerRecord<String, String> record = recordIterator.next();
-                                String payload = record.value();
-                                if (filter.test(record)) {
-                                    ConsumedMessage<String, String> message = ImmutableConsumedMessage.<String, String>builder()
-                                            .timestamp(record.timestamp())
-                                            .offset(record.offset())
-                                            .partition(record.partition())
-                                            .key(record.key())
-                                            .message(payload)
-                                            .headers(fromKafkaHeaders(record.headers()))
-                                            .build();
 
-                                    messages.add(message);
+                                if (filter.test(record)) {
+                                    messages.add(asConsumedRecord(record));
                                     toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                                 }
 
                                 if (messages.size() >= batchSize) {
-                                    ConsumerResponse<String, String> response = ImmutableConsumerResponse.<String, String>builder()
-                                            .messages(messages)
-                                            .build();
-                                    //Blocking Call
-                                    this.consumer.accept(response);
-
-                                    resource.commitAsync(toCommit, this::logCommit);
-                                    messages.clear();
-                                    toCommit.clear();
-
-                                    resource.keepAlive();
+                                    forwardAndCommit(resource, messages, toCommit);
                                 }
+                            }
+                            if(!messages.isEmpty()){
+                                forwardAndCommit(resource, messages, toCommit);
                             }
                         }
                     }
@@ -139,17 +130,27 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
         });
     }
 
+    private void forwardAndCommit(KafkaConsumerResource<String, String> resource,
+                                 List<ConsumedMessage<String, String>> messages,
+                                 Map<TopicPartition, OffsetAndMetadata> toCommit){
+        //Blocking Call
+        logger.info("Message batch size forwarding to consumers");
+
+        this.consumer.accept(ImmutableConsumerResponse.<String, String>builder()
+                .messages(messages)
+                .build());
+
+        resource.commitAsync(toCommit, ConsumerUtils::logCommit);
+
+        messages.clear();
+        toCommit.clear();
+
+        resource.keepAlive();
+    }
+
     @Override
     public boolean isClosed() {
         return this.closed.get();
     }
 
-    private void logCommit(Map<TopicPartition, OffsetAndMetadata> offsetData, Exception exception){
-        if(exception != null){
-            logger.error("Failed to commit offset ", exception);
-        }
-        else{
-            logger.debug("Commit offset data {}", offsetData);
-        }
-    }
 }

@@ -34,7 +34,7 @@ public class KiwiWebSocketConsumerHandler {
     public void addConsumerTask(String id,
                                 ConsumerRequest request,
                                 Consumer<OutboundResponse> consumer){
-        if(consumers.get(id).isClosed()){
+        if(consumers.containsKey(id) && consumers.get(id).isClosed()){
             logger.info("Consumer already present for session {}, but is closed, removing", id);
             this.consumers.remove(id);
         }

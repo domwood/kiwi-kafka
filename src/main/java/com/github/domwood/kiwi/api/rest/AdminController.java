@@ -34,7 +34,7 @@ public class AdminController {
     @Async
     @GetMapping("/listTopics")
     @ResponseBody
-    public CompletableFuture<TopicList> listTopics(@RequestParam(required = false) String bootStrapServers){
+    public CompletableFuture<TopicList> listTopics(@RequestParam(required = false) Optional<String> bootStrapServers){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         ListTopics listTopics = this.taskProvider.listTopics();
         return listTopics.execute(adminResource, null);
@@ -43,7 +43,7 @@ public class AdminController {
     @Async
     @GetMapping("/topicInfo")
     @ResponseBody
-    public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) String bootStrapServers,
+    public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                   @RequestParam String topic){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         TopicInformation topicInformation = this.taskProvider.topicInfo();
@@ -53,7 +53,7 @@ public class AdminController {
     @Async
     @GetMapping("/listConsumerGroups")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupList> consumerGroups(@RequestParam(required = false) String bootStrapServers){
+    public CompletableFuture<ConsumerGroupList> consumerGroups(@RequestParam(required = false) Optional<String> bootStrapServers){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         ConsumerGroupInformation consumerGroupInformation = this.taskProvider.consumerGroups();
         return consumerGroupInformation.execute(adminResource, null);
@@ -62,7 +62,7 @@ public class AdminController {
     @Async
     @GetMapping("/listConsumerGroupTopicDetails")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupTopicDetails> consumerGroupTopicDetails(@RequestParam(required = false) String bootStrapServers){
+    public CompletableFuture<ConsumerGroupTopicDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         ConsumerGroupTopicInformation consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation();
         return consumerGroupInformation.execute(adminResource, null);
@@ -71,10 +71,10 @@ public class AdminController {
     @Async
     @GetMapping("/listConsumerGroupOffsetDetails")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) String bootStrapServers,
+    public CompletableFuture<ConsumerGroupOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                                                    String groupId){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        KafkaConsumerResource<String, String> consumerResource = resourceProvider.kafkaStringConsumerResource(Optional.ofNullable(bootStrapServers));
+        KafkaConsumerResource<String, String> consumerResource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
         ConsumerGroupOffsetInformation consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
         return consumerGroupInformation.execute(Pair.of(adminResource, consumerResource), groupId);
     }
@@ -82,7 +82,7 @@ public class AdminController {
     @Async
     @GetMapping("/brokers")
     @ResponseBody
-    public CompletableFuture<BrokerInfoList> brokers(@RequestParam(required = false) String bootStrapServers){
+    public CompletableFuture<BrokerInfoList> brokers(@RequestParam(required = false) Optional<String> bootStrapServers){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         BrokerInformation brokerInformation = this.taskProvider.brokerInformation();
         return brokerInformation.execute(adminResource, null);
@@ -92,7 +92,7 @@ public class AdminController {
     @GetMapping("/logs")
     @ResponseBody
     public CompletableFuture<BrokerLogInfoList> brokers(@RequestParam Integer brokerId,
-                                                        @RequestParam(required = false) String bootStrapServers){
+                                                        @RequestParam(required = false) Optional<String> bootStrapServers){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation();
         return brokerInformation.execute(adminResource, brokerId);
@@ -101,7 +101,7 @@ public class AdminController {
     @Async
     @PostMapping("/createTopic")
     @ResponseBody
-    public CompletableFuture<Void> createTopic(@RequestParam(required = false) String bootStrapServers,
+    public CompletableFuture<Void> createTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                @RequestBody CreateTopicRequest createTopicRequest){
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         CreateTopic createTopic = this.taskProvider.createTopic();

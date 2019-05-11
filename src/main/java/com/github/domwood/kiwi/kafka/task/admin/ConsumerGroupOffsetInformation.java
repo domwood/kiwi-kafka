@@ -38,7 +38,7 @@ public class ConsumerGroupOffsetInformation implements KafkaTask<String, Consume
         CompletableFuture<Map<TopicPartition, OffsetAndMetadata>> groupAssignment =
                 toCompletable(resource.getLeft().listConsumerGroupOffsets(groupId).partitionsToOffsetAndMetadata());
 
-        CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> groupAssingmentAndOffset = groupAssignment
+        CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> groupAssignmentAndOffset = groupAssignment
                 .thenCompose(assignment -> withOffsets(resource.getRight(), assignment));
 
         CompletableFuture<ConsumerGroupDescription> description =
@@ -46,7 +46,7 @@ public class ConsumerGroupOffsetInformation implements KafkaTask<String, Consume
                         .describedGroups()
                         .get(groupId));
 
-        return groupAssingmentAndOffset
+        return groupAssignmentAndOffset
                 .thenCombine(description, (offsets, consumerDescription) -> this.toOffsetDetails(groupId, offsets, consumerDescription));
     }
 

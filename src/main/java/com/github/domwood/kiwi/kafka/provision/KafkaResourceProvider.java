@@ -16,7 +16,10 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-//TODO improve this management as some point eg re-using resources
+//TODO we can't really close these resources externally
+// they need to be closed by the thread which created the
+// underlying client, else we throw concurrent modification exes
+// So many of these cleanup methods aren't suitable and need rethought
 @Component
 public class KafkaResourceProvider {
 
@@ -56,7 +59,7 @@ public class KafkaResourceProvider {
         return producerResource;
     }
 
-    public KafkaAdminResource kafkaAdminResource(String bootStrapServers){
+    public KafkaAdminResource kafkaAdminResource(Optional<String> bootStrapServers){
         Properties props = adminConfig.createConfig(bootStrapServers);
         KafkaAdminResource adminResource = new KafkaAdminResource(props);
         resources.add(adminResource);
