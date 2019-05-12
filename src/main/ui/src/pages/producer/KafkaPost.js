@@ -15,7 +15,7 @@ import TopicInput from "../common/TopicInput";
 
 import uuid from "uuid/v4";
 import * as ApiService from "../../services/ApiService";
-import {toast} from "react-toastify/index";
+import {toast} from "react-toastify";
 import "../../App.css";
 
 class KafkaPost extends Component {
@@ -137,7 +137,13 @@ class KafkaPost extends Component {
                             <Input type="text" name="kafkaHeaderValue" id="kafkaHeaderValue"
                                    value={this.state.currentKafkaHeaderValue} onChange={this.handleCurrentHeaderValueChange}/>
                             <InputGroupAddon addonType="append">
-                                <Button color="secondary" onClick={() => this.addHeader()}>Add Header</Button>
+                                {
+                                    this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue ?
+                                        <Button color="success" onClick={() => this.addHeader()}>Add Header</Button>
+                                        :
+                                        <Button color="secondary" onClick={() => this.addHeader()} disabled={true}>Add Header</Button>
+                                }
+
                             </InputGroupAddon>
                         </InputGroup>
                         {
@@ -173,7 +179,7 @@ class KafkaPost extends Component {
 
                     <div className="mt-lg-1"></div>
 
-                    <Button onClick={this.submit}>Send!</Button>
+                    <Button onClick={this.submit} disabled={this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue}>Send!</Button>
 
                     <div className="mt-lg-1"></div>
                 </Form>

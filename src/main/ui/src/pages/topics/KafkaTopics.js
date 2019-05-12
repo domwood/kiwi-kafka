@@ -14,7 +14,7 @@ import {
 import DataStore from "../../services/GlobalStore";
 import * as ApiService from "../../services/ApiService";
 import * as GeneralUtilities from "../../services/GeneralUtilities";
-import {toast} from "react-toastify/index";
+import {toast} from "react-toastify";
 import "../../App.css";
 import {MdRefresh} from "react-icons/md";
 import CreateTopic from "./components/CreateTopic";
@@ -147,22 +147,20 @@ class KafkaTopics extends Component {
                 <div className="mt-lg-4" />
                 <div className={"TwoGap"} />
 
+                <ButtonGroup>
+                    <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh /></Button>
+                    {!this.state.addTopic ? <Button onClick={() => this.addTopic(true)}>Add Topic +</Button> : '' }
+                    {this.state.loading ? <Spinner color="secondary" /> : ''}
+                </ButtonGroup>
+
+                <div className={"Gap"} />
+
                 {this.state.addTopic ?
                     <div>
                         <CreateTopic onClose={() => this.addTopic(false)} onCreate={this.reloadTopics}/>
                     </div>
-                    :
-                    <div>
-                        <Button onClick={() => this.addTopic(true)}>Add Topic +</Button>
-                    </div>
+                    : ''
                 }
-
-                <div className={"Gap"} />
-
-                <ButtonGroup>
-                    <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh /></Button>
-                    {this.state.loading ? <Spinner color="secondary" /> : ''}
-                </ButtonGroup>
 
                 <div className={"Gap"} />
 

@@ -12,14 +12,14 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import DataStore from "../../../services/GlobalStore";
 import * as ApiService from "../../../services/ApiService";
-import {toast} from "react-toastify/index";
+import {toast} from "react-toastify";
 
 class CreateTopic extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            targetTopic: "",
+            topicName: "exampleTopic",
             createTopicConfig: [],
             replicationFactor: 3,
             partitions: 10
@@ -35,7 +35,6 @@ class CreateTopic extends Component {
         }
         else{
             ApiService.getCreateTopicConfig(config =>{
-                console.log(config);
                 this.setState({
                     createTopicConfig: config
                 });
@@ -96,6 +95,17 @@ class CreateTopic extends Component {
         })
     };
 
+    removeConfig = (configKey) => {
+        let topicConfig = this.state.topicConfig || {};
+        delete topicConfig[configKey];
+        topicConfig = Object.keys(topicConfig).length < 1 ? null : topicConfig;
+        this.setState({
+            configKey: "",
+            configValue: "",
+            topicConfig: topicConfig
+        })
+    };
+
     createTopic = () => {
         let topic = {
             name: this.state.topicName,
@@ -123,7 +133,9 @@ class CreateTopic extends Component {
                             </InputGroupAddon>
                             <Input type="text" name="topicAddName" id="topicAddName"
                                    value={this.state.topicName}
-                                   onChange={event => this.setAddTopicName(event.target.value)} />
+                                   onChange={event => this.setAddTopicName(event.target.value)}
+                                   required
+                            />
                         </InputGroup>
                     </ListGroupItem>
 
@@ -134,7 +146,9 @@ class CreateTopic extends Component {
                             </InputGroupAddon>
                             <Input type="number" name="topicAddPartitions" id="topicAddPartitions"
                                    value={this.state.partitions}
-                                   onChange={event => this.setAddTopicPartition(event.target.value)} />
+                                   onChange={event => this.setAddTopicPartition(event.target.value)}
+                                   required
+                            />
                         </InputGroup>
                     </ListGroupItem>
 
@@ -145,7 +159,9 @@ class CreateTopic extends Component {
                             </InputGroupAddon>
                             <Input type="number" name="topicAddReplication" id="topicAddReplication"
                                    value={this.state.replicationFactor}
-                                   onChange={event => this.setAddTopicReplication(event.target.value)} />
+                                   onChange={event => this.setAddTopicReplication(event.target.value)}
+                                   required
+                            />
                         </InputGroup>
                     </ListGroupItem>
 
@@ -158,7 +174,7 @@ class CreateTopic extends Component {
                                 </DropdownToggle>
                                 <DropdownMenu>
                                     {
-                                        this.state.createTopicConfig.map(item => <DropdownItem onClick={() => this.setConfigKey(item)}>
+                                        this.state.createTopicConfig.map(item => <DropdownItem key={item} onClick={() => this.setConfigKey(item)}>
                                             {item}
                                         </DropdownItem>)
                                     }
@@ -167,14 +183,16 @@ class CreateTopic extends Component {
 
                             <Input type="text" name="configKey" id="configKey"
                                    value={this.state.configKey}
-                                   onChange={event => this.setConfigKey(event.target.value)} />
+                                   onChange={event => this.setConfigKey(event.target.value)}/>
                             <Input type="text" name="configValue" id="configValue"
                                    value={this.state.configValue}
-                                   onChange={event => this.setConfigValue(event.target.value)} />
+                                   onChange={event => this.setConfigValue(event.target.value)}/>
                             <InputGroupAddon addonType="append" >
                                 {
                                     this.state.configKey && this.state.configValue ?
                                         <Button color="success" onClick={this.addConfig}>Add Configuration</Button> :
+                                    this.state.configKey || this.state.configValue ?
+                                        <Button color="warning" disabled={true}>Add Configuration</Button> :
                                         <Button color="secondary" disabled={true}>Add Configuration</Button>
                                 }
 
@@ -188,8 +206,9 @@ class CreateTopic extends Component {
                                 <Table sm>
                                     <thead>
                                     <tr>
-                                        <th>Key</th>
-                                        <th>Value</th>
+                                        <th width="40%">Key</th>
+                                        <th width="40%">Value</th>
+                                        <th width="20%"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -198,6 +217,7 @@ class CreateTopic extends Component {
                                             .map(key => <tr key={"config"+key}>
                                                 <td>{key}</td>
                                                 <td>{this.state.topicConfig[key]}</td>
+                                                <td><Button onClick={() => this.removeConfig(key)}>Remove Configuration</Button></td>
                                             </tr>)
                                     }
                                     </tbody>
@@ -210,7 +230,7 @@ class CreateTopic extends Component {
                     <ListGroupItem>
                         <ButtonGroup>
                             {
-                                this.state.topicName ?
+                                this.state.topicName && !(this.state.configKey || this.state.configValue) ?
                                     <Button color="success" onClick={this.createTopic}>Create</Button> :
                                     <Button color="secondary" disabled>Create</Button>
                             }
@@ -229,6 +249,7 @@ class CreateTopic extends Component {
 
 CreateTopic.propTypes = {
     onClose: PropTypes.func.isRequired,
+
 };
 
 
