@@ -16,7 +16,7 @@ public class KiwiTaskExecutor implements Executor {
 
     private static class KiwiTaskExecutorHelper{
         private final static KiwiTaskExecutor INSTANCE = new KiwiTaskExecutor(new ThreadFactoryBuilder()
-                .setNameFormat("kiwi-runtime-thread-%d")
+                .setNameFormat("kiwi-task-thread-%d")
                 .build());
     }
 

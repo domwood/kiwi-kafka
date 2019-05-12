@@ -1,9 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.clients.consumer.OffsetCommitCallback;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
@@ -20,37 +17,41 @@ public class KafkaConsumerResource<K, V> extends KafkaResource<KafkaConsumer<K, 
 
     @Override
     protected KafkaConsumer<K, V> createClient(Properties props) {
-        return new KafkaConsumer<>(this.config);
+        Properties properties =  new Properties();
+        properties.putAll(props);
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, Thread.currentThread().getName());
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, Thread.currentThread().getName());
+        return new KafkaConsumer<>(properties);
     }
 
     @Override
     protected void closeClient() throws Exception {
         //TODO sort out concurrent modification issue
-        this.client.close();
+        this.getClient().close();
     }
 
     public void subscribe(List<String> topics){
-        this.client.subscribe(topics);
+        this.getClient().subscribe(topics);
     }
 
     public Set<TopicPartition> assignment(){
-        return this.client.assignment();
+        return this.getClient().assignment();
     }
 
     public ConsumerRecords<K, V> poll(Duration timeout){
-        return this.client.poll(timeout);
+        return this.getClient().poll(timeout);
     }
 
     public void seekToBeginning(Set<TopicPartition> topicPartitions){
-        this.client.seekToBeginning(topicPartitions);
+        this.getClient().seekToBeginning(topicPartitions);
     }
 
     public Map<TopicPartition, Long> endOffsets(Set<TopicPartition> topicPartitions){
-        return this.client.endOffsets(topicPartitions);
+        return this.getClient().endOffsets(topicPartitions);
     }
 
     public void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback){
-        this.client.commitAsync(offsets, callback);
+        this.getClient().commitAsync(offsets, callback);
     }
 
 }

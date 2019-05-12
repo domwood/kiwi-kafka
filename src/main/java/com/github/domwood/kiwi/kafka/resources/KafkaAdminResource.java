@@ -20,43 +20,43 @@ public class KafkaAdminResource extends KafkaResource<AdminClient>{
 
     @Override
     protected void closeClient() throws Exception {
-        this.client.close(10, TimeUnit.SECONDS);
+        this.getClient().close(10, TimeUnit.SECONDS);
     }
 
     public DescribeClusterResult describeCluster(){
-        return this.client.describeCluster();
+        return this.getClient().describeCluster();
     }
 
     public DescribeLogDirsResult describeLogDirs(List<Integer> nodes){
-        return this.client.describeLogDirs(nodes);
+        return this.getClient().describeLogDirs(nodes);
     }
 
     public DescribeConfigsResult describeConfigs(Collection<ConfigResource> resources) {
-        return this.client.describeConfigs(resources);
+        return this.getClient().describeConfigs(resources);
     }
 
     public DescribeTopicsResult describeTopics(Collection<String> topicNames) {
-        return this.client.describeTopics(topicNames);
+        return this.getClient().describeTopics(topicNames);
     }
 
     public ListConsumerGroupsResult listConsumerGroups() {
-        return this.client.listConsumerGroups();
+        return this.getClient().listConsumerGroups();
     }
 
     public DescribeConsumerGroupsResult describeConsumerGroups(Collection<String> groupIds) {
-        return this.client.describeConsumerGroups(groupIds);
+        return this.getClient().describeConsumerGroups(groupIds);
     }
 
     public CreateTopicsResult createTopics(Collection<NewTopic> newTopics) {
-        return this.client.createTopics(newTopics);
+        return this.getClient().createTopics(newTopics);
     }
 
     public ListTopicsResult listTopics() {
-        return this.client.listTopics();
+        return this.getClient().listTopics();
     }
 
     public ListConsumerGroupOffsetsResult listConsumerGroupOffsets(String groupId){
-        return this.client.listConsumerGroupOffsets(groupId);
+        return this.getClient().listConsumerGroupOffsets(groupId);
     }
 
 }

@@ -2,6 +2,7 @@ package com.github.domwood.kiwi.api.rest.exception;
 
 import com.github.domwood.kiwi.data.error.ApiError;
 import com.github.domwood.kiwi.data.error.ImmutableApiError;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 @ControllerAdvice
 public class KiwiApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -27,7 +31,7 @@ public class KiwiApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        Throwable rootCause = discoverCause(ex, 0);
+        Throwable rootCause =  ExceptionUtils.getRootCause(ex);
         if(rootCause == null) rootCause = ex;
 
         if(rootCause instanceof UnknownTopicOrPartitionException){
@@ -37,10 +41,11 @@ public class KiwiApiExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError error = ImmutableApiError.builder()
                 .error(ex.getClass().getName())
                 .rootCause(rootCause.getClass().getName())
-                .message(ex.getMessage())
+                .message(ex.getMessage() != null ? ex.getMessage() : ExceptionUtils.getRootCauseMessage(ex))
+                .stackTrace(ExceptionUtils.getStackTrace(ex))
                 .build();
 
-        logger.warn("Failed to handle api call, this may be due to client with body {} lead to error {}", body, error);
+        logger.warn("Failed to handle api call, body {} lead to error {}", body, error);
 
         return new ResponseEntity(error, headers, status);
     }
@@ -58,5 +63,12 @@ public class KiwiApiExceptionHandler extends ResponseEntityExceptionHandler {
         else{
             return this.discoverCause(ex.getCause(), depth++);
         }
+    }
+
+    private String stackAsString(Exception ex) {
+
+        StringWriter sw = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

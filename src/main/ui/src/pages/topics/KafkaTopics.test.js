@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import KafkaTopics from './KafkaTopics';
-import * as ApiService from "../services/ApiService";
-import {mount} from "enzyme";
+import * as ApiService from "../../services/ApiService";
+import {mount} from "enzyme/build";
 import { waitForState, wait } from 'enzyme-async-helpers';
 
-jest.mock("../services/ApiService");
+jest.mock("../../services/ApiService");
 
 const partitionData = {
     partition: 0,

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {FormGroup, Input, Label} from "reactstrap";
 import PropTypes from 'prop-types';
-import {toast} from "react-toastify";
+import {toast} from "react-toastify/index";
 
 
 class JsonEditor extends Component {

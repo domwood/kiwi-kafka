@@ -11,13 +11,13 @@ import {
     ListGroupItem, Spinner,
     Table
 } from "reactstrap";
-import DataStore from "../services/GlobalStore";
-import * as ApiService from "../services/ApiService";
-import * as GeneralUtilities from "../services/GeneralUtilities";
-import {toast} from "react-toastify";
-import "./../App.css";
+import DataStore from "../../services/GlobalStore";
+import * as ApiService from "../../services/ApiService";
+import * as GeneralUtilities from "../../services/GeneralUtilities";
+import {toast} from "react-toastify/index";
+import "../../App.css";
 import {MdRefresh} from "react-icons/md";
-import CreateTopic from "../components/CreateTopic";
+import CreateTopic from "./components/CreateTopic";
 
 class KafkaTopics extends Component {
 

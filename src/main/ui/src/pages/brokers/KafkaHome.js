@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import {Button, Container, Table} from "reactstrap";
-import * as ApiService from "../services/ApiService";
-import DataStore from "../services/GlobalStore";
-import {toast} from "react-toastify";
-import "./../App.css";
+import * as ApiService from "../../services/ApiService";
+import DataStore from "../../services/GlobalStore";
+import {toast} from "react-toastify/index";
+import "../../App.css";
 
 class KafkaHome extends Component {
     constructor(props) {

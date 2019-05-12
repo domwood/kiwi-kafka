@@ -8,7 +8,7 @@ import {
     InputGroupButtonDropdown, ListGroup, ListGroupItem
 } from "reactstrap";
 import PropTypes from "prop-types";
-import "./../App.css";
+import "../../../App.css";
 
 class FilterConfigurer extends Component {
 
@@ -18,14 +18,7 @@ class FilterConfigurer extends Component {
             id : props.id,
             name : props.name,
             useFilter: false,
-            filters: [{
-                filterTypeButtonOpen: false,
-                filterApplicationButtonOpen: false,
-                filter: '',
-                filterType: 'STARTS_WITH',
-                filterApplication: 'KEY',
-                isCaseSensitive: false
-            }]
+            filters: []
         };
     }
 
@@ -47,12 +40,6 @@ class FilterConfigurer extends Component {
         filter.filter &&
         filter.filterType &&
         filter.filterApplication;
-
-    toggleFilter = () => {
-        this.setState({
-            useFilter : !this.state.useFilter
-        }, this.updateParent)
-    };
 
     toggleFilterTypeButton = (index) => {
         let filters = this.state.filters;
@@ -105,6 +92,7 @@ class FilterConfigurer extends Component {
 
     addFilter = () => {
         this.setState({
+            useFilter: true,
             filters: [...this.state.filters, {
                 filterTypeButtonOpen: false,
                 filterApplicationButtonOpen: false,
@@ -117,7 +105,7 @@ class FilterConfigurer extends Component {
     };
 
     removeFilter = () => {
-        let useFilter = this.state.filters.length > 0;
+        let useFilter = this.state.filters.length > 1;
         this.setState({
             useFilter: useFilter,
             filters: useFilter ? this.state.filters.slice(0, -1) : []
@@ -202,7 +190,7 @@ class FilterConfigurer extends Component {
 
                     </ListGroup>
                     :
-                    <Button size="sm" block onClick={this.toggleFilter} width={'100%'}>Include Message Filter</Button>
+                    <Button size="sm" block onClick={this.addFilter} width={'100%'}>Include Message Filter</Button>
                 }
 
                 <div className="mt-lg-1"/>

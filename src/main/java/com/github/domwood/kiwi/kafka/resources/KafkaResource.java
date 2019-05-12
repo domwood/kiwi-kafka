@@ -1,6 +1,7 @@
 package com.github.domwood.kiwi.kafka.resources;
 
 import com.github.domwood.kiwi.kafka.utils.TimeProvider;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,14 +11,13 @@ import java.util.Properties;
 public abstract class KafkaResource<CLIENT> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected CLIENT client;
+    private CLIENT client;
     private long lastKeepAlive;
     protected final Properties config;
 
     public KafkaResource(Properties props){
         this.lastKeepAlive = TimeProvider.getTime();
         this.config = props;
-        this.client = createClient(props);
     }
 
     public void discard(){
@@ -33,6 +33,14 @@ public abstract class KafkaResource<CLIENT> {
     }
 
     protected abstract CLIENT createClient(Properties props);
+
+
+    protected CLIENT getClient(){
+        if(this.client == null){
+            this.client = createClient(this.config);
+        }
+        return this.client;
+    }
 
     protected abstract void closeClient() throws Exception;
 

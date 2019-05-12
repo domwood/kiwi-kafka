@@ -22,11 +22,11 @@ public class KafkaProducerResource<K, V> extends KafkaResource<KafkaProducer<K, 
 
     @Override
     protected void closeClient() throws Exception {
-        this.client.close(20, TimeUnit.SECONDS);
+        this.getClient().close(20, TimeUnit.SECONDS);
     }
 
     public CompletableFuture<RecordMetadata> send(ProducerRecord<K, V> record){
-        return toCompletable(this.client.send(record));
+        return toCompletable(this.getClient().send(record));
     }
 
 }

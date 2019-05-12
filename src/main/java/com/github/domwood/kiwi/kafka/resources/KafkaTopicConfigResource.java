@@ -20,6 +20,6 @@ public class KafkaTopicConfigResource extends KafkaResource<TopicConfig>{
     }
 
     public TopicConfig getConfig(){
-        return this.client;
+        return this.getClient();
     }
 }

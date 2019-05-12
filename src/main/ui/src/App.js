@@ -12,10 +12,10 @@ import {
     NavLink
 } from 'reactstrap';
 import {HashRouter as Router, Link, Route, Switch} from "react-router-dom";
-import KafkaHome from "./pages/KafkaHome";
-import KafkaTopics from "./pages/KafkaTopics";
-import KafkaPost from "./pages/KafkaPost";
-import KafkaGet from "./pages/KafkaGet";
+import KafkaHome from "./pages/brokers/KafkaHome";
+import KafkaTopics from "./pages/topics/KafkaTopics";
+import KafkaPost from "./pages/producer/KafkaPost";
+import KafkaGet from "./pages/consumer/KafkaGet";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 

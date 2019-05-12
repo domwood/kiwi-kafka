@@ -10,13 +10,13 @@ import {
     InputGroupAddon,
     Table
 } from 'reactstrap';
-import JsonEditor from "./../components/JsonEditor"
-import TopicInput from "./../components/TopicInput";
+import JsonEditor from "./components/JsonEditor"
+import TopicInput from "../common/TopicInput";
 
 import uuid from "uuid/v4";
-import * as ApiService from "../services/ApiService";
-import {toast} from "react-toastify";
-import "./../App.css";
+import * as ApiService from "../../services/ApiService";
+import {toast} from "react-toastify/index";
+import "../../App.css";
 
 class KafkaPost extends Component {
 
@@ -114,7 +114,7 @@ class KafkaPost extends Component {
                 <div className="mt-lg-4" />
                 <Form>
 
-                    <TopicInput onUpdate={this.setTargetTopic}/>
+                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic}/>
 
                     <FormGroup>
                         <Label for="kafkaKey">Kafka Key</Label>

@@ -10,9 +10,9 @@ import {
 } from "reactstrap";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import DataStore from "../services/GlobalStore";
-import * as ApiService from "../services/ApiService";
-import {toast} from "react-toastify";
+import DataStore from "../../../services/GlobalStore";
+import * as ApiService from "../../../services/ApiService";
+import {toast} from "react-toastify/index";
 
 class CreateTopic extends Component {
     constructor(props) {

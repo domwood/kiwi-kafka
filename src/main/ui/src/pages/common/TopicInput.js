@@ -1,4 +1,4 @@
-import * as ApiService from "../services/ApiService";
+import * as ApiService from "../../services/ApiService";
 
 import {
     DropdownItem,
@@ -12,10 +12,10 @@ import {
 } from "reactstrap";
 
 import React, {Component} from "react";
-import DataStore from "../services/GlobalStore";
-import { MdRefresh } from "react-icons/md";
+import DataStore from "../../services/GlobalStore";
+import { MdRefresh } from "react-icons/md/index";
 import PropTypes from "prop-types";
-import {toast} from "react-toastify";
+import {toast} from "react-toastify/index";
 
 class TopicInput extends Component {
 
@@ -39,6 +39,9 @@ class TopicInput extends Component {
                 this.setState({
                     topicList:topics
                 });
+                if(topics.length > 0){
+                    this.setTargetTopic(topics[0])
+                }
             }, () => toast.warn("Could not retrieve topic list from server"));
         }
     };
@@ -51,9 +54,6 @@ class TopicInput extends Component {
     };
 
     setTargetTopic = (topic) => {
-        this.setState({
-            targetTopic: topic
-        });
         this.props.onUpdate(topic);
     };
 
@@ -63,9 +63,10 @@ class TopicInput extends Component {
                 <Label for="topic">Topic:</Label>
 
                 <InputGroup>
-                    <Input type="text" name="topic" id="topic"
-                           defaultValue={this.state.targetTopic}
-                           onChange={event => this.setTargetTopic(event.target.value)} />
+                    <Input type="text" name="topic" id="topicInput"
+                           value={this.props.targetTopic}
+                           onChange={event => this.setTargetTopic(event.target.value)}
+                           required />
 
                     <InputGroupButtonDropdown addonType="append" isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown}>
 
@@ -110,6 +111,7 @@ class TopicInput extends Component {
 
 TopicInput.propTypes = {
     onUpdate: PropTypes.func.isRequired,
+    targetTopic: PropTypes.string.isRequired
 };
 
 export default TopicInput;
