@@ -14,23 +14,20 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
-import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 
-public class ConsumerGroupOffsetInformation implements KafkaTask<String, ConsumerGroupOffsetDetails, Pair<KafkaAdminResource, KafkaConsumerResource<?,?>>> {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class ConsumerGroupOffsetInformation implements KafkaTask<String, ConsumerGroupOffsetDetails, Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>>> {
 
     @Override
     public CompletableFuture<ConsumerGroupOffsetDetails> execute(Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>> resource,
@@ -53,22 +50,29 @@ public class ConsumerGroupOffsetInformation implements KafkaTask<String, Consume
     private ConsumerGroupOffsetDetails toOffsetDetails(String groupId,
                                                        Map<TopicPartition, Pair<OffsetAndMetadata, Long>> partitionOffsetData,
                                                        ConsumerGroupDescription description) {
+        Map<String, Map<String, List<ConsumerGroupOffset>>> data = asByTopicAndByPartition(groupId, partitionOffsetData, description);
         return ImmutableConsumerGroupOffsetDetails.builder()
-                .offsets(asByTopicAndByPartition(groupId, partitionOffsetData, description))
+                .offsets(data)
                 .build();
     }
 
-    private Map<String, List<ConsumerGroupOffset>> asByTopicAndByPartition(String groupId,
-                                                                           Map<TopicPartition, Pair<OffsetAndMetadata, Long>> partitionOffsetData,
-                                                                           ConsumerGroupDescription description) {
+    private Map<String, Map<String, List<ConsumerGroupOffset>>> asByTopicAndByPartition(String groupId,
+                                                                                        Map<TopicPartition, Pair<OffsetAndMetadata, Long>> partitionOffsetData,
+                                                                                        ConsumerGroupDescription description) {
         return StreamUtils.extract(partitionOffsetData, this::asOffset)
                 .stream()
-                .map(builder -> builder
+                .map(builder -> (ConsumerGroupOffset) builder
                         .groupId(groupId)
                         .groupState(description.state().name())
                         .coordinator(String.format("%s (%s:%s)", description.coordinator().id(), description.coordinator().host(), description.coordinator().port()))
                         .build())
-                .collect(Collectors.groupingBy(ConsumerGroupOffset::topic));
+                .collect(Collectors.groupingBy(ConsumerGroupOffset::topic))
+                .entrySet()
+                .stream()
+                .map(kv -> new AbstractMap.SimpleEntry<>(kv.getKey(), kv.getValue()
+                        .stream()
+                        .collect(Collectors.groupingBy(ConsumerGroupOffset::groupId))))
+                .collect(StreamUtils.mapCollector());
     }
 
     private ImmutableConsumerGroupOffset.Builder asOffset(TopicPartition topicPartition, Pair<OffsetAndMetadata, Long> offsetAndMetadata) {
@@ -81,27 +85,22 @@ public class ConsumerGroupOffsetInformation implements KafkaTask<String, Consume
     }
 
     //Appears to be how the ConsumerGroupCommand.scala finds the offset/lag
-    private CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> withOffsets(KafkaConsumerResource<?,?> resource, Map<TopicPartition, OffsetAndMetadata> offsetData){
+    private CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> withOffsets(KafkaConsumerResource<?, ?> resource, Map<TopicPartition, OffsetAndMetadata> offsetData) {
         return FutureUtils.supplyAsync(() -> {
-            List<String> topics = offsetData.keySet().stream().map(TopicPartition::topic).distinct().collect(toList());
-            if(topics.isEmpty()) return Collections.emptyMap();
+            List<String> topics = offsetData.keySet().stream()
+                    .map(TopicPartition::topic)
+                    .distinct()
+                    .collect(toList());
 
-            resource.subscribe(topics);
-            Set<TopicPartition> topicPartitionSet = resource.assignment();
+            if (topics.isEmpty()) return Collections.emptyMap();
 
-            logger.debug("Consumer awaiting assignment for {} ...", topics);
+            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, false);
 
-            while(topicPartitionSet.isEmpty()){
-                resource.poll(Duration.of(10, MILLIS));
-                topicPartitionSet = resource.assignment();
-            }
-
-            Set<TopicPartition> partitions = KafkaTaskUtils.assignment(resource);
-            return mapToOffset(offsetData, resource.endOffsets(partitions));
+            return mapToOffset(offsetData, endOffsets);
         });
     }
 
-    private Map<TopicPartition, Pair<OffsetAndMetadata, Long>> mapToOffset(Map<TopicPartition, OffsetAndMetadata> group, Map<TopicPartition, Long> offsets){
+    private Map<TopicPartition, Pair<OffsetAndMetadata, Long>> mapToOffset(Map<TopicPartition, OffsetAndMetadata> group, Map<TopicPartition, Long> offsets) {
         return group.entrySet().stream()
                 .map(groupEntry -> new AbstractMap.SimpleEntry<>(groupEntry.getKey(), Pair.of(groupEntry.getValue(), offsets.getOrDefault(groupEntry.getKey(), 0L))))
                 .collect(StreamUtils.mapCollector());

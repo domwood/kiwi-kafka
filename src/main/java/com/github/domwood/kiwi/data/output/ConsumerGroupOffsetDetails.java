@@ -12,5 +12,5 @@ import java.util.Map;
 @Value.Immutable
 @Value.Style(depluralize = true)
 public interface ConsumerGroupOffsetDetails extends OutboundResponse{
-    Map<String, List<ConsumerGroupOffset>> offsets();
+    Map<String, Map<String, List<ConsumerGroupOffset>>> offsets();
 }

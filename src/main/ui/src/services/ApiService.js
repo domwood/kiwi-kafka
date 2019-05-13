@@ -28,7 +28,7 @@ export const getTopics = (cb, eb) => {
 export const getTopicInfo = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(api.topicInfo + '?topic='+topic)
+    fetch(`${api.topicInfo}?topic=${topic}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result))
@@ -48,7 +48,7 @@ export const getBrokers = (cb, eb) => {
 export const getLogs = (id, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(api.logs + '?brokerId='+id)
+    fetch(`${api.logs}?brokerId=${id}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.brokerLogInfo))
@@ -65,6 +65,16 @@ export const getConsumerGroupTopicDetails = (cb, eb) => {
         .catch(errorhandler);
 };
 
+
+export const getConsumerGroupOffsetDetails = (groupdId, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(`${api.listConsumerGroupOffsetDetails}?groupId=${groupdId}`)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.offsets))
+        .catch(errorhandler);
+};
 
 export const getCreateTopicConfig = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);

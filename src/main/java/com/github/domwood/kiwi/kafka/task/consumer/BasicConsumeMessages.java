@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
-import static com.github.domwood.kiwi.kafka.task.consumer.ConsumerUtils.asConsumedRecord;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.stream.Collectors.toList;
@@ -44,7 +43,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                                                          ConsumerRequest input) {
 
         try{
-            Map<TopicPartition, Long> endOffsets = ConsumerUtils.subscribeAndSeek(resource, input);
+            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
 
             Queue<ConsumedMessage<String, String>> queue;
             if(input.limit() > 0 && !input.limitAppliesFromStart()){
@@ -133,6 +132,17 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                         return latestCommit != null && latestCommit.offset()+1 >= kv.getValue();
                     }
                 });
+    }
+
+     ConsumedMessage<String, String> asConsumedRecord(ConsumerRecord<String, String> record){
+        return ImmutableConsumedMessage.<String, String>builder()
+                .timestamp(record.timestamp())
+                .offset(record.offset())
+                .partition(record.partition())
+                .key(record.key())
+                .message(record.value())
+                .headers(fromKafkaHeaders(record.headers()))
+                .build();
     }
 
 }

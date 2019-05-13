@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Button, Container, Table} from "reactstrap";
 import * as ApiService from "../../services/ApiService";
 import DataStore from "../../services/GlobalStore";
-import {toast} from "react-toastify/index";
+import {toast} from "react-toastify";
 import "../../App.css";
 
 class KafkaHome extends Component {
@@ -37,7 +37,7 @@ class KafkaHome extends Component {
             this.setState({
                 logFiles: logs,
                 activeNode: id
-            })
+            });
             toast.info("Retrieved Log files for broker " + id)
         }, () => toast.error("Could not retrieve Log files for broker " + id))
     };

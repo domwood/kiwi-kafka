@@ -4,11 +4,13 @@ package com.github.domwood.kiwi.kafka.task.consumer;
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
 import com.github.domwood.kiwi.data.output.ConsumedMessage;
+import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
 import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.data.output.OutboundResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
+import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -24,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static com.github.domwood.kiwi.kafka.task.consumer.ConsumerUtils.asConsumedRecord;
+import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
 
@@ -73,7 +75,7 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
 
         return FutureUtils.supplyAsync(() -> {
             try{
-                ConsumerUtils.subscribeAndSeek(resource, input);
+                KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
 
                 boolean running = true;
                 int idleCount = 0;
@@ -130,6 +132,26 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
         });
     }
 
+    private void logCommit(Map<TopicPartition, OffsetAndMetadata> offsetData, Exception exception){
+        if(exception != null){
+            logger.error("Failed to commit offset ", exception);
+        }
+        else{
+            logger.debug("Commit offset data {}", offsetData);
+        }
+    }
+
+    private ConsumedMessage<String, String> asConsumedRecord(ConsumerRecord<String, String> record){
+        return ImmutableConsumedMessage.<String, String>builder()
+                .timestamp(record.timestamp())
+                .offset(record.offset())
+                .partition(record.partition())
+                .key(record.key())
+                .message(record.value())
+                .headers(fromKafkaHeaders(record.headers()))
+                .build();
+    }
+
     private void forwardAndCommit(KafkaConsumerResource<String, String> resource,
                                  List<ConsumedMessage<String, String>> messages,
                                  Map<TopicPartition, OffsetAndMetadata> toCommit){
@@ -140,7 +162,7 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
                 .messages(messages)
                 .build());
 
-        resource.commitAsync(toCommit, ConsumerUtils::logCommit);
+        resource.commitAsync(toCommit, this::logCommit);
 
         messages.clear();
         toCommit.clear();

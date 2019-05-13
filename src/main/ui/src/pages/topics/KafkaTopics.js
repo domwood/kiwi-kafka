@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {
     Button,
     ButtonGroup,
@@ -28,42 +28,41 @@ class KafkaTopics extends Component {
             topicList: [],
             filteredTopicList: [],
             topicFilter: "",
-            loading: false
+            loading: false,
+            topicData: {}
         };
     }
 
-    componentDidMount(){
+    componentDidMount() {
         let topicList = DataStore.get("topicList");
-        if(topicList && topicList.length > 0){
+        if (topicList && topicList.length > 0) {
             this.setState({
                 topicList: topicList,
                 filteredTopicList: topicList
             })
-        }
-        else{
+        } else {
             this.reloadTopics();
         }
     }
 
     reloadTopics = () => {
         this.setState({
-            loading:true
+            loading: true
         }, () => {
             ApiService.getTopics((topics) => {
                 DataStore.put("topicList", topics);
-                let topicState = this.state;
-                topicState.topicList = topics || [];
-                topicState.filteredTopicList = topicState.topicList;
-                topicState.loading = false;
-                topics.forEach(t => topicState[t] = undefined)
-
-                this.setState(topicState, () => {
+                this.setState({
+                    topicList: topics || [],
+                    filteredTopicList: topics || [],
+                    topicData: topics.reduce((base, topic) => Object.assign(base, {[topic]:null}), {}),
+                    loading:false
+                }, () => {
                     this.filterTopicList();
                     toast.info("Refreshed topic list from server");
                 });
             }, () => {
                 this.setState({
-                    loading:false
+                    loading: false
                 });
                 toast.error("Could not retrieve topic list from server")
             });
@@ -71,19 +70,19 @@ class KafkaTopics extends Component {
     };
 
     loadDetails = (topic) => {
-        if(this.state[topic]){
-            let topicState = this.state[topic];
-            topicState.toggle = !topicState.toggle;
+        if (this.state.topicData[topic]) {
             this.setState({
-                [topic]: topicState
+                topicData: Object.assign(this.state.topicData,
+                    Object.assign(this.state.topicData[topic], {toggle: !this.state.topicData[topic].toggle}))
             });
-        }
-        else{
+        } else {
             ApiService.getTopicInfo(topic, (details) => {
-                details.toggle = true;
-                details.view = "partitions";
+                Object.assign(details, {
+                   toggle: true,
+                   view: "partitions"
+                });
                 this.setState({
-                    [topic]: details
+                    topicData: Object.assign(this.state.topicData, {[topic]:details})
                 });
                 toast.info(`Retrieved details for ${topic} topic list from server`)
             }, () => toast.error("Could not retrieve topic list from server"));
@@ -91,40 +90,67 @@ class KafkaTopics extends Component {
     };
 
     onTopicViewChange = (topic, viewName) => {
-        if(this.state[topic]){
-            let topicState = this.state[topic];
-            topicState.view = viewName;
+        if (this.state.topicData[topic]) {
             this.setState({
-                [topic]: topicState
+                topicData: Object.assign(this.state.topicData, {[topic]:
+                        Object.assign(this.state.topicData[topic], {view: viewName})})
             });
         }
 
-        if(viewName === 'consumers' && (!this.state.consumers || !this.state.consumers[topic]) ){
+        let getGroupOffsets = () => {
+            if(this.state.consumers[topic]){
+                Object.keys(this.state.consumers[topic])
+                    .forEach(groupId => {
+                        ApiService.getConsumerGroupOffsetDetails(groupId, offsets => {
+                                let consumers = this.state.consumers;
+                                Object.entries(offsets)
+                                    .forEach(([topic, groupWithOffsets]) => {
+                                        Object.entries(groupWithOffsets).map(([groupId, offsets]) => {
+                                            offsets.forEach(offset => {
+                                                consumers[topic] = consumers[topic] || {};
+                                                consumers[topic][groupId] = consumers[topic][groupId] || {};
+                                                Object.assign(consumers[topic][groupId], offset || {});
+                                                consumers[topic][groupId].offsetRetreived = true;
+                                            })
+                                        });
+                                    });
+                                this.setState({
+                                    consumers: consumers
+                                })
+                            },
+                            err => toast.error(`Failed to retrieve consumer offset data ${err.message}`));
+                    });
+            }
+        };
+
+        if (viewName === 'consumers' && (!this.state.consumers || !this.state.consumers[topic])) {
             let consumers = DataStore.get("topicConsumerGroups");
-            if(!consumers || consumers.length === 0){
+            if (!consumers || consumers.length === 0) {
                 ApiService.getConsumerGroupTopicDetails(consumers => {
                     this.setState({
-                        consumers: consumers
-                    });
+                        consumers: consumers || {}
+                    }, getGroupOffsets);
+
                     toast.info("Retrieved Consumer Group Details")
                 }, (err) => toast.error(`${err.message} Failed to retrieve consumer group details`))
-            }
-            else{
+            } else {
                 this.setState({
                     consumers: consumers
                 });
             }
         }
+        else if(viewName === 'consumers' && !Object.values(this.state.consumers[topic]).some(value => !value.offsetRetreived)){
+            getGroupOffsets();
+        }
     };
 
     filterTopicList = (filter) => {
-        if(filter && filter.length > 0){
+        if (filter && filter.length > 0) {
             this.setState({
                 filteredTopicList: this.state.topicList.filter(topic => topic.toLowerCase().search(filter.toLowerCase()) !== -1),
                 topicFilter: filter
             })
-        }
-        else{
+        } else {
             this.setState({
                 filteredTopicList: this.state.topicList,
                 topicFilter: ""
@@ -134,26 +160,27 @@ class KafkaTopics extends Component {
 
     addTopic = (toggle) => {
         this.setState({
-            addTopic:toggle
+            addTopic: toggle
         })
     };
 
+    //TODO break into components
     render() {
         return (
             <Container className={"WideBoi"}>
 
-                <div className="mt-lg-4" />
+                <div className="mt-lg-4"/>
                 <h1>Kafka Topics</h1>
-                <div className="mt-lg-4" />
-                <div className={"TwoGap"} />
+                <div className="mt-lg-4"/>
+                <div className={"TwoGap"}/>
 
                 <ButtonGroup>
-                    <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh /></Button>
-                    {!this.state.addTopic ? <Button onClick={() => this.addTopic(true)}>Add Topic +</Button> : '' }
-                    {this.state.loading ? <Spinner color="secondary" /> : ''}
+                    <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh/></Button>
+                    {!this.state.addTopic ? <Button onClick={() => this.addTopic(true)}>Add Topic +</Button> : ''}
+                    {this.state.loading ? <Spinner color="secondary"/> : ''}
                 </ButtonGroup>
 
-                <div className={"Gap"} />
+                <div className={"Gap"}/>
 
                 {this.state.addTopic ?
                     <div>
@@ -162,7 +189,7 @@ class KafkaTopics extends Component {
                     : ''
                 }
 
-                <div className={"Gap"} />
+                <div className={"Gap"}/>
 
                 <ListGroup>
 
@@ -173,7 +200,7 @@ class KafkaTopics extends Component {
                             </InputGroupAddon>
                             <Input type="text" name="topicSearch" id="topicSearch"
                                    defaultValue=""
-                                   onChange={event => this.filterTopicList(event.target.value)} />
+                                   onChange={event => this.filterTopicList(event.target.value)}/>
                         </InputGroup>
                     </ListGroupItem>
 
@@ -181,40 +208,47 @@ class KafkaTopics extends Component {
                     {
                         this.state.filteredTopicList.map(topic => {
                             return (
-                                <ListGroupItem key={topic+"_parent"} id={topic}>
+                                <ListGroupItem key={topic + "_parent"} id={topic}>
                                     <Button size="sm" onClick={() => this.loadDetails(topic)} block>{topic}</Button>
                                     {
-                                        this.state[topic] && this.state[topic].toggle ? <div>
+                                        this.state.topicData[topic] && this.state.topicData[topic].toggle ? <div>
                                             <ListGroup>
-                                                <ListGroupItem key={topic+"_name"}>
-                                                    <Label>Name: </Label><b> {this.state[topic].topic}</b>
+                                                <ListGroupItem key={topic + "_name"}>
+                                                    <Label>Name: </Label><b> {this.state.topicData[topic].topic}</b>
                                                 </ListGroupItem>
-                                                <ListGroupItem key={topic+"_replication"}>
-                                                    <Label>Replication Count: </Label><b> {this.state[topic].replicaCount} </b>
+                                                <ListGroupItem key={topic + "_replication"}>
+                                                    <Label>Replication
+                                                        Count: </Label><b> {this.state.topicData[topic].replicaCount} </b>
                                                 </ListGroupItem>
-                                                <ListGroupItem key={topic+"_partitions"}>
-                                                    <Label>Partitions: </Label><b> {this.state[topic].partitionCount}</b>
+                                                <ListGroupItem key={topic + "_partitions"}>
+                                                    <Label>Partitions: </Label><b> {this.state.topicData[topic].partitionCount}</b>
                                                 </ListGroupItem>
-                                                <ListGroupItem key={topic+"views"}>
-                                                    <div className={"Gap"}></div>
+                                                <ListGroupItem key={topic + "_views"}>
+                                                    <div className={"Gap"}/>
                                                     <ButtonGroup className={"WideBoiGroup"}>
 
-                                                        <Button onClick={() => this.onTopicViewChange(topic, 'partitions')} active={this.state[topic].view === 'partitions'}>
+                                                        <Button
+                                                            onClick={() => this.onTopicViewChange(topic, 'partitions')}
+                                                            active={this.state.topicData[topic].view === 'partitions'}>
                                                             Partitions
                                                         </Button>
-                                                        <Button onClick={() => this.onTopicViewChange(topic, 'configuration')} active={this.state[topic].view === 'configuration'}>
+                                                        <Button
+                                                            onClick={() => this.onTopicViewChange(topic, 'configuration')}
+                                                            active={this.state.topicData[topic].view === 'configuration'}>
                                                             Topic Configuration
                                                         </Button>
-                                                        <Button onClick={() => this.onTopicViewChange(topic, 'consumers')} active={this.state[topic].view === 'consumers'}>
+                                                        <Button
+                                                            onClick={() => this.onTopicViewChange(topic, 'consumers')}
+                                                            active={this.state.topicData[topic].view === 'consumers'}>
                                                             Consumer Groups
                                                         </Button>
 
                                                     </ButtonGroup>
-                                                    <div className={"Gap"}></div>
+                                                    <div className={"Gap"}/>
                                                     {
-                                                        this.state[topic].view === 'partitions' ?
-                                                        <Table>
-                                                            <thead>
+                                                        this.state.topicData[topic].view === 'partitions' ?
+                                                            <Table>
+                                                                <thead>
                                                                 <tr>
                                                                     <th>Number</th>
                                                                     <th>Replication Count</th>
@@ -222,70 +256,77 @@ class KafkaTopics extends Component {
                                                                     <th>ISRs</th>
                                                                     <th>Leader</th>
                                                                 </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {this.state[topic].partitions.map(p => {
-                                                                return (
-                                                                    <tr key={topic +"_" +p.partition}>
-                                                                        <td>{p.partition}</td>
-                                                                        <td>{p.replicationfactor}</td>
-                                                                        <td>{GeneralUtilities.prettyArray(p.replicas)}</td>
-                                                                        <td>{GeneralUtilities.prettyArray(p.isrs)}</td>
-                                                                        <td>{p.leader}</td>
-                                                                    </tr>
-                                                                )
-                                                            })}
-                                                            </tbody>
-                                                        </Table> :
-                                                        this.state[topic].view === 'configuration' ?
-                                                        <Table>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Config Key</th>
-                                                                    <th>Config Value</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {
-                                                                Object.keys(this.state[topic].configuration).map(key => {
+                                                                </thead>
+                                                                <tbody>
+                                                                {this.state.topicData[topic].partitions.map(p => {
                                                                     return (
-                                                                        <tr key={topic+"_"+key}>
-                                                                            <td>{key}</td>
-                                                                            <td>{this.state[topic].configuration[key]}</td>
+                                                                        <tr key={topic + "_" + p.partition}>
+                                                                            <td>{p.partition}</td>
+                                                                            <td>{p.replicationfactor}</td>
+                                                                            <td>{GeneralUtilities.prettyArray(p.replicas)}</td>
+                                                                            <td>{GeneralUtilities.prettyArray(p.isrs)}</td>
+                                                                            <td>{p.leader}</td>
                                                                         </tr>
                                                                     )
-                                                                })
-                                                            }
-                                                            </tbody>
-                                                        </Table>
-                                                            :
-                                                        <div>
-                                                            {
-                                                                this.state.consumers && this.state.consumers[topic] ? Object.keys(this.state.consumers[topic]).map(groupId =>{
-                                                                    return (<Table>
-                                                                        <thead>
-                                                                        <tr>
-                                                                            <th>GroupId</th>
-                                                                            <th>Partition</th>
-                                                                            <th>ClientId</th>
-                                                                            <th>ConsumerId</th>
-                                                                        </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                        {this.state.consumers[topic][groupId].map(assignment => {
-                                                                            return (<tr>
-                                                                                <td>{assignment.groupId}</td>
-                                                                                <td>{assignment.partition}</td>
-                                                                                <td>{assignment.clientId}</td>
-                                                                                <td>{assignment.consumerId}</td>
-                                                                            </tr>)
-                                                                        })}
-                                                                        </tbody>
-                                                                    </Table>)
-                                                                })
-                                                                : ''
-                                                            }
-                                                        </div>
+                                                                })}
+                                                                </tbody>
+                                                            </Table> :
+                                                            this.state.topicData[topic].view === 'configuration' ?
+                                                                <Table>
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Config Key</th>
+                                                                        <th>Config Value</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    {
+                                                                        Object.keys(this.state.topicData[topic].configuration).map(key => {
+                                                                            return (
+                                                                                <tr key={`${topic}_${key}`}>
+                                                                                    <td>{key}</td>
+                                                                                    <td>{this.state.topicData[topic].configuration[key]}</td>
+                                                                                </tr>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                    </tbody>
+                                                                </Table>
+                                                                :
+                                                                <div>
+                                                                    {
+                                                                        this.state.consumers && this.state.consumers[topic] ? Object.keys(this.state.consumers[topic]).map(groupId => {
+                                                                                return (<Table key={`${topic}_${groupId}_table`}>
+                                                                                    <thead>
+                                                                                    <tr key={`${topic}_${groupId}_header`}>
+                                                                                        <th key={`${topic}_${groupId}_groupId`}>GroupId</th>
+                                                                                        <th key={`${topic}_${groupId}_partition`}>Partition</th>
+                                                                                        <th key={`${topic}_${groupId}_clientId`}>ClientId</th>
+                                                                                    </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                    {this.state.consumers[topic][groupId].map(assignment => {
+                                                                                        return (
+                                                                                            <tr key={`${topic}_${groupId}_${assignment.partition}`}>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_groupId`}>
+                                                                                                    {assignment.groupId}
+                                                                                                </td>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_part`}>
+                                                                                                    {assignment.partition}
+                                                                                                </td>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_client`}>
+                                                                                                    {assignment.clientId}
+                                                                                                </td>
+
+                                                                                            </tr>
+                                                                                        )
+                                                                                    })}
+                                                                                    </tbody>
+                                                                                </Table>)
+                                                                            })
+                                                                            : 'No active consumers found.'
+                                                                    }
+                                                                </div>
                                                     }
 
                                                 </ListGroupItem>
