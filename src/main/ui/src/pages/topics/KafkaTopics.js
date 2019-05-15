@@ -29,7 +29,8 @@ class KafkaTopics extends Component {
             filteredTopicList: [],
             topicFilter: "",
             loading: false,
-            topicData: {}
+            topicData: {},
+            refresh: false
         };
     }
 
@@ -89,6 +90,40 @@ class KafkaTopics extends Component {
         }
     };
 
+    loadTopicData = (topic) => {
+        let getGroupOffsets = () => {
+            //TODO this is terrible, fix by making API better
+            if(this.state.consumers[topic]){
+                Object.keys(this.state.consumers[topic]).forEach(groupId => {
+                    ApiService.getConsumerGroupOffsetDetails(groupId, offsets => {
+                            let consumers = this.state.consumers;
+                            Object.entries(offsets).forEach(([topic, groupWithOffsets]) => {
+                                Object.entries(groupWithOffsets).forEach(([groupId, offsets]) => {
+                                    offsets.forEach(offset => {
+                                        ((consumers[topic]||{})[groupId] || [])
+                                            .filter(consumerRow => consumerRow.partition === offset.partition)
+                                            .map(consumerRow => Object.assign(consumerRow, offset||{}));
+                                    })
+                                });
+                            });
+                            this.setState({
+                                consumers: consumers
+                            })
+                        },
+                        err => toast.error(`Failed to retrieve consumer offset data ${err.message}`));
+                    });
+            }
+        };
+
+        ApiService.getConsumerGroupTopicDetails(consumers => {
+            this.setState({
+                consumers: consumers || {}
+            }, getGroupOffsets);
+
+            toast.info("Retrieved Consumer Group Details")
+        }, (err) => toast.error(`${err.message} Failed to retrieve consumer group details`))
+    };
+
     onTopicViewChange = (topic, viewName) => {
         if (this.state.topicData[topic]) {
             this.setState({
@@ -97,50 +132,15 @@ class KafkaTopics extends Component {
             });
         }
 
-        let getGroupOffsets = () => {
-            if(this.state.consumers[topic]){
-                Object.keys(this.state.consumers[topic])
-                    .forEach(groupId => {
-                        ApiService.getConsumerGroupOffsetDetails(groupId, offsets => {
-                                let consumers = this.state.consumers;
-                                Object.entries(offsets)
-                                    .forEach(([topic, groupWithOffsets]) => {
-                                        Object.entries(groupWithOffsets).map(([groupId, offsets]) => {
-                                            offsets.forEach(offset => {
-                                                consumers[topic] = consumers[topic] || {};
-                                                consumers[topic][groupId] = consumers[topic][groupId] || {};
-                                                Object.assign(consumers[topic][groupId], offset || {});
-                                                consumers[topic][groupId].offsetRetreived = true;
-                                            })
-                                        });
-                                    });
-                                this.setState({
-                                    consumers: consumers
-                                })
-                            },
-                            err => toast.error(`Failed to retrieve consumer offset data ${err.message}`));
-                    });
-            }
-        };
-
         if (viewName === 'consumers' && (!this.state.consumers || !this.state.consumers[topic])) {
             let consumers = DataStore.get("topicConsumerGroups");
             if (!consumers || consumers.length === 0) {
-                ApiService.getConsumerGroupTopicDetails(consumers => {
-                    this.setState({
-                        consumers: consumers || {}
-                    }, getGroupOffsets);
-
-                    toast.info("Retrieved Consumer Group Details")
-                }, (err) => toast.error(`${err.message} Failed to retrieve consumer group details`))
+               this.loadTopicData(topic);
             } else {
                 this.setState({
                     consumers: consumers
                 });
             }
-        }
-        else if(viewName === 'consumers' && !Object.values(this.state.consumers[topic]).some(value => !value.offsetRetreived)){
-            getGroupOffsets();
         }
     };
 
@@ -175,8 +175,8 @@ class KafkaTopics extends Component {
                 <div className={"TwoGap"}/>
 
                 <ButtonGroup>
-                    <Button outline onClick={this.reloadTopics}>Reload List <MdRefresh/></Button>
-                    {!this.state.addTopic ? <Button onClick={() => this.addTopic(true)}>Add Topic +</Button> : ''}
+                    <Button color="primary" onClick={this.reloadTopics}>Reload List <MdRefresh/></Button>
+                    {!this.state.addTopic ? <Button color="success" onClick={() => this.addTopic(true)}>Add Topic +</Button> : ''}
                     {this.state.loading ? <Spinner color="secondary"/> : ''}
                 </ButtonGroup>
 
@@ -222,6 +222,12 @@ class KafkaTopics extends Component {
                                                 </ListGroupItem>
                                                 <ListGroupItem key={topic + "_partitions"}>
                                                     <Label>Partitions: </Label><b> {this.state.topicData[topic].partitionCount}</b>
+                                                </ListGroupItem>
+                                                <ListGroupItem key={topic + "_buttons"}>
+                                                    <ButtonGroup>
+                                                        <Button color="primary" onClick={() => this.loadTopicData(topic)}>Refresh <MdRefresh/></Button>
+                                                        <Button color="danger" disabled={true}>Delete Topic [TODO]</Button>
+                                                    </ButtonGroup>
                                                 </ListGroupItem>
                                                 <ListGroupItem key={topic + "_views"}>
                                                     <div className={"Gap"}/>
@@ -298,11 +304,16 @@ class KafkaTopics extends Component {
                                                                         this.state.consumers && this.state.consumers[topic] ? Object.keys(this.state.consumers[topic]).map(groupId => {
                                                                                 return (<Table key={`${topic}_${groupId}_table`}>
                                                                                     <thead>
-                                                                                    <tr key={`${topic}_${groupId}_header`}>
-                                                                                        <th key={`${topic}_${groupId}_groupId`}>GroupId</th>
-                                                                                        <th key={`${topic}_${groupId}_partition`}>Partition</th>
-                                                                                        <th key={`${topic}_${groupId}_clientId`}>ClientId</th>
-                                                                                    </tr>
+                                                                                        <tr key={`${topic}_${groupId}_header`}>
+                                                                                            <th key={`${topic}_${groupId}_groupId`}>GroupId</th>
+                                                                                            <th key={`${topic}_${groupId}_partition`}>Partition</th>
+                                                                                            <th key={`${topic}_${groupId}_clientId`}>ClientId</th>
+                                                                                            <th key={`${topic}_${groupId}_groupState`}>Group State</th>
+                                                                                            <th key={`${topic}_${groupId}_partitionOffset`}>Partition Offset</th>
+                                                                                            <th key={`${topic}_${groupId}_groupOffset`}>Consumer Offset</th>
+                                                                                            <th key={`${topic}_${groupId}_lag`}>Consumer Lag</th>
+                                                                                            <th key={`${topic}_${groupId}_coor`}>Coordinator</th>
+                                                                                        </tr>
                                                                                     </thead>
                                                                                     <tbody>
                                                                                     {this.state.consumers[topic][groupId].map(assignment => {
@@ -317,7 +328,21 @@ class KafkaTopics extends Component {
                                                                                                 <td key={`${topic}_${groupId}_${assignment.partition}_client`}>
                                                                                                     {assignment.clientId}
                                                                                                 </td>
-
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_groupsState`}>
+                                                                                                    {assignment.groupState || 'INACTIVE'}
+                                                                                                </td>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_partitionOffset`}>
+                                                                                                    {assignment.partitionOffset}
+                                                                                                </td>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_groupOffset`}>
+                                                                                                    {assignment.groupOffset}
+                                                                                                </td>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_lag`}>
+                                                                                                    {assignment.lag}
+                                                                                                </td>
+                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_coor`}>
+                                                                                                    {assignment.coordinator}
+                                                                                                </td>
                                                                                             </tr>
                                                                                         )
                                                                                     })}

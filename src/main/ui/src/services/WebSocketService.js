@@ -27,10 +27,10 @@ const websocketDataHandler = (message, messageHandler, errorHandler) => {
 
 client.send = (data) => {
     if(data) {
-        client.pending.push(() => socket.send(JSON.stringify(data)));
+        client.pending.push((sock) => sock.send(JSON.stringify(data)));
     }
-    if(client.open) {
-        while(client.pending.length > 0) client.pending.pop()();
+    if(client.open && socket.readyState < 2) {
+        while(client.pending.length > 0) client.pending.pop()(socket);
     }
 };
 
@@ -42,14 +42,20 @@ client.connect = () => {
                 client.open = true;
                 client.send();
             }, 10)
-        }
+        };
+        socket.onclose = () => {
+            client.open = false;
+        };
     }
 };
 
 client.consume = (topics, filters, messageHandler, errorHandler, closeHandler) => {
     socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler);
     socket.onerror = errorHandler;
-    socket.onclose = closeHandler;
+    socket.onclose = () => {
+        client.open = false;
+        closeHandler();
+    };
 
     client.send({
         requestType: ".ConsumerRequest",

@@ -14,6 +14,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -28,6 +30,8 @@ import static java.util.stream.Collectors.toList;
 
 
 public class ConsumerGroupOffsetInformation implements KafkaTask<String, ConsumerGroupOffsetDetails, Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>>> {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public CompletableFuture<ConsumerGroupOffsetDetails> execute(Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>> resource,
@@ -44,7 +48,13 @@ public class ConsumerGroupOffsetInformation implements KafkaTask<String, Consume
                         .get(groupId));
 
         return groupAssignmentAndOffset
-                .thenCombine(description, (offsets, consumerDescription) -> this.toOffsetDetails(groupId, offsets, consumerDescription));
+                .thenCombine(description, (offsets, consumerDescription) -> this.toOffsetDetails(groupId, offsets, consumerDescription))
+                .whenComplete((group, error) -> {
+                    if(error != null){
+                        logger.error("Task completed with error", error);
+                    }
+                    resource.getRight().discard();
+                });
     }
 
     private ConsumerGroupOffsetDetails toOffsetDetails(String groupId,
