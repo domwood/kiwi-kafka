@@ -2,6 +2,7 @@ package com.github.domwood.kiwi.kafka.resources;
 
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.config.ConfigResource;
+import org.apache.kafka.common.requests.DeleteTopicsResponse;
 
 import java.util.Collection;
 import java.util.List;
@@ -57,6 +58,10 @@ public class KafkaAdminResource extends KafkaResource<AdminClient>{
 
     public ListConsumerGroupOffsetsResult listConsumerGroupOffsets(String groupId){
         return this.getClient().listConsumerGroupOffsets(groupId);
+    }
+
+    public DeleteTopicsResult deleteTopics(List<String> topics) {
+        return this.getClient().deleteTopics(topics);
     }
 
 }

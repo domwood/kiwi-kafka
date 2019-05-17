@@ -18,6 +18,7 @@ import {toast} from "react-toastify";
 import "../../App.css";
 import {MdRefresh} from "react-icons/md";
 import CreateTopic from "./components/CreateTopic";
+import DeleteTopic from "./components/DeleteTopic";
 
 class KafkaTopics extends Component {
 
@@ -164,6 +165,7 @@ class KafkaTopics extends Component {
         })
     };
 
+
     //TODO break into components
     render() {
         return (
@@ -226,7 +228,7 @@ class KafkaTopics extends Component {
                                                 <ListGroupItem key={topic + "_buttons"}>
                                                     <ButtonGroup>
                                                         <Button color="primary" onClick={() => this.loadTopicData(topic)}>Refresh <MdRefresh/></Button>
-                                                        <Button color="danger" disabled={true}>Delete Topic [TODO]</Button>
+                                                        <DeleteTopic topic={topic} onComplete={() => this.reloadTopics()} />
                                                     </ButtonGroup>
                                                 </ListGroupItem>
                                                 <ListGroupItem key={topic + "_views"}>

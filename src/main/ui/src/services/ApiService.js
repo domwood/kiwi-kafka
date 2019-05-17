@@ -28,7 +28,7 @@ export const getTopics = (cb, eb) => {
 export const getTopicInfo = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.topicInfo}?topic=${topic}`)
+    fetch(`${api.topicInfo}/${topic}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result))
@@ -69,7 +69,7 @@ export const getConsumerGroupTopicDetails = (cb, eb) => {
 export const getConsumerGroupOffsetDetails = (groupdId, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.listConsumerGroupOffsetDetails}?groupId=${groupdId}`)
+    fetch(`${api.listConsumerGroupOffsetDetails}/${groupdId}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.offsets))
@@ -97,6 +97,17 @@ export const createTopic = (topicData, cb, eb) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(topicData)
+    })
+    .then(statusHandler)
+    .then(() => cb())
+    .catch(errorhandler);
+};
+
+export const deleteTopic = (topic, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(`${api.deleteTopic}/${topic}`, {
+        method: 'DELETE',
     })
     .then(statusHandler)
     .then(() => cb())

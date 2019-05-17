@@ -57,4 +57,8 @@ public class KafkaTaskProvider {
     public ContinuousConsumeMessages continousConsumeMessages() {
         return new ContinuousConsumeMessages();
     }
+
+    public DeleteTopic deleteTopic() {
+        return new DeleteTopic();
+    }
 }

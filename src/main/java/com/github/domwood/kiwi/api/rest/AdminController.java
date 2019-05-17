@@ -41,10 +41,10 @@ public class AdminController {
     }
 
     @Async
-    @GetMapping("/topicInfo")
+    @GetMapping("/topicInfo/{topic}")
     @ResponseBody
     public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) Optional<String> bootStrapServers,
-                                                  @RequestParam String topic) {
+                                                  @PathVariable String topic) {
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         TopicInformation topicInformation = this.taskProvider.topicInfo();
         return topicInformation.execute(adminResource, topic);
@@ -69,10 +69,10 @@ public class AdminController {
     }
 
     @Async
-    @GetMapping("/listConsumerGroupOffsetDetails")
+    @GetMapping("/listConsumerGroupOffsetDetails/{groupId}")
     @ResponseBody
     public CompletableFuture<ConsumerGroupOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
-                                                                                   String groupId) {
+                                                                                   @PathVariable String groupId) {
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         KafkaConsumerResource<String, String> consumerResource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
         ConsumerGroupOffsetInformation consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
@@ -108,4 +108,13 @@ public class AdminController {
         return createTopic.execute(adminResource, createTopicRequest);
     }
 
+    @Async
+    @DeleteMapping("/deleteTopic/{topic}")
+    @ResponseBody
+    public CompletableFuture<Void> deleteTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
+                                               @PathVariable String topic) {
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        DeleteTopic deleteTopic = this.taskProvider.deleteTopic();
+        return deleteTopic.execute(adminResource, topic);
+    }
 }

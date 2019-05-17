@@ -13,6 +13,7 @@ export default {
     produce: `${baseRestApi}/produce`,
     consume: `${baseRestApi}/consume`,
     createTopic: `${baseRestApi}/createTopic`,
+    deleteTopic: `${baseRestApi}/deleteTopic`,
     createTopicConfig: `${baseRestApi}/createTopicConfig`,
     listConsumerGroupTopicDetails: `${baseRestApi}/listConsumerGroupTopicDetails`,
     listConsumerGroupOffsetDetails: `${baseRestApi}/listConsumerGroupOffsetDetails`
