@@ -71,8 +71,8 @@ class KafkaTopics extends Component {
         });
     };
 
-    loadDetails = (topic) => {
-        if (this.state.topicData[topic]) {
+    loadDetails = (topic, refresh) => {
+        if (this.state.topicData[topic] && !refresh) {
             this.setState({
                 topicData: Object.assign(this.state.topicData,
                     Object.assign(this.state.topicData[topic], {toggle: !this.state.topicData[topic].toggle}))
@@ -81,7 +81,7 @@ class KafkaTopics extends Component {
             ApiService.getTopicInfo(topic, (details) => {
                 Object.assign(details, {
                    toggle: true,
-                   view: "partitions"
+                   view: (this.state.topicData[topic]||{}).view || "partitions"
                 });
                 this.setState({
                     topicData: Object.assign(this.state.topicData, {[topic]:details})
@@ -121,7 +121,7 @@ class KafkaTopics extends Component {
                 consumers: consumers || {}
             }, getGroupOffsets);
 
-            toast.info("Retrieved Consumer Group Details")
+            toast.info(`Retrieved Consumer Group Details for ${topic}`)
         }, (err) => toast.error(`${err.message} Failed to retrieve consumer group details`))
     };
 
@@ -227,7 +227,7 @@ class KafkaTopics extends Component {
                                                 </ListGroupItem>
                                                 <ListGroupItem key={topic + "_buttons"}>
                                                     <ButtonGroup>
-                                                        <Button color="primary" onClick={() => this.loadTopicData(topic)}>Refresh <MdRefresh/></Button>
+                                                        <Button color="primary" onClick={() => this.loadDetails(topic, true)}>Refresh <MdRefresh/></Button>
                                                         <DeleteTopic topic={topic} onComplete={() => this.reloadTopics()} />
                                                     </ButtonGroup>
                                                 </ListGroupItem>
@@ -255,30 +255,33 @@ class KafkaTopics extends Component {
                                                     <div className={"Gap"}/>
                                                     {
                                                         this.state.topicData[topic].view === 'partitions' ?
-                                                            <Table>
-                                                                <thead>
-                                                                <tr>
-                                                                    <th>Number</th>
-                                                                    <th>Replication Count</th>
-                                                                    <th>Replica Nodes</th>
-                                                                    <th>ISRs</th>
-                                                                    <th>Leader</th>
-                                                                </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                {this.state.topicData[topic].partitions.map(p => {
-                                                                    return (
-                                                                        <tr key={topic + "_" + p.partition}>
-                                                                            <td>{p.partition}</td>
-                                                                            <td>{p.replicationfactor}</td>
-                                                                            <td>{GeneralUtilities.prettyArray(p.replicas)}</td>
-                                                                            <td>{GeneralUtilities.prettyArray(p.isrs)}</td>
-                                                                            <td>{p.leader}</td>
-                                                                        </tr>
-                                                                    )
-                                                                })}
-                                                                </tbody>
-                                                            </Table> :
+                                                            <div>
+
+                                                                <Table>
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Number</th>
+                                                                        <th>Replication Count</th>
+                                                                        <th>Replica Nodes</th>
+                                                                        <th>ISRs</th>
+                                                                        <th>Leader</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    {this.state.topicData[topic].partitions.map(p => {
+                                                                        return (
+                                                                            <tr key={topic + "_" + p.partition}>
+                                                                                <td>{p.partition}</td>
+                                                                                <td>{p.replicationfactor}</td>
+                                                                                <td>{GeneralUtilities.prettyArray(p.replicas)}</td>
+                                                                                <td>{GeneralUtilities.prettyArray(p.isrs)}</td>
+                                                                                <td>{p.leader}</td>
+                                                                            </tr>
+                                                                        )
+                                                                    })}
+                                                                    </tbody>
+                                                                </Table>
+                                                            </div>:
                                                             this.state.topicData[topic].view === 'configuration' ?
                                                                 <Table>
                                                                     <thead>
@@ -304,52 +307,58 @@ class KafkaTopics extends Component {
                                                                 <div>
                                                                     {
                                                                         this.state.consumers && this.state.consumers[topic] ? Object.keys(this.state.consumers[topic]).map(groupId => {
-                                                                                return (<Table key={`${topic}_${groupId}_table`}>
-                                                                                    <thead>
-                                                                                        <tr key={`${topic}_${groupId}_header`}>
-                                                                                            <th key={`${topic}_${groupId}_groupId`}>GroupId</th>
-                                                                                            <th key={`${topic}_${groupId}_partition`}>Partition</th>
-                                                                                            <th key={`${topic}_${groupId}_clientId`}>ClientId</th>
-                                                                                            <th key={`${topic}_${groupId}_groupState`}>Group State</th>
-                                                                                            <th key={`${topic}_${groupId}_partitionOffset`}>Partition Offset</th>
-                                                                                            <th key={`${topic}_${groupId}_groupOffset`}>Consumer Offset</th>
-                                                                                            <th key={`${topic}_${groupId}_lag`}>Consumer Lag</th>
-                                                                                            <th key={`${topic}_${groupId}_coor`}>Coordinator</th>
-                                                                                        </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                    {this.state.consumers[topic][groupId].map(assignment => {
-                                                                                        return (
-                                                                                            <tr key={`${topic}_${groupId}_${assignment.partition}`}>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_groupId`}>
-                                                                                                    {assignment.groupId}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_part`}>
-                                                                                                    {assignment.partition}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_client`}>
-                                                                                                    {assignment.clientId}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_groupsState`}>
-                                                                                                    {assignment.groupState || 'INACTIVE'}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_partitionOffset`}>
-                                                                                                    {assignment.partitionOffset}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_groupOffset`}>
-                                                                                                    {assignment.groupOffset}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_lag`}>
-                                                                                                    {assignment.lag}
-                                                                                                </td>
-                                                                                                <td key={`${topic}_${groupId}_${assignment.partition}_coor`}>
-                                                                                                    {assignment.coordinator}
-                                                                                                </td>
+                                                                                return (
+                                                                                    <div>
+                                                                                        <Button color="primary" onClick={() => this.loadTopicData(topic)}>Refresh <MdRefresh/></Button>
+                                                                                        <div className={"Gap"} />
+                                                                                        <Table key={`${topic}_${groupId}_table`}>
+                                                                                        <thead>
+                                                                                            <tr key={`${topic}_${groupId}_header`}>
+                                                                                                <th key={`${topic}_${groupId}_groupId`}>GroupId</th>
+                                                                                                <th key={`${topic}_${groupId}_partition`}>Partition</th>
+                                                                                                <th key={`${topic}_${groupId}_clientId`}>ClientId</th>
+                                                                                                <th key={`${topic}_${groupId}_groupState`}>Group State</th>
+                                                                                                <th key={`${topic}_${groupId}_partitionOffset`}>Partition Offset</th>
+                                                                                                <th key={`${topic}_${groupId}_groupOffset`}>Consumer Offset</th>
+                                                                                                <th key={`${topic}_${groupId}_lag`}>Consumer Lag</th>
+                                                                                                <th key={`${topic}_${groupId}_coor`}>Coordinator</th>
                                                                                             </tr>
-                                                                                        )
-                                                                                    })}
-                                                                                    </tbody>
-                                                                                </Table>)
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {this.state.consumers[topic][groupId].map(assignment => {
+                                                                                            return (
+                                                                                                <tr key={`${topic}_${groupId}_${assignment.partition}`}>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_groupId`}>
+                                                                                                        {assignment.groupId}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_part`}>
+                                                                                                        {assignment.partition}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_client`}>
+                                                                                                        {assignment.clientId}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_groupsState`}>
+                                                                                                        {assignment.groupState || 'INACTIVE'}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_partitionOffset`}>
+                                                                                                        {assignment.partitionOffset}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_groupOffset`}>
+                                                                                                        {assignment.groupOffset}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_lag`}>
+                                                                                                        {assignment.lag}
+                                                                                                    </td>
+                                                                                                    <td key={`${topic}_${groupId}_${assignment.partition}_coor`}>
+                                                                                                        {assignment.coordinator}
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            )
+                                                                                        })}
+                                                                                        </tbody>
+                                                                                    </Table>
+                                                                                </div>
+                                                                                )
                                                                             })
                                                                             : 'No active consumers found.'
                                                                     }
