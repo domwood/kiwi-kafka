@@ -55,7 +55,7 @@ export const getLogs = (id, cb, eb) => {
         .catch(errorhandler);
 };
 
-export const getConsumerGroupTopicDetails = (cb, eb) => {
+export const getAllConsumerGroupDetails = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
     fetch(api.listConsumerGroupTopicDetails)
@@ -65,11 +65,21 @@ export const getConsumerGroupTopicDetails = (cb, eb) => {
         .catch(errorhandler);
 };
 
-
-export const getConsumerGroupOffsetDetails = (groupdId, cb, eb) => {
+export const consumerGroupsForTopic = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.listConsumerGroupOffsetDetails}/${groupdId}`)
+    fetch(`${api.consumerGroupsForTopic}/${topic}`)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.groups))
+        .catch(errorhandler);
+};
+
+
+export const getConsumerGroupDetailsWithOffsets = (groupdId, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(`${api.listConsumerGroupDetailsWithOffsets}/${groupdId}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.offsets))

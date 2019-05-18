@@ -15,6 +15,7 @@ export default {
     createTopic: `${baseRestApi}/createTopic`,
     deleteTopic: `${baseRestApi}/deleteTopic`,
     createTopicConfig: `${baseRestApi}/createTopicConfig`,
-    listConsumerGroupTopicDetails: `${baseRestApi}/listConsumerGroupTopicDetails`,
-    listConsumerGroupOffsetDetails: `${baseRestApi}/listConsumerGroupOffsetDetails`
+    consumerGroupsForTopic: `${baseRestApi}/consumerGroupsForTopic`,
+    listAllConsumerGroupDetails: `${baseRestApi}/listAllConsumerGroupDetails`,
+    listConsumerGroupDetailsWithOffsets: `${baseRestApi}/listConsumerGroupDetailsWithOffsets`
 }

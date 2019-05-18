@@ -7,10 +7,12 @@ import org.immutables.value.Value;
 import java.util.List;
 import java.util.Map;
 
-@JsonDeserialize(as = ImmutableConsumerGroupTopicDetails.class)
-@JsonSerialize(as = ImmutableConsumerGroupTopicDetails.class)
+@JsonDeserialize(as = ImmutableConsumerGroups.class)
+@JsonSerialize(as = ImmutableConsumerGroups.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerGroupTopicDetails extends OutboundResponse{
+public interface ConsumerGroups extends OutboundResponse{
+
+    //Map<GroupId, Map<Topic, List<TopicGroupAssignmentWithOffset>>> TODO strongly type
     Map<String, Map<String, List<TopicGroupAssignment>>> topicDetails();
 }

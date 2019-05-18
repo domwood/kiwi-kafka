@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -65,10 +66,10 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
     public PartitionInfo asPartitionInfo(TopicPartitionInfo partition){
             return ImmutablePartitionInfo.builder()
                     .partition(partition.partition())
-                    .replicationfactor(partition.replicas().size())
+                    .replicationFactor(partition.replicas().size())
                     .replicas(asIdList(partition.replicas()))
                     .isrs(asIdList(partition.isr()))
-                    .leader(partition.leader().id())
+                    .leader(Optional.ofNullable(partition.leader()).map(Node::id).orElse(-1))
                     .build();
     }
 

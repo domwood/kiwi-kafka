@@ -60,22 +60,32 @@ public class AdminController {
     }
 
     @Async
-    @GetMapping("/listConsumerGroupTopicDetails")
+    @GetMapping("/consumerGroupsForTopic/{topic}")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupTopicDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers) {
+    public CompletableFuture<ConsumerGroupList> consumerGroupsForTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
+                                                                       @PathVariable String topic) {
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        ConsumerGroupTopicInformation consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation();
+        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic();
+        return consumerGroupByTopic.execute(adminResource, topic);
+    }
+
+    @Async
+    @GetMapping("/listAllConsumerGroupDetails")
+    @ResponseBody
+    public CompletableFuture<ConsumerGroups> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers) {
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        AllConsumerGroupDetails consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation();
         return consumerGroupInformation.execute(adminResource, null);
     }
 
     @Async
-    @GetMapping("/listConsumerGroupOffsetDetails/{groupId}")
+    @GetMapping("/listConsumerGroupDetailsWithOffsets/{groupId}")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
-                                                                                   @PathVariable String groupId) {
+    public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
+                                                                                            @PathVariable String groupId) {
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         KafkaConsumerResource<String, String> consumerResource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
-        ConsumerGroupOffsetInformation consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
+        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
         return consumerGroupInformation.execute(Pair.of(adminResource, consumerResource), groupId);
     }
 

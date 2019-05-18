@@ -13,7 +13,7 @@ import java.util.List;
 public interface PartitionInfo extends OutboundResponse{
 
     Integer partition();
-    Integer replicationfactor();
+    Integer replicationFactor();
     List<Integer> replicas();
     List<Integer> isrs();
     Integer leader();

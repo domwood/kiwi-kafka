@@ -2,6 +2,7 @@ package com.github.domwood.kiwi.kafka.task;
 
 import com.github.domwood.kiwi.kafka.exceptions.ConsumerAssignmentTimeoutException;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
+import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,5 +50,9 @@ public interface KafkaTaskUtils {
         Map<TopicPartition, java.lang.Long> endOffsets = resource.endOffsets(topicPartitionSet);
 
         return endOffsets;
+    }
+
+    static String formatCoordinator(Node coordinator){
+        return String.format("%s (%s:%s)", coordinator.id(), coordinator.host(), coordinator.port());
     }
 }

@@ -5,17 +5,20 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
 
-@JsonDeserialize(as = ImmutableConsumerGroupOffset.class)
-@JsonSerialize(as = ImmutableConsumerGroupOffset.class)
+import javax.annotation.Nullable;
+
+@JsonDeserialize(as = ImmutableTopicGroupAssignmentWithOffset.class)
+@JsonSerialize(as = ImmutableTopicGroupAssignmentWithOffset.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerGroupOffset{
+public interface TopicGroupAssignmentWithOffset {
     String topic();
-    String groupId();
     Integer partition();
-    Long partitionOffset();
-    Long groupOffset();
-    Long lag();
+    @Nullable
+    String clientId();
+    @Nullable String consumerId();
+    String groupId();
     String groupState();
     String coordinator();
+    PartitionOffset offset();
 }

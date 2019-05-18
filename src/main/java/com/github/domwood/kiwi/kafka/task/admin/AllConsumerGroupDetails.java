@@ -1,7 +1,7 @@
 package com.github.domwood.kiwi.kafka.task.admin;
 
-import com.github.domwood.kiwi.data.output.ConsumerGroupTopicDetails;
-import com.github.domwood.kiwi.data.output.ImmutableConsumerGroupTopicDetails;
+import com.github.domwood.kiwi.data.output.ConsumerGroups;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerGroups;
 import com.github.domwood.kiwi.data.output.ImmutableTopicGroupAssignment;
 import com.github.domwood.kiwi.data.output.TopicGroupAssignment;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
@@ -11,6 +11,7 @@ import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.DescribeConsumerGroupsResult;
 import org.apache.kafka.clients.admin.MemberDescription;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -19,24 +20,23 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static com.github.domwood.kiwi.kafka.task.KafkaTaskUtils.formatCoordinator;
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
-//Task pivots data from consumer group to topics
-public class ConsumerGroupTopicInformation implements KafkaTask<Void, ConsumerGroupTopicDetails, KafkaAdminResource> {
+public class AllConsumerGroupDetails implements KafkaTask<Void, ConsumerGroups, KafkaAdminResource> {
     @Override
-    public CompletableFuture<ConsumerGroupTopicDetails> execute(KafkaAdminResource resource, Void input) {
+    public CompletableFuture<ConsumerGroups> execute(KafkaAdminResource resource, Void input) {
 
         return toCompletable(resource.listConsumerGroups().all())
                 .thenCompose(list -> fromConsumerGroupList(resource, list));
     }
 
-    private CompletableFuture<ConsumerGroupTopicDetails> fromConsumerGroupList(KafkaAdminResource resource, Collection<ConsumerGroupListing> groupListings){
+    private CompletableFuture<ConsumerGroups> fromConsumerGroupList(KafkaAdminResource resource, Collection<ConsumerGroupListing> groupListings){
         DescribeConsumerGroupsResult result = resource.describeConsumerGroups(groupListings.stream()
                 .map(ConsumerGroupListing::groupId).collect(toList()));
         return toCompletable(result.all())
-                .thenApply(resolved -> ImmutableConsumerGroupTopicDetails.builder()
+                .thenApply(resolved -> ImmutableConsumerGroups.builder()
                         .topicDetails(asTopicAssignments(resolved))
                         .build());
     }
@@ -53,23 +53,32 @@ public class ConsumerGroupTopicInformation implements KafkaTask<Void, ConsumerGr
     }
 
     private List<TopicGroupAssignment> asTopicAssignments(Map.Entry<String, ConsumerGroupDescription> description){
-        return description.getValue().members().stream()
-                .flatMap(member -> assignment(description.getKey(), member).stream())
+        return description.getValue()
+                .members().stream()
+                .flatMap(member -> assignment(member, description.getValue()).stream())
                 .collect(toList());
     }
 
-    private List<TopicGroupAssignment> assignment(String groupId, MemberDescription memberDescription){
+    private List<TopicGroupAssignment> assignment(MemberDescription memberDescription,
+                                                  ConsumerGroupDescription consumerDescription){
         return memberDescription.assignment().topicPartitions().stream()
-                .map(tp -> ImmutableTopicGroupAssignment.builder()
-                            .topic(tp.topic())
-                            .partition(tp.partition())
-                            .clientId(memberDescription.clientId())
-                            .groupId(memberDescription.consumerId())
-                            .groupId(groupId)
-                            .build())
+                .map(tp -> topicGroupAssignment(tp, memberDescription, consumerDescription))
                 .collect(toList());
 
     }
 
+    private TopicGroupAssignment topicGroupAssignment(TopicPartition topicPartition,
+                                                      MemberDescription memberDescription,
+                                                      ConsumerGroupDescription consumerGroupDescription){
+        return ImmutableTopicGroupAssignment.builder()
+                .topic(topicPartition.topic())
+                .partition(topicPartition.partition())
+                .clientId(memberDescription.clientId())
+                .groupId(memberDescription.consumerId())
+                .groupId(consumerGroupDescription.groupId())
+                .groupState(consumerGroupDescription.state().name())
+                .coordinator(formatCoordinator(consumerGroupDescription.coordinator()))
+                .build();
+    }
 
 }

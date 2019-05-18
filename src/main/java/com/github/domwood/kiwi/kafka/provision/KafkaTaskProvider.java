@@ -46,12 +46,16 @@ public class KafkaTaskProvider {
         return new ConsumerGroupInformation();
     }
 
-    public ConsumerGroupTopicInformation consumerGroupTopicInformation() {
-        return new ConsumerGroupTopicInformation();
+    public AllConsumerGroupDetails consumerGroupTopicInformation() {
+        return new AllConsumerGroupDetails();
     }
 
-    public ConsumerGroupOffsetInformation consumerGroupOffsetInformation() {
-        return new ConsumerGroupOffsetInformation();
+    public ConsumerGroupListByTopic consumerGroupListByTopic(){
+        return new ConsumerGroupListByTopic();
+    }
+
+    public ConsumerGroupDetailsWithOffset consumerGroupOffsetInformation() {
+        return new ConsumerGroupDetailsWithOffset();
     }
 
     public ContinuousConsumeMessages continousConsumeMessages() {

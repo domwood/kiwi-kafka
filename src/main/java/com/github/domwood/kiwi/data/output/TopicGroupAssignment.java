@@ -18,5 +18,6 @@ public interface TopicGroupAssignment extends OutboundResponse{
     @Nullable String clientId();
     @Nullable String consumerId();
     String groupId();
-
+    String groupState();
+    String coordinator();
 }
