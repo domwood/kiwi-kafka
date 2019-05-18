@@ -179,7 +179,7 @@ class KafkaPost extends Component {
 
                     <div className="mt-lg-1"></div>
 
-                    <Button onClick={this.submit} disabled={this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue}>Send!</Button>
+                    <Button onClick={this.submit} disabled={!!(this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue)}>Send!</Button>
 
                     <div className="mt-lg-1"></div>
                 </Form>

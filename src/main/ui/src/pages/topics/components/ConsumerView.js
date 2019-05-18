@@ -1,8 +1,8 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
-import PropTypes from "prop-types";
-import ConsumerGroupView from "../../groups/components/ConsumerGroupView";
+import ConsumerGroupDetailsView from "../../groups/components/ConsumerGroupDetailsView";
 import {MdRefresh} from "react-icons/md";
 import {Button} from "reactstrap";
 
@@ -20,7 +20,7 @@ class ConsumerView extends Component {
     }
 
     getConsumerGroups = () => {
-        ApiService.consumerGroupsForTopic(this.props.topic, (data) => {
+        ApiService.getConsumerGroupsForTopic(this.props.topic, (data) => {
             this.setState({
                 groups: data || []
             });
@@ -30,9 +30,14 @@ class ConsumerView extends Component {
     render() {
         return (
             <div>
+
                 {this.state.groups.length === 0 ? <Button color="primary" onClick={this.getConsumerGroups}>Refresh <MdRefresh/></Button> : ''}
-                {this.state.groups.length === 0 ? 'No active consumers found.' : ''}
-                {this.state.groups.map(group => <ConsumerGroupView key={`${group}_${this.props.topic}_view`} groupId={group} topics={[this.props.topic]} />)}
+                {this.state.groups.length === 0 ?
+                    <div>
+                        <div className={"Gap"}/>
+                        <div>No active consumers found.</div>
+                    </div> : ''}
+                {this.state.groups.map(group => <ConsumerGroupDetailsView key={`${group}_${this.props.topic}_view`} groupId={group} topics={[this.props.topic]} />)}
             </div>
         )
     }

@@ -65,7 +65,17 @@ export const getAllConsumerGroupDetails = (cb, eb) => {
         .catch(errorhandler);
 };
 
-export const consumerGroupsForTopic = (topic, cb, eb) => {
+export const getConsumerGroups = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(`${api.listConsumerGroups}`)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result.groups))
+        .catch(errorhandler);
+};
+
+export const getConsumerGroupsForTopic = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
     fetch(`${api.consumerGroupsForTopic}/${topic}`)

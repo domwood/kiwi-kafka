@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, ButtonGroup, Label, ListGroup, ListGroupItem, Spinner, Table} from "reactstrap";
+import {Button, ButtonGroup, Label, ListGroup, ListGroupItem, Spinner} from "reactstrap";
 import {MdRefresh} from "react-icons/md";
 import DeleteTopic from "./DeleteTopic";
 import PartitionView from "./PartitionView";

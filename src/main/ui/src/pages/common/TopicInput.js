@@ -12,7 +12,6 @@ import {
 } from "reactstrap";
 
 import React, {Component} from "react";
-import DataStore from "../../services/GlobalStore";
 import { MdRefresh } from "react-icons/md/index";
 import PropTypes from "prop-types";
 import {toast} from "react-toastify";
@@ -23,7 +22,7 @@ class TopicInput extends Component {
         super(props);
 
         this.state = {
-            topicList: DataStore.get("topicList") || []
+            topicList: []
         }
     }
 
@@ -34,7 +33,6 @@ class TopicInput extends Component {
     getTopicList = (reload) => {
         if(this.state.topicList.length === 0 || reload){
             ApiService.getTopics((topics) => {
-                DataStore.put("topicList", topics);
                 this.setState({
                     topicList:topics
                 });

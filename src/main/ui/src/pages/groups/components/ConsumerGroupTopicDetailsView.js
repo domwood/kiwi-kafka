@@ -1,12 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-class ConsumerGroupTopicView extends Component {
+class ConsumerGroupTopicDetailsView extends Component {
     render() {
         return (
             <tr key={`${this.props.topic}_${this.props.groupId}_${this.props.assignment.partition}`}>
                 <td>{this.props.assignment.groupId}</td>
-                <td>{this.props.assignment.partition}</td>
+                <td>{this.props.topic}-{this.props.assignment.partition}</td>
                 <td>{this.props.assignment.consumerId}</td>
                 <td>{this.props.assignment.groupState || 'INACTIVE'}</td>
                 <td>{this.props.assignment.offset.partitionOffset}</td>
@@ -18,11 +18,11 @@ class ConsumerGroupTopicView extends Component {
     }
 }
 
-ConsumerGroupTopicView.propTypes = {
+ConsumerGroupTopicDetailsView.propTypes = {
     groupId: PropTypes.string.isRequired,
     topic: PropTypes.string.isRequired,
     assignment: PropTypes.object.isRequired
 };
 
 
-export default ConsumerGroupTopicView ;
+export default ConsumerGroupTopicDetailsView ;

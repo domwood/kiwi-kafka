@@ -1,17 +1,15 @@
 import WebSocketFactory from "./WebSocketFactory";
 
 //TODO WIP POC
-
-let socket = {
-    readyState: 4, //0 Connected, 1 Connecting, 2 Closing, 3 Closed (∴ 4 =~ UNCREATED)
-    send: () => console.warn("Socket send called before being socket created"),
-    close: () => console.warn("Socket close called before being socket created")
+const client = {
+    socket:{
+        readyState: 4, //0 Connected, 1 Connecting, 2 Closing, 3 Closed (∴ 4 =~ UNCREATED)
+        send: () => '',
+        close: () => ''
+    },
+    pending: [],
+    open: false
 };
-
-const client = {};
-
-client.pending = [];
-client.open = false;
 
 const websocketDataHandler = (message, messageHandler, errorHandler) => {
     if(message.data){
@@ -29,30 +27,30 @@ client.send = (data) => {
     if(data) {
         client.pending.push((sock) => sock.send(JSON.stringify(data)));
     }
-    if(client.open && socket.readyState < 2) {
-        while(client.pending.length > 0) client.pending.pop()(socket);
+    if(client.open && client.socket.readyState < 2) {
+        while(client.pending.length > 0) client.pending.pop()(client.socket);
     }
 };
 
 client.connect = () => {
-    if(socket.readyState > 1){
-        socket = WebSocketFactory();
-        socket.onopen = () => {
+    if(client.socket.readyState > 1){
+        client.socket = WebSocketFactory();
+        client.socket.onopen = () => {
             setTimeout(() => {
                 client.open = true;
                 client.send();
             }, 10)
         };
-        socket.onclose = () => {
+        client.socket.onclose = () => {
             client.open = false;
         };
     }
 };
 
 client.consume = (topics, filters, messageHandler, errorHandler, closeHandler) => {
-    socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler);
-    socket.onerror = errorHandler;
-    socket.onclose = () => {
+    client.socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler);
+    client.socket.onerror = errorHandler;
+    client.socket.onclose = () => {
         client.open = false;
         closeHandler();
     };
@@ -71,9 +69,9 @@ client.disconnect = () => {
     client.send({
         requestType: ".CloseTaskRequest"
     });
-    if(socket.readyState > 2){
+    if(client.socket.readyState > 2){
         client.open = true;
-        socket.close();
+        client.socket.close();
     }
 };
 
