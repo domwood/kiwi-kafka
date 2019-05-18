@@ -203,7 +203,7 @@ class CreateTopic extends Component {
                     {
                         this.state.topicConfig ?
                             <ListGroupItem>
-                                <Table sm>
+                                <Table size="sm">
                                     <thead>
                                     <tr>
                                         <th width="40%">Key</th>

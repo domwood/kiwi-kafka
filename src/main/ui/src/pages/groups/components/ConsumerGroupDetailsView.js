@@ -51,7 +51,7 @@ class ConsumerGroupDetailsView extends Component {
             <div>
                 <div className={"TwoGap"} />
                 <ButtonGroup>
-                    <Button color="primary" onClick={this.getConsumerGroupDetails}>Refresh <MdRefresh/></Button>
+                    <Button color="primary" onClick={this.loadConsumerDetails}>Refresh <MdRefresh/></Button>
                     <DeleteConsumerGroup onComplete={this.props.onDeletion} groupId={this.props.groupId}/>
                 </ButtonGroup>
                 {this.state.loading ? <Spinner color="secondary"/> : ''}
