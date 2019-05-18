@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Spinner, Table} from "reactstrap";
+import {Button, ButtonGroup, Spinner, Table} from "reactstrap";
 import {MdRefresh} from "react-icons/md";
 import {toast} from "react-toastify";
 import * as ApiService from "../../../services/ApiService";
 import ConsumerGroupTopicDetailsView from "./ConsumerGroupTopicDetailsView";
+import DeleteConsumerGroup from "./DeleteConsumerGroup";
 
 class ConsumerGroupDetailsView extends Component {
     constructor(props) {
@@ -17,7 +18,12 @@ class ConsumerGroupDetailsView extends Component {
     }
 
     componentDidMount() {
+        this.mounted = true;
         this.loadConsumerDetails();
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
     }
 
     loadConsumerDetails = () => {
@@ -28,11 +34,12 @@ class ConsumerGroupDetailsView extends Component {
 
     getConsumerGroupDetails = () => {
         ApiService.getConsumerGroupDetailsWithOffsets(this.props.groupId, (data) => {
-            this.setState({
-                groupData:data,
-                loading: false
-            });
-            toast.info(`Retrieved data for groupId ${this.props.groupId}`)
+            if(this.mounted){
+                this.setState({
+                    groupData:data,
+                    loading: false
+                }, () => toast.info(`Retrieved data for groupId ${this.props.groupId}`));
+            }
         }, (err) => {
             this.setState({loading:false});
             toast.error(`Error retreiving ${this.props.groupId} group info: ${err.message}`)
@@ -42,8 +49,13 @@ class ConsumerGroupDetailsView extends Component {
     render() {
         return (
             <div>
-                <Button color="primary" onClick={this.getConsumerGroupDetails}>Refresh <MdRefresh/></Button>
+                <div className={"TwoGap"} />
+                <ButtonGroup>
+                    <Button color="primary" onClick={this.getConsumerGroupDetails}>Refresh <MdRefresh/></Button>
+                    <DeleteConsumerGroup onComplete={this.props.onDeletion} groupId={this.props.groupId}/>
+                </ButtonGroup>
                 {this.state.loading ? <Spinner color="secondary"/> : ''}
+
                 <div className={"Gap"} />
                 <Table key={`${this.props.groupId}_table`} size="sm">
                     <thead>
@@ -65,7 +77,7 @@ class ConsumerGroupDetailsView extends Component {
                                 <tbody key={`${this.props.groupId}_${topic}`}>
                                     {(this.props.topics||[]).length !== 1 ?
                                         <tr className="table-primary" key={`${topic}_header_row`}>
-                                            <td colspan="8" style={{"text-align":"center"}}>{topic}</td>
+                                            <td colSpan="8" style={{"textAlign":"center"}}>{topic}</td>
                                         </tr> : <tr className="table-primary" key={`${topic}_header_row`} />
                                     }
                                     {
@@ -86,7 +98,8 @@ class ConsumerGroupDetailsView extends Component {
 
 ConsumerGroupDetailsView.propTypes = {
     groupId: PropTypes.string.isRequired,
-    topics: PropTypes.array
+    topics: PropTypes.array,
+    onDeletion: PropTypes.func.isRequired
 };
 
 

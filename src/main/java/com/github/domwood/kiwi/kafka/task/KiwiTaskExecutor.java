@@ -11,7 +11,7 @@ public class KiwiTaskExecutor implements Executor {
     private final ExecutorService delegate;
 
     private KiwiTaskExecutor(ThreadFactory kiwiFactory){
-        delegate = Executors.newFixedThreadPool(100, kiwiFactory);
+        delegate = Executors.newFixedThreadPool(50, kiwiFactory);
     }
 
     private static class KiwiTaskExecutorHelper{

@@ -1,25 +1,89 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Table} from "reactstrap";
+import {Button, Input, InputGroup, InputGroupAddon, Table} from "reactstrap";
+import * as ApiService from "../../../services/ApiService";
+import {toast} from "react-toastify";
 
 class ConfigurationView extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            editKey: "",
+            editValue: "",
+            configuration: props.configuration
+        }
+    }
+
+    editConfig = (key, value) => {
+        this.setState({
+            editKey:key,
+            editValue: value
+        })
+    };
+
+    onEditUpdate = (value) => {
+        this.setState({
+            editValue: value
+        })
+    };
+
+    save = () => {
+        if(this.state.editValue){
+            let configUpdate = {[this.state.editKey]: this.state.editValue};
+            ApiService.updateTopicConfig(this.props.topic, configUpdate,
+                () => {
+                    this.setState({
+                        configuration:Object.assign(this.state.configuration, configUpdate),
+                        editKey: '',
+                        editValue: '',
+
+                    }, () => {
+                        toast.info("Updated Topic configuration");
+                    })
+                },
+                (err => toast.error(`Failed to update configuration ${err.message}`))
+            )
+        }
+    };
+
     render() {
         return (
             <div>
                 <Table size="sm">
                     <thead>
                     <tr>
-                        <th>Config Key</th>
-                        <th>Config Value</th>
+                        <th width="40%">Config Key</th>
+                        <th width="40%">Config Value</th>
+                        <th width="20%"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {
-                        Object.keys(this.props.configuration).map(key => {
+                        Object.keys(this.state.configuration).map(key => {
                             return (
                                 <tr key={`${this.props.topic}_${key}`}>
                                     <td>{key}</td>
-                                    <td>{this.props.configuration[key]}</td>
+                                    <td>{this.state.configuration[key]}</td>
+                                    <td>
+                                        {
+                                            this.state.editKey !== key ?
+                                                <Button color="secondary" onClick={() => this.editConfig(key)} disabled={!!this.state.editKey}>Edit</Button> :
+                                                <div>
+                                                    <InputGroup>
+                                                        <Input type="text" defaultValue={this.state.configuration[key]} onChange={event => this.onEditUpdate(event.target.value)}/>
+                                                        <InputGroupAddon addonType="append">
+                                                            <Button color="success" onClick={() => this.save()}>Save</Button>
+                                                        </InputGroupAddon>
+                                                        <InputGroupAddon addonType="append">
+                                                            <Button color="secondary" onClick={() => this.editConfig('')}>Cancel</Button>
+                                                        </InputGroupAddon>
+
+                                                    </InputGroup>
+                                                </div>
+                                        }
+
+                                    </td>
                                 </tr>
                             )
                         })

@@ -1,11 +1,13 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import com.github.domwood.kiwi.kafka.task.admin.UpdateTopicConfiguration;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.requests.DeleteTopicsResponse;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -64,4 +66,11 @@ public class KafkaAdminResource extends KafkaResource<AdminClient>{
         return this.getClient().deleteTopics(topics);
     }
 
+    public DeleteConsumerGroupsResult deleteConsumerGroups(List<String> groupIds) {
+        return this.getClient().deleteConsumerGroups(groupIds);
+    }
+
+    public AlterConfigsResult updateTopicConfiguration(Map<ConfigResource, Config> configs){
+        return this.getClient().alterConfigs(configs);
+    }
 }

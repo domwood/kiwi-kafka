@@ -73,7 +73,7 @@ class TopicView extends Component {
                             <ListGroupItem>
                                 <ButtonGroup>
                                     <Button color="primary" onClick={() => this.toggleDetails(true)}>Refresh <MdRefresh/></Button>
-                                    <DeleteTopic topic={this.props.topic} onComplete={() => this.reloadTopics()} />
+                                    <DeleteTopic topic={this.props.topic} onComplete={this.props.onDeletion} />
                                 </ButtonGroup>
                             </ListGroupItem>
                             <ListGroupItem>
@@ -93,7 +93,7 @@ class TopicView extends Component {
                                     <Button
                                         onClick={() => this.onTopicViewChange('consumers')}
                                         color={this.state.viewName === 'consumers' ? 'success' : 'secondary'}>
-                                        Consumer Groups
+                                        Active Consumer Groups
                                     </Button>
 
                                 </ButtonGroup>

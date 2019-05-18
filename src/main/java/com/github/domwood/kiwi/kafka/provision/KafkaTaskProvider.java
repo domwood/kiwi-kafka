@@ -65,4 +65,12 @@ public class KafkaTaskProvider {
     public DeleteTopic deleteTopic() {
         return new DeleteTopic();
     }
+
+    public DeleteConsumerGroup deleteConsumerGroup() {
+        return new DeleteConsumerGroup();
+    }
+
+    public UpdateTopicConfiguration updateTopicConfiguration() {
+        return new UpdateTopicConfiguration();
+    }
 }

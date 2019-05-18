@@ -18,12 +18,19 @@ class ConsumerGroupView extends Component {
         })
     };
 
+    onDelete = () => {
+        this.setState({
+            toggle: false
+        }, this.props.onDeletion)
+    };
+
     render() {
         return (
             <div>
                 <ListGroupItem key={this.props.groupId + "_parent"} id={this.props.groupId}>
                     <Button color={this.state.toggle ? "success" : "secondary"} size="sm" onClick={() => this.toggle()} block>{this.props.groupId}</Button>
-                    {this.state.toggle ? <ConsumerGroupDetailsView groupId={this.props.groupId}/>  : ''}
+
+                    {this.state.toggle ? <ConsumerGroupDetailsView groupId={this.props.groupId} onDeletion={this.onDelete}/> : ''}
                 </ListGroupItem>
             </div>
         )
@@ -31,7 +38,8 @@ class ConsumerGroupView extends Component {
 }
 
 ConsumerGroupView.propTypes = {
-    groupId: PropTypes.string.isRequired
+    groupId: PropTypes.string.isRequired,
+    onDeletion: PropTypes.func.isRequired
 };
 
 

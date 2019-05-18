@@ -15,6 +15,10 @@ class MessageReader extends Component {
         }
     }
 
+    componentWillMount() {
+        WebSocketService.connect(() => false);
+    }
+
     componentWillUnmount() {
         WebSocketService.disconnect();
     }
@@ -97,8 +101,6 @@ class MessageReader extends Component {
         });
 
         this.props.updateMessages([]);
-
-        WebSocketService.connect();
 
         WebSocketService.consume(
             [this.props.targetTopic],

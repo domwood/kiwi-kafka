@@ -1,6 +1,7 @@
 package com.github.domwood.kiwi.api.rest;
 
 import com.github.domwood.kiwi.data.input.CreateTopicRequest;
+import com.github.domwood.kiwi.data.input.UpdateTopicConfig;
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
@@ -126,5 +127,25 @@ public class AdminController {
         KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
         DeleteTopic deleteTopic = this.taskProvider.deleteTopic();
         return deleteTopic.execute(adminResource, topic);
+    }
+
+    @Async
+    @DeleteMapping("/deleteConsumerGroup/{groupId}")
+    @ResponseBody
+    public CompletableFuture<Void> deleteConsumerGroup(@RequestParam(required = false) Optional<String> bootStrapServers,
+                                                       @PathVariable String groupId) {
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup();
+        return deleteConsumerGroup.execute(adminResource, groupId);
+    }
+
+    @Async
+    @PostMapping("/updateTopicConfig")
+    @ResponseBody
+    public CompletableFuture<Void> updateTopicConfig(@RequestParam(required = false) Optional<String> bootStrapServers,
+                                                     @RequestBody UpdateTopicConfig topicConfig){
+        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
+        UpdateTopicConfiguration topicConfiguration = this.taskProvider.updateTopicConfiguration();
+        return topicConfiguration.execute(adminResource, topicConfig);
     }
 }

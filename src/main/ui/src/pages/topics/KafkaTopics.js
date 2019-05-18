@@ -25,7 +25,12 @@ class KafkaTopics extends Component {
     }
 
     componentDidMount() {
+        this.mounted = true;
         this.reloadTopics();
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
     }
 
     reloadTopics = () => {
@@ -33,12 +38,14 @@ class KafkaTopics extends Component {
             loading: true
         }, () => {
             ApiService.getTopics((topics) => {
-                this.setState({
-                    topicList: topics || [],
-                    loading:false
-                }, () => {
-                    toast.info("Refreshed topic list from server");
-                });
+                if(this.mounted){
+                    this.setState({
+                        topicList: topics || [],
+                        loading:false
+                    }, () => {
+                        toast.info("Refreshed topic list from server");
+                    });
+                }
             }, () => {
                 this.setState({
                     loading: false
@@ -76,7 +83,7 @@ class KafkaTopics extends Component {
                 <div className={"Gap"}/>
 
                 <SearchableViewList elementList={this.state.topicList}
-                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic} /> } />
+                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic} onDeletion={this.reloadTopics}/> } />
             </Container>
         );
     }

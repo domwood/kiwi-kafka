@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {
     Button,
-    ButtonGroup,
     Container,
     Spinner
 } from "reactstrap";
@@ -18,7 +17,8 @@ class KafkaConsumerGroups extends Component {
 
         this.state = {
             groupList: [],
-            loading: false
+            loading: false,
+            ignoreKiwiConsumers: true
         };
     }
 
@@ -55,15 +55,16 @@ class KafkaConsumerGroups extends Component {
                 <div className="mt-lg-4"/>
                 <div className={"TwoGap"}/>
 
-                <ButtonGroup>
-                    <Button color="primary" onClick={this.loadConsumerGroups}>Reload List <MdRefresh/></Button>
-                    {this.state.loading ? <Spinner color="secondary"/> : ''}
-                </ButtonGroup>
+
+                <Button color="primary" onClick={this.loadConsumerGroups}>Reload List <MdRefresh/></Button>
+
+                <div className={"Gap"}/>
+                {this.state.loading ? <Spinner color="secondary"/> : ''}
 
                 <div className={"Gap"}/>
 
                 <SearchableViewList elementList={this.state.groupList}
-                                    elementViewProvider={(group) => <ConsumerGroupView groupId={group}/> } />
+                                    elementViewProvider={(group) => <ConsumerGroupView key={`${group}_search`} groupId={group} onDeletion={this.loadConsumerGroups} /> } />
             </Container>
         );
     }

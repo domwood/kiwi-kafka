@@ -1,10 +1,5 @@
 import React, {Component} from "react";
-import {
-    Input,
-    InputGroup, InputGroupAddon,
-    InputGroupText, ListGroup,
-    ListGroupItem
-} from "reactstrap";
+import {Input, InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem} from "reactstrap";
 import "../../App.css";
 import PropTypes from "prop-types";
 
@@ -23,7 +18,7 @@ class SearchableViewList extends Component {
         if(prevProps.elementList !== this.props.elementList){
             this.setState({
                 unfilteredList: this.props.elementList,
-                    filteredList: this.props.elementList
+                filteredList: this.props.elementList
             });
         }
     }
@@ -31,7 +26,8 @@ class SearchableViewList extends Component {
     filterList = (filterWord) => {
         if (filterWord && filterWord.length > 0) {
             this.setState({
-                filteredList: this.state.unfilteredList.filter(element => element.toLowerCase().search(filterWord.toLowerCase()) !== -1)
+                filteredList: this.state.unfilteredList
+                    .filter(element => element.toLowerCase().search(filterWord.toLowerCase()) !== -1)
             })
         } else {
             this.setState({
@@ -39,6 +35,7 @@ class SearchableViewList extends Component {
             })
         }
     };
+
 
     render() {
         return (

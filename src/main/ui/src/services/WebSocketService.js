@@ -3,7 +3,7 @@ import WebSocketFactory from "./WebSocketFactory";
 //TODO WIP POC
 const client = {
     socket:{
-        readyState: 4, //0 Connected, 1 Connecting, 2 Closing, 3 Closed (∴ 4 =~ UNCREATED)
+        readyState: 4, //0 Connecting, 1 Connected, 2 Closing, 3 Closed (∴ 4 =~ UNCREATED)
         send: () => '',
         close: () => ''
     },
@@ -27,19 +27,23 @@ client.send = (data) => {
     if(data) {
         client.pending.push((sock) => sock.send(JSON.stringify(data)));
     }
-    if(client.open && client.socket.readyState < 2) {
-        while(client.pending.length > 0) client.pending.pop()(client.socket);
+    if(client.socket.readyState === 0) {
+        setTimeout(() => client.send(data), 50);
+    }
+    else if(client.socket.readyState === 1){
+        while(client.pending.length > 0 && client.socket.readyState === 1) client.pending.pop()(client.socket);
+    }
+    else{
+        client.connect(() => client.send(data));
     }
 };
 
-client.connect = () => {
+client.connect = (cb) => {
     if(client.socket.readyState > 1){
         client.socket = WebSocketFactory();
         client.socket.onopen = () => {
-            setTimeout(() => {
-                client.open = true;
-                client.send();
-            }, 10)
+            client.open = true;
+            cb();
         };
         client.socket.onclose = () => {
             client.open = false;

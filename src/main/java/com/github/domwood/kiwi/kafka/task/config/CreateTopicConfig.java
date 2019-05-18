@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CreateTopicConfig  implements KafkaTask<Void, CreateTopicConfigOptions, KafkaTopicConfigResource> {
+public class CreateTopicConfig implements KafkaTask<Void, CreateTopicConfigOptions, KafkaTopicConfigResource> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

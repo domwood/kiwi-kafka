@@ -75,6 +75,37 @@ export const getConsumerGroups = (cb, eb) => {
         .catch(errorhandler);
 };
 
+
+export const deleteConsumerGroup = (groupId, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(`${api.deleteConsumerGroup}/${groupId}`, {
+        method: 'DELETE',
+    })
+    .then(statusHandler)
+    .then(() => cb())
+    .catch(errorhandler);
+};
+
+export const updateTopicConfig = (topic, config, cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.updateTopicConfig, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            requestType: ".UpdateTopicConfig",
+            topic: topic,
+            config: config
+        })
+    })
+        .then(statusHandler)
+        .then(() => cb())
+        .catch(errorhandler);
+};
+
 export const getConsumerGroupsForTopic = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
