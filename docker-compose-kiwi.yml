@@ -58,7 +58,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   kiwi:
-    image: domwood/kiwi:0.0.1-SNAPSHOT
+    image: dmwood/kiwi:0.0.1-SNAPSHOT
     container_name: kiwi
     ports:
       - 8090:8080
