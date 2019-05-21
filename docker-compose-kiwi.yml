@@ -57,3 +57,23 @@ services:
       KAFKA_CREATE_TOPICS: "Topic1:10:3,Topic2:20:1:compact"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  kiwi:
+    image: domwood/kiwi:0.0.1-SNAPSHOT
+    container_name: kiwi
+    ports:
+      - 8090:8080
+    links:
+      - zookeeper
+      - kafka1
+      - kafka2
+      - kafka3
+    depends_on:
+      - zookeeper
+      - kafka1
+      - kafka2
+      - kafka3
+    environment:
+      KAFKA_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    

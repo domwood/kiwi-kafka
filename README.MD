@@ -1,35 +1,46 @@
 # KIWI - Kafka Interactive Web Interface
 
+**Note: This Project is WIP, I've made this public so I can use to at my workplace.
+ But it does not represent a final finished product, its not recommended to use in production at this time.**
+
  - A Kafka Interface written by for real use cases when working with kafka
- - Differences from other UIs
-    1) Focus on Rest API versions of console scripts provided in kafka installs bin dir
+ - Primary Focus
+    1) API versions of console scripts provided in kafka installs bin dir
     2) Support for kafka headers
     3) Live streaming of data with filters
   
-**Note: This Project is WIP, I've made this public so it I can use it at work.
- But it does not represent a final finished product, its not recommended to use in production at this time.**
+ - Project is a springboot app using reactjs frontend.
+ - Project has been development against kafka 2. Whilst I intend to look at backwards compatibility with older kafka versions. 
+ It have not looked into it yet.
   
-  
-#### Features
+## Interface
 
 In general the target is to replicate many of the features of provided by the scripts which are included with the kafka server. 
 Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
-- Examples: 
+- Example Screenshots: 
 
 ![Example Screen showing Topic View](./img/TopicView.png "Topic View")
 
 
 ![Example Screen showing Consumer View](./img/ConsumerView.png "Consumer View")
 
- 
+
+## Getting Started
+
 #### Run via Docker
 //TODO
 
 `docker run -p 8080:8080 domwood/kiwi`
  
 #### Build & Run Jar
+
+Dependencies: 
+ - Requires Java 8 or higher 
+ - Requires Node 8 or higher
+ - Requires Maven 2 or higher
  
+Build:
  - Run `mvn clean install`
  - or Jar runnable via `java -jar target/kiwi-$version.jar`
   

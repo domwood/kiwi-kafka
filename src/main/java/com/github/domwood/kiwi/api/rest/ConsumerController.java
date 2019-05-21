@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping(API_ENDPOINT)
 public class ConsumerController {

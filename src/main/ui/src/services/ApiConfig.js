@@ -1,8 +1,11 @@
 /*eslint no-undef: "off"*/
-const baseWs = process.env.REACT_APP_LOCAL_SPRING_WS || 'ws://localhost:8080';
-const baseUrl = process.env.REACT_APP_LOCAL_SPRING_API || 'http://localhost:8080';
+const local = process.env.REACT_APP_ENV === 'local';
+const baseWs = local? process.env.REACT_APP_LOCAL_SPRING_WS : `ws://${window.location.hostname}:${window.location.port}`;
+const baseUrl = local? process.env.REACT_APP_LOCAL_SPRING_API : `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 const baseRestApi = baseUrl + "/api";
 const baseWebSocket = baseWs + "/ws";
+
+console.log(`Local address as : ${baseUrl}`)
 
 export default {
     webSocket: `${baseWebSocket}`,
