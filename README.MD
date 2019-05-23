@@ -51,9 +51,9 @@ There are various ways this can be started locally, this is my preferred method:
  - Run `./run-docker.sh`
  - Start KiwiApplication in your ide or via above method
  - Run `./run-node-server.sh`
- - Go to localhost:3000 to see UI
+ - Go to `localhost:3000` to see UI
  
-Editing should javascript should lead to live updates of the UI at localhost:3000.
-The UI will also be available at `localhost:8080` or whatever port you have set server.port to.
+Editing should javascript should lead to live updates of the UI at `localhost:3000`.
+The UI will also be available at `localhost:8080` or whatever port you have set `server.port` to.
 But this will not update automatically when making changes.
   
