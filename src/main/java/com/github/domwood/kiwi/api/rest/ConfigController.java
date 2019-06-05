@@ -1,9 +1,7 @@
 package com.github.domwood.kiwi.api.rest;
 
 import com.github.domwood.kiwi.data.output.CreateTopicConfigOptions;
-import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
-import com.github.domwood.kiwi.kafka.resources.KafkaTopicConfigResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +15,10 @@ import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 @RequestMapping(API_ENDPOINT)
 public class ConfigController {
 
-    private final KafkaResourceProvider resourceProvider;
     private final KafkaTaskProvider taskProvider;
 
     @Autowired
-    public ConfigController(KafkaResourceProvider resourceProvider, KafkaTaskProvider taskProvider){
-        this.resourceProvider = resourceProvider;
+    public ConfigController(KafkaTaskProvider taskProvider){
         this.taskProvider = taskProvider;
     }
 
@@ -30,8 +26,7 @@ public class ConfigController {
     @GetMapping("/createTopicConfig")
     @ResponseBody
     public CompletableFuture<CreateTopicConfigOptions> createTopicConfigOptions(){
-        KafkaTopicConfigResource configResource = resourceProvider.kafkaTopicConfigResource();
-        return this.taskProvider.createTopicConfigOptions().execute(configResource, null);
+        return this.taskProvider.createTopicConfigOptions().execute();
     }
 
 }

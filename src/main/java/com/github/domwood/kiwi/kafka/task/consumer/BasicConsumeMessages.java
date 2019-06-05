@@ -7,9 +7,8 @@ import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
 import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
-import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
@@ -28,19 +26,16 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.stream.Collectors.toList;
 
 
-public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>>{
+public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>> {
 
-    //TODO Add configuration mechanism
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    public CompletableFuture<ConsumerResponse<String, String>> execute(KafkaConsumerResource<String, String> resource,
-                                                                       ConsumerRequest input) {
-        return FutureUtils.supplyAsync(() -> executeSync(resource, input));
+    public BasicConsumeMessages(KafkaConsumerResource<String, String> resource, ConsumerRequest input) {
+        super(resource, input);
     }
 
-    private ConsumerResponse<String, String> executeSync(KafkaConsumerResource<String, String> resource,
-                                                         ConsumerRequest input) {
+    @Override
+    public ConsumerResponse<String, String> delegateExecuteSync() {
 
         try{
             Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
@@ -82,7 +77,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                     }
 
                     boolean maxQueueReached = input.limit() > 1 && input.limitAppliesFromStart() && queue.size() > input.limit();
-                    boolean endOfData = isEndofData(endOffsets, toCommit);
+                    boolean endOfData = isEndOfData(endOffsets, toCommit);
                     running = ! ( maxQueueReached || endOfData );
 
                     if(maxQueueReached) logger.debug("Max queue size reached");
@@ -96,7 +91,6 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
                 }
             }
 
-            resource.discard();
             return ImmutableConsumerResponse.<String, String>builder()
                     .messages(queue.stream()
                             .sorted(Comparator.comparingLong(ConsumedMessage::timestamp))
@@ -107,10 +101,8 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
             logger.error("Failed to complete task of consuming from topics " + input.topics(), e);
             throw e;
         }
-        finally {
-            resource.discard();
-        }
     }
+
 
     private void logCommit(Map<TopicPartition, OffsetAndMetadata> offsetData, Exception exception){
         if(exception != null){
@@ -121,7 +113,7 @@ public class BasicConsumeMessages implements KafkaTask<ConsumerRequest, Consumer
         }
     }
 
-    private boolean isEndofData(Map<TopicPartition, Long> endOffsets, Map<TopicPartition, OffsetAndMetadata> lastCommit){
+    private boolean isEndOfData(Map<TopicPartition, Long> endOffsets, Map<TopicPartition, OffsetAndMetadata> lastCommit){
         return endOffsets.entrySet().stream()
                 .allMatch(kv -> {
                     if(kv.getValue() < 1){

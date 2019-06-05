@@ -5,7 +5,7 @@ import com.github.domwood.kiwi.data.output.ImmutableTopicInfo;
 import com.github.domwood.kiwi.data.output.PartitionInfo;
 import com.github.domwood.kiwi.data.output.TopicInfo;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.DescribeConfigsResult;
@@ -29,18 +29,22 @@ import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
 import static com.github.domwood.kiwi.utilities.StreamUtils.maximum;
 import static java.util.Collections.singletonList;
 
-public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdminResource> {
+public class TopicInformation extends AbstractKafkaTask<String, TopicInfo, KafkaAdminResource> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    public CompletableFuture<TopicInfo> execute(KafkaAdminResource resource, String topic) {
-        try{
-            ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
-            DescribeConfigsResult configsResult = resource.describeConfigs(singletonList(configResource));
-            DescribeTopicsResult topicDescription = resource.describeTopics(singletonList(topic));
+    public TopicInformation(KafkaAdminResource resource, String input) {
+        super(resource, input);
+    }
 
-            CompletableFuture<TopicInfo> topicInfo = toCompletable(topicDescription.values().get(topic))
+    @Override
+    public CompletableFuture<TopicInfo> delegateExecute() {
+        try{
+            ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, input);
+            DescribeConfigsResult configsResult = resource.describeConfigs(singletonList(configResource));
+            DescribeTopicsResult topicDescription = resource.describeTopics(singletonList(input));
+
+            CompletableFuture<TopicInfo> topicInfo = toCompletable(topicDescription.values().get(input))
                     .thenApply(this::asTopicInfo);
             CompletableFuture<SortedMap<String, String>> configuration = toCompletable(configsResult.values().get(configResource))
                     .thenApply(config -> toKeyValueMap(config.entries()));
@@ -48,7 +52,7 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
             return topicInfo.thenCombine(configuration, this::mergeInConfiguration);
         }
         catch (Exception e){
-            logger.error("Failed to execute describe topics task for " + topic, e);
+            logger.error("Failed to execute describe topics task for " + input, e);
             resource.discard();
             return failedFuture(e);
         }
@@ -79,7 +83,7 @@ public class TopicInformation implements KafkaTask<String, TopicInfo, KafkaAdmin
 
     public SortedMap<String, String> toKeyValueMap(Collection<ConfigEntry> configEntries){
         ImmutableSortedMap.Builder<String, String> sortedMap = ImmutableSortedMap.naturalOrder();
-        configEntries.stream().forEach(kv -> sortedMap.put(kv.name(), kv.value()));
+        configEntries.forEach(kv -> sortedMap.put(kv.name(), kv.value()));
         return sortedMap.build();
     }
 

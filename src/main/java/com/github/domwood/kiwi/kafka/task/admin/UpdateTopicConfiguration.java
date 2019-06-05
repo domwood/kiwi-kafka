@@ -2,7 +2,7 @@ package com.github.domwood.kiwi.kafka.task.admin;
 
 import com.github.domwood.kiwi.data.input.UpdateTopicConfig;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
@@ -14,9 +14,14 @@ import java.util.stream.Collectors;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 
-public class UpdateTopicConfiguration implements KafkaTask<UpdateTopicConfig, Void, KafkaAdminResource> {
+public class UpdateTopicConfiguration extends AbstractKafkaTask<UpdateTopicConfig, Void, KafkaAdminResource> {
+
+    public UpdateTopicConfiguration(KafkaAdminResource resource, UpdateTopicConfig input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<Void> execute(KafkaAdminResource resource, UpdateTopicConfig input) {
+    public CompletableFuture<Void> delegateExecute() {
         return toCompletable(resource.updateTopicConfiguration(asConfigs(input)).all());
     }
 

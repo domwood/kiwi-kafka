@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-public class KafkaConsumerResource<K, V> extends KafkaResource<KafkaConsumer<K, V>> {
+public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaConsumer<K, V>> {
 
     public KafkaConsumerResource(Properties config) {
         super(config);

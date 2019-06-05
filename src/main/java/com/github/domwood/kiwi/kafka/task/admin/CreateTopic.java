@@ -2,8 +2,7 @@ package com.github.domwood.kiwi.kafka.task.admin;
 
 import com.github.domwood.kiwi.data.input.CreateTopicRequest;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
-import org.apache.kafka.clients.admin.AdminClient;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import org.apache.kafka.clients.admin.NewTopic;
 
 import java.util.concurrent.CompletableFuture;
@@ -11,9 +10,13 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 import static java.util.Arrays.asList;
 
-public class CreateTopic implements KafkaTask<CreateTopicRequest, Void, KafkaAdminResource> {
+public class CreateTopic extends AbstractKafkaTask<CreateTopicRequest, Void, KafkaAdminResource> {
+    public CreateTopic(KafkaAdminResource resource, CreateTopicRequest input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<Void> execute(KafkaAdminResource resource, CreateTopicRequest input) {
+    public CompletableFuture<Void> delegateExecute() {
         NewTopic newTopic = asNewTopic(input);
         return toCompletable(resource.createTopics(asList(newTopic))
                 .values()

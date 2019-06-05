@@ -4,7 +4,7 @@ import org.apache.kafka.common.config.TopicConfig;
 
 import java.util.Properties;
 
-public class KafkaTopicConfigResource extends KafkaResource<TopicConfig>{
+public class KafkaTopicConfigResource extends AbstractKafkaResource<TopicConfig> {
     public KafkaTopicConfigResource(Properties props) {
         super(props);
     }

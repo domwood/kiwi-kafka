@@ -9,6 +9,8 @@ import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.data.output.OutboundResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
+import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.utilities.FutureUtils;
@@ -30,7 +32,7 @@ import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
 
-public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRequest, KafkaConsumerResource<String, String>> {
+public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, Void, KafkaConsumerResource<String, String>> implements KafkaContinuousTask<ConsumerRequest>{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Integer batchSize = 50;
@@ -41,7 +43,9 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
     private Consumer<OutboundResponse> consumer;
     private volatile List<MessageFilter> filters;
 
-    public ContinuousConsumeMessages(){
+    public ContinuousConsumeMessages(KafkaConsumerResource<String, String> resource, ConsumerRequest input){
+        super(resource, input);
+
         this.consumer = (message) -> logger.warn("No consumer attached to kafka task");
         this.closeTask = new AtomicBoolean(false);
         this.paused = new AtomicBoolean(false);
@@ -70,66 +74,64 @@ public class ContinuousConsumeMessages implements KafkaContinuousTask<ConsumerRe
     }
 
     @Override
-    public CompletableFuture<Void> execute(KafkaConsumerResource<String, String> resource, ConsumerRequest input) {
+    public Void delegateExecuteSync() {
         this.filters = input.filters();
 
-        return FutureUtils.supplyAsync(() -> {
-            try{
-                KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
+        try{
+            KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
 
-                boolean running = true;
-                int idleCount = 0;
-                while(running) {
-                    if(this.paused.get()){
-                        Thread.sleep(20);
+            boolean running = true;
+            int idleCount = 0;
+            while(running) {
+                if(this.paused.get()){
+                    Thread.sleep(20);
+                    resource.keepAlive();
+                }
+                else if(this.closeTask.get()){
+                    running = false;
+                    this.closed.set(true);
+                    logger.info("Task set to close, closing...");
+                }
+                else{
+                    ConsumerRecords<String, String> records = resource.poll(Duration.of(Integer.max(10^(idleCount+1), 5000), MILLIS));
+                    if (records.isEmpty()) {
+                        idleCount++;
+                        logger.debug("No records polled for topic {} ", input.topics());
                         resource.keepAlive();
-                    }
-                    else if(this.closeTask.get()){
-                        running = false;
-                        this.closed.set(true);
-                        logger.info("Task set to close, closing...");
-                    }
-                    else{
-                        ConsumerRecords<String, String> records = resource.poll(Duration.of(Integer.max(10^(idleCount+1), 5000), MILLIS));
-                        if (records.isEmpty()) {
-                            idleCount++;
-                            logger.debug("No records polled for topic {} ", input.topics());
-                            resource.keepAlive();
 
-                        } else {
-                            idleCount = 0;
-                            Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(this.filters);
-                            ArrayList<ConsumedMessage<String, String>> messages = new ArrayList<>(batchSize);
+                    } else {
+                        idleCount = 0;
+                        Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(this.filters);
+                        ArrayList<ConsumedMessage<String, String>> messages = new ArrayList<>(batchSize);
 
-                            Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
-                            Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
-                            while (recordIterator.hasNext()) {
-                                ConsumerRecord<String, String> record = recordIterator.next();
+                        Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
+                        Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
+                        while (recordIterator.hasNext()) {
+                            ConsumerRecord<String, String> record = recordIterator.next();
 
-                                if (filter.test(record)) {
-                                    messages.add(asConsumedRecord(record));
-                                    toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
-                                }
-
-                                if (messages.size() >= batchSize) {
-                                    forwardAndCommit(resource, messages, toCommit);
-                                }
+                            if (filter.test(record)) {
+                                messages.add(asConsumedRecord(record));
+                                toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                             }
-                            if(!messages.isEmpty()){
+
+                            if (messages.size() >= batchSize) {
                                 forwardAndCommit(resource, messages, toCommit);
                             }
+                        }
+                        if(!messages.isEmpty()){
+                            forwardAndCommit(resource, messages, toCommit);
                         }
                     }
                 }
             }
-            catch (Exception e){
-                logger.error("Error occurred during continuous kafka consuming", e);
-            }
-            finally {
-                resource.discard();
-            }
-            return null;
-        });
+        }
+        catch (Exception e){
+            logger.error("Error occurred during continuous kafka consuming", e);
+        }
+        finally {
+            resource.discard();
+        }
+        return null;
     }
 
     private void logCommit(Map<TopicPartition, OffsetAndMetadata> offsetData, Exception exception){

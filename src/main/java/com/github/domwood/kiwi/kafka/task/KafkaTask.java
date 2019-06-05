@@ -3,8 +3,8 @@ package com.github.domwood.kiwi.kafka.task;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface KafkaTask<I, O, R> {
+public interface KafkaTask<O> {
 
-    public CompletableFuture<O> execute(R resource, I input);
+    public CompletableFuture<O> execute();
 
 }

@@ -23,13 +23,10 @@ import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 @RequestMapping(API_ENDPOINT)
 public class AdminController {
 
-    private final KafkaResourceProvider resourceProvider;
     private final KafkaTaskProvider taskProvider;
 
     @Autowired
-    public AdminController(KafkaTaskProvider kafkaTaskProvider,
-                           KafkaResourceProvider resourceProvider) {
-        this.resourceProvider = resourceProvider;
+    public AdminController(KafkaTaskProvider kafkaTaskProvider) {
         this.taskProvider = kafkaTaskProvider;
     }
 
@@ -37,9 +34,8 @@ public class AdminController {
     @GetMapping("/listTopics")
     @ResponseBody
     public CompletableFuture<TopicList> listTopics(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        ListTopics listTopics = this.taskProvider.listTopics();
-        return listTopics.execute(adminResource, null);
+        ListTopics listTopics = this.taskProvider.listTopics(bootStrapServers);
+        return listTopics.execute();
     }
 
     @Async
@@ -47,18 +43,16 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                   @PathVariable String topic) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        TopicInformation topicInformation = this.taskProvider.topicInfo();
-        return topicInformation.execute(adminResource, topic);
+        TopicInformation topicInformation = this.taskProvider.topicInfo(topic, bootStrapServers);
+        return topicInformation.execute();
     }
 
     @Async
     @GetMapping("/listConsumerGroups")
     @ResponseBody
     public CompletableFuture<ConsumerGroupList> consumerGroups(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        ConsumerGroupInformation consumerGroupInformation = this.taskProvider.consumerGroups();
-        return consumerGroupInformation.execute(adminResource, null);
+        ConsumerGroupInformation consumerGroupInformation = this.taskProvider.consumerGroups(bootStrapServers);
+        return consumerGroupInformation.execute();
     }
 
     @Async
@@ -66,18 +60,16 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<ConsumerGroupList> consumerGroupsForTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                                        @PathVariable String topic) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic();
-        return consumerGroupByTopic.execute(adminResource, topic);
+        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic(topic, bootStrapServers);
+        return consumerGroupByTopic.execute();
     }
 
     @Async
     @GetMapping("/listAllConsumerGroupDetails")
     @ResponseBody
     public CompletableFuture<ConsumerGroups> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        AllConsumerGroupDetails consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation();
-        return consumerGroupInformation.execute(adminResource, null);
+        AllConsumerGroupDetails consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation(bootStrapServers);
+        return consumerGroupInformation.execute();
     }
 
     @Async
@@ -85,19 +77,16 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                                                             @PathVariable String groupId) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        KafkaConsumerResource<String, String> consumerResource = resourceProvider.kafkaStringConsumerResource(bootStrapServers);
-        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation();
-        return consumerGroupInformation.execute(Pair.of(adminResource, consumerResource), groupId);
+        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation(groupId, bootStrapServers);
+        return consumerGroupInformation.execute();
     }
 
     @Async
     @GetMapping("/brokers")
     @ResponseBody
     public CompletableFuture<BrokerInfoList> brokers(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        BrokerInformation brokerInformation = this.taskProvider.brokerInformation();
-        return brokerInformation.execute(adminResource, null);
+        BrokerInformation brokerInformation = this.taskProvider.brokerInformation(bootStrapServers);
+        return brokerInformation.execute();
     }
 
     @Async
@@ -105,9 +94,8 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<BrokerLogInfoList> brokers(@RequestParam Integer brokerId,
                                                         @RequestParam(required = false) Optional<String> bootStrapServers) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation();
-        return brokerInformation.execute(adminResource, brokerId);
+        BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation(brokerId,bootStrapServers);
+        return brokerInformation.execute();
     }
 
     @Async
@@ -115,9 +103,8 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<Void> createTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                @RequestBody CreateTopicRequest createTopicRequest) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        CreateTopic createTopic = this.taskProvider.createTopic();
-        return createTopic.execute(adminResource, createTopicRequest);
+        CreateTopic createTopic = this.taskProvider.createTopic(createTopicRequest, bootStrapServers);
+        return createTopic.execute();
     }
 
     @Async
@@ -125,9 +112,8 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<Void> deleteTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                @PathVariable String topic) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        DeleteTopic deleteTopic = this.taskProvider.deleteTopic();
-        return deleteTopic.execute(adminResource, topic);
+        DeleteTopic deleteTopic = this.taskProvider.deleteTopic(topic, bootStrapServers);
+        return deleteTopic.execute();
     }
 
     @Async
@@ -135,9 +121,8 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<Void> deleteConsumerGroup(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                        @PathVariable String groupId) {
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup();
-        return deleteConsumerGroup.execute(adminResource, groupId);
+        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup(groupId, bootStrapServers);
+        return deleteConsumerGroup.execute();
     }
 
     @Async
@@ -145,8 +130,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<Void> updateTopicConfig(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                      @RequestBody UpdateTopicConfig topicConfig){
-        KafkaAdminResource adminResource = resourceProvider.kafkaAdminResource(bootStrapServers);
-        UpdateTopicConfiguration topicConfiguration = this.taskProvider.updateTopicConfiguration();
-        return topicConfiguration.execute(adminResource, topicConfig);
+        UpdateTopicConfiguration topicConfiguration = this.taskProvider.updateTopicConfiguration(topicConfig, bootStrapServers);
+        return topicConfiguration.execute();
     }
 }

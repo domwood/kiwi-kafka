@@ -4,7 +4,7 @@ import com.github.domwood.kiwi.data.input.ProducerRequest;
 import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
 import com.github.domwood.kiwi.kafka.resources.KafkaProducerResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -15,12 +15,16 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.toKafkaHeaders;
 import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;
 
-public class ProduceSingleMessage implements KafkaTask<ProducerRequest, ProducerResponse, KafkaProducerResource<String, String>> {
+public class ProduceSingleMessage extends AbstractKafkaTask<ProducerRequest, ProducerResponse, KafkaProducerResource<String, String>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public ProduceSingleMessage(KafkaProducerResource<String, String> resource, ProducerRequest input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<ProducerResponse> execute(KafkaProducerResource<String, String> resource, ProducerRequest input) {
+    protected CompletableFuture<ProducerResponse> delegateExecute() {
         try {
             ProducerRecord<String, String> record =
                     new ProducerRecord<>(input.topic(), null, input.key(), input.payload().orElse(null), toKafkaHeaders(input.headers()));
@@ -38,7 +42,6 @@ public class ProduceSingleMessage implements KafkaTask<ProducerRequest, Producer
         }
         catch (Exception e){
             logger.error("Failed to execute produce single message task", e);
-            resource.discard();
             return failedFuture(e);
         }
     }

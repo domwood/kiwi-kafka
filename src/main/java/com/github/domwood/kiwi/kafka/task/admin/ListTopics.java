@@ -3,7 +3,7 @@ package com.github.domwood.kiwi.kafka.task.admin;
 import com.github.domwood.kiwi.data.output.ImmutableTopicList;
 import com.github.domwood.kiwi.data.output.TopicList;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.slf4j.Logger;
@@ -15,12 +15,16 @@ import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 import static java.util.stream.Collectors.toList;
 
-public class ListTopics implements KafkaTask<Void, TopicList, KafkaAdminResource> {
+public class ListTopics extends AbstractKafkaTask<Void, TopicList, KafkaAdminResource> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public ListTopics(KafkaAdminResource resource, Void input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<TopicList> execute(KafkaAdminResource resource, Void input) {
+    public CompletableFuture<TopicList> delegateExecute() {
         try{
             ListTopicsResult topicsResult = resource.listTopics();
 

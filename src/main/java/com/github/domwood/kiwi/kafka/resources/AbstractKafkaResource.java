@@ -8,14 +8,14 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.Properties;
 
-public abstract class KafkaResource<CLIENT> {
+public abstract class AbstractKafkaResource<CLIENT> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private CLIENT client;
     private long lastKeepAlive;
     protected final Properties config;
 
-    public KafkaResource(Properties props){
+    public AbstractKafkaResource(Properties props){
         this.lastKeepAlive = TimeProvider.getTime();
         this.config = props;
     }

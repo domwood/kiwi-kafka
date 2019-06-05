@@ -60,7 +60,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         return (response) -> {
             try{
                 while(session.getBufferSize() > 0){
-                    Thread.sleep(50);
+                    Thread.sleep(10);
                 }
                 String payload = objectMapper.writeValueAsString(response);
                 session.sendMessage(new TextMessage(payload));

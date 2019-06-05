@@ -2,12 +2,10 @@ package com.github.domwood.kiwi.api.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.domwood.kiwi.api.rest.ProducerController;
 import com.github.domwood.kiwi.data.input.ImmutableProducerRequest;
 import com.github.domwood.kiwi.data.input.ProducerRequest;
 import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
-import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
 import org.json.JSONException;
@@ -44,9 +42,6 @@ public class ProducerControllerTest {
     private TestRestTemplate restTemplate;
 
     @MockBean
-    private KafkaResourceProvider kafkaResourceProvider;
-
-    @MockBean
     private KafkaTaskProvider kafkaTaskProvider;
 
     @Autowired
@@ -63,7 +58,7 @@ public class ProducerControllerTest {
     @BeforeEach
     public void beforeEach(){
         this.url = "http://localhost:" + port + "/api/produce";
-        when(kafkaTaskProvider.produceSingleMessage()).thenReturn(produceSingleMessage);
+        when(kafkaTaskProvider.produceSingleMessage(any(ProducerRequest.class))).thenReturn(produceSingleMessage);
     }
 
     @Test
@@ -73,12 +68,12 @@ public class ProducerControllerTest {
 
     @Test
     public void testProduceRequest() throws JsonProcessingException, JSONException {
-        when(produceSingleMessage.execute(any(), any()))
+        when(produceSingleMessage.execute())
                 .thenReturn(CompletableFuture.completedFuture(producerResponse()));
 
         assertEquals(producerResponseAsString(), testPost(producerRequestAsString()));
 
-        verify(produceSingleMessage, times(1)).execute(eq(null), eq(produceRequest()));
+        verify(produceSingleMessage, times(1)).execute();
     }
 
     private String testPost(String data){

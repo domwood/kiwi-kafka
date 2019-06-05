@@ -3,7 +3,8 @@ package com.github.domwood.kiwi.kafka.task.admin;
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.resources.KafkaResourcePair;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.utilities.FutureUtils;
 import com.github.domwood.kiwi.utilities.StreamUtils;
@@ -29,23 +30,26 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 
-public class ConsumerGroupDetailsWithOffset implements KafkaTask<String, ConsumerGroupTopicWithOffsetDetails, Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>>> {
+public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, ConsumerGroupTopicWithOffsetDetails, KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String, String>>> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    public ConsumerGroupDetailsWithOffset(KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String, String>> resource, String input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> execute(Pair<KafkaAdminResource, KafkaConsumerResource<?, ?>> resource,
-                                                                          String groupId) {
+    public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> delegateExecute() {
         CompletableFuture<Map<TopicPartition, OffsetAndMetadata>> groupAssignment =
-                toCompletable(resource.getLeft().listConsumerGroupOffsets(groupId).partitionsToOffsetAndMetadata());
+                toCompletable(resource.getLeft().listConsumerGroupOffsets(input).partitionsToOffsetAndMetadata());
 
         CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> groupAssignmentAndOffset = groupAssignment
                 .thenCompose(assignment -> withOffsets(resource.getRight(), assignment));
 
         CompletableFuture<ConsumerGroupDescription> description =
-                toCompletable(resource.getLeft().describeConsumerGroups(asList(groupId))
+                toCompletable(resource.getLeft().describeConsumerGroups(asList(input))
                         .describedGroups()
-                        .get(groupId));
+                        .get(input));
 
         return groupAssignmentAndOffset
                 .thenCombine(description, this::toOffsetDetails)
@@ -53,7 +57,6 @@ public class ConsumerGroupDetailsWithOffset implements KafkaTask<String, Consume
                     if(error != null){
                         logger.error("Task completed with error", error);
                     }
-                    resource.getRight().discard();
                 });
     }
 

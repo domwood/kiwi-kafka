@@ -2,10 +2,8 @@ package com.github.domwood.kiwi.api.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.domwood.kiwi.api.rest.AdminController;
 import com.github.domwood.kiwi.data.output.ImmutableTopicList;
 import com.github.domwood.kiwi.data.output.TopicList;
-import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.admin.ListTopics;
 import org.json.JSONException;
@@ -21,10 +19,10 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
@@ -37,9 +35,6 @@ public class AdminControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @MockBean
-    private KafkaResourceProvider kafkaResourceProvider;
 
     @MockBean
     private KafkaTaskProvider kafkaTaskProvider;
@@ -60,19 +55,19 @@ public class AdminControllerTest {
 
     @BeforeEach
     public void beforeEach(){
-        when(kafkaTaskProvider.listTopics()).thenReturn(listTopics);
+        when(kafkaTaskProvider.listTopics(Optional.empty())).thenReturn(listTopics);
     }
 
     @Test
     public void testTopicList() throws JsonProcessingException, JSONException {
         TopicList expected = expected("Hello World", "Banana");
-        when(listTopics.execute(any(), any())).thenReturn(CompletableFuture.completedFuture(expected));
+        when(listTopics.execute()).thenReturn(CompletableFuture.completedFuture(expected));
 
         String observed = this.restTemplate.getForObject("http://localhost:" + port + "/api/listTopics", String.class);
 
         JSONAssert.assertEquals(observed, objectMapper.writeValueAsString(expected), NON_EXTENSIBLE);
 
-        verify(listTopics, times(1)).execute(any(), any());
+        verify(listTopics, times(1)).execute();
     }
 
     private TopicList expected(String... topics){

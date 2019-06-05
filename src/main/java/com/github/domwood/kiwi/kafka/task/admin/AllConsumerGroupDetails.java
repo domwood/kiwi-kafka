@@ -5,7 +5,7 @@ import com.github.domwood.kiwi.data.output.ImmutableConsumerGroups;
 import com.github.domwood.kiwi.data.output.ImmutableTopicGroupAssignment;
 import com.github.domwood.kiwi.data.output.TopicGroupAssignment;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.utilities.StreamUtils;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
@@ -24,9 +24,14 @@ import static com.github.domwood.kiwi.kafka.task.KafkaTaskUtils.formatCoordinato
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 import static java.util.stream.Collectors.toList;
 
-public class AllConsumerGroupDetails implements KafkaTask<Void, ConsumerGroups, KafkaAdminResource> {
+public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGroups, KafkaAdminResource> {
+
+    public AllConsumerGroupDetails(KafkaAdminResource resource, Void input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<ConsumerGroups> execute(KafkaAdminResource resource, Void input) {
+    public CompletableFuture<ConsumerGroups> delegateExecute() {
 
         return toCompletable(resource.listConsumerGroups().all())
                 .thenCompose(list -> fromConsumerGroupList(resource, list));

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 
-public class KafkaProducerResource<K, V> extends KafkaResource<KafkaProducer<K, V>>{
+public class KafkaProducerResource<K, V> extends AbstractKafkaResource<KafkaProducer<K, V>> {
 
     public KafkaProducerResource(Properties props){
         super(props);

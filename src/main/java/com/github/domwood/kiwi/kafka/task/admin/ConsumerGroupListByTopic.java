@@ -3,7 +3,7 @@ package com.github.domwood.kiwi.kafka.task.admin;
 import com.github.domwood.kiwi.data.output.ConsumerGroupList;
 import com.github.domwood.kiwi.data.output.ImmutableConsumerGroupList;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
@@ -16,12 +16,16 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.stream.Collectors.toList;
 
-public class ConsumerGroupListByTopic implements KafkaTask<String, ConsumerGroupList, KafkaAdminResource> {
+public class ConsumerGroupListByTopic extends AbstractKafkaTask<String, ConsumerGroupList, KafkaAdminResource> {
+
+    public ConsumerGroupListByTopic(KafkaAdminResource resource, String input) {
+        super(resource, input);
+    }
 
     @Override
-    public CompletableFuture<ConsumerGroupList> execute(KafkaAdminResource resource, String topic) {
+    public CompletableFuture<ConsumerGroupList> delegateExecute() {
         return FutureUtils.toCompletable(resource.listConsumerGroups().all())
-                .thenCompose(data -> consumerGroupList(topic, resource, data));
+                .thenCompose(data -> consumerGroupList(input, resource, data));
     }
 
     private CompletableFuture<ConsumerGroupList> consumerGroupList(String topic, KafkaAdminResource resource, Collection<ConsumerGroupListing> listing){

@@ -3,7 +3,7 @@ package com.github.domwood.kiwi.kafka.task.config;
 import com.github.domwood.kiwi.data.output.CreateTopicConfigOptions;
 import com.github.domwood.kiwi.data.output.ImmutableCreateTopicConfigOptions;
 import com.github.domwood.kiwi.kafka.resources.KafkaTopicConfigResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import org.apache.kafka.common.config.TopicConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,16 +11,19 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CreateTopicConfig implements KafkaTask<Void, CreateTopicConfigOptions, KafkaTopicConfigResource> {
+public class CreateTopicConfig extends FuturisingAbstractKafkaTask<Void, CreateTopicConfigOptions, KafkaTopicConfigResource> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public CreateTopicConfig(KafkaTopicConfigResource resource, Void input) {
+        super(resource, input);
+    }
+
     @Override
-    public CompletableFuture<CreateTopicConfigOptions> execute(KafkaTopicConfigResource resource, Void input) {
+    public CreateTopicConfigOptions delegateExecuteSync() {
         TopicConfig topicConfig = resource.getConfig();
         Set<String> configs = Stream.of(topicConfig.getClass().getFields())
                 .filter(field -> field.getName().endsWith("_CONFIG"))
@@ -28,9 +31,9 @@ public class CreateTopicConfig implements KafkaTask<Void, CreateTopicConfigOptio
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        return CompletableFuture.completedFuture(ImmutableCreateTopicConfigOptions.builder()
+        return ImmutableCreateTopicConfigOptions.builder()
                 .configOptions(configs)
-                .build());
+                .build();
     }
 
     private String getValue(Field configField, TopicConfig configObj){

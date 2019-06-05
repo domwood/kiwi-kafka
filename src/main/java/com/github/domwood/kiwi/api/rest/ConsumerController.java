@@ -38,9 +38,8 @@ public class ConsumerController {
     @SendTo(API_ENDPOINT+"/res/consume")
     public CompletableFuture<ConsumerResponse<String, String>> sendToTopic(@RequestBody ConsumerRequest request) {
 
-        KafkaConsumerResource<String, String> resource = resourceProvider.kafkaStringConsumerResource(request.bootStrapServers());
-        BasicConsumeMessages consumeMessages = taskProvider.basicConsumeMessages();
-        return consumeMessages.execute(resource, request);
+        BasicConsumeMessages consumeMessages = taskProvider.basicConsumeMessages(request);
+        return consumeMessages.execute();
     }
 
 }

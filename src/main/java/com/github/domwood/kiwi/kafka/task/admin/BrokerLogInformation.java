@@ -2,7 +2,7 @@ package com.github.domwood.kiwi.kafka.task.admin;
 
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.task.KafkaTask;
+import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.kafka.clients.admin.DescribeLogDirsResult;
 import org.apache.kafka.common.TopicPartition;
@@ -16,10 +16,14 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
 import static java.util.Collections.singletonList;
 
-public class BrokerLogInformation implements KafkaTask<Integer, BrokerLogInfoList, KafkaAdminResource> {
+public class BrokerLogInformation extends AbstractKafkaTask<Integer, BrokerLogInfoList, KafkaAdminResource> {
+
+    public BrokerLogInformation(KafkaAdminResource resource, Integer input) {
+        super(resource, input);
+    }
 
     @Override
-    public CompletableFuture<BrokerLogInfoList> execute(KafkaAdminResource resource, Integer input) {
+    public CompletableFuture<BrokerLogInfoList> delegateExecute() {
         DescribeLogDirsResult result = resource.describeLogDirs(singletonList(input));
 
         return FutureUtils.toCompletable(result.values().get(input))

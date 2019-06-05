@@ -2,9 +2,7 @@ package com.github.domwood.kiwi.api.ws;
 
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
 import com.github.domwood.kiwi.data.output.OutboundResponse;
-import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
-import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +18,11 @@ public class KiwiWebSocketConsumerHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Map<String, ContinuousConsumeMessages> consumers;
-    private final KafkaResourceProvider resourceProvider;
     private final KafkaTaskProvider taskProvider;
 
     @Autowired
-    public KiwiWebSocketConsumerHandler(KafkaResourceProvider resourceProvider, KafkaTaskProvider taskProvider) {
+    public KiwiWebSocketConsumerHandler(KafkaTaskProvider taskProvider) {
         this.consumers = new ConcurrentHashMap<>();
-        this.resourceProvider = resourceProvider;
         this.taskProvider = taskProvider;
     }
 
@@ -41,11 +37,10 @@ public class KiwiWebSocketConsumerHandler {
 
         if(!consumers.containsKey(id)){
             logger.info("Adding consumer for session {}", id);
-            KafkaConsumerResource<String, String> resource = resourceProvider.kafkaStringConsumerResource(request.bootStrapServers());
-            ContinuousConsumeMessages consumeMessages = taskProvider.continousConsumeMessages();
+            ContinuousConsumeMessages consumeMessages = taskProvider.continousConsumeMessages(request);
             this.consumers.put(id, consumeMessages);
             consumeMessages.registerConsumer(consumer);
-            consumeMessages.execute(resource, request)
+            consumeMessages.execute()
                     .whenComplete((voidValue, e) -> {
                         if(e != null) logger.error("Task for session "+id+" closed with error", e);
                         else logger.info("Task closed normally for session {}", id);
