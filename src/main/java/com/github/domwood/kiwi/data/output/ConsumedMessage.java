@@ -19,8 +19,7 @@ public interface ConsumedMessage<K, V> extends OutboundResponse{
     @Nullable
     V key();
 
-    @Nullable
-    Long timestamp();
+    long timestamp();
 
     int partition();
 

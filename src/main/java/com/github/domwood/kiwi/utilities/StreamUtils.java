@@ -17,6 +17,8 @@ import static java.util.stream.Collectors.toMap;
  */
 public class StreamUtils {
 
+    private StreamUtils(){}
+
     /**
      *
      * @param input Input list to extract from
@@ -52,7 +54,7 @@ public class StreamUtils {
      * @return A List of objects of type O from derived from the input map
      */
     public static <I_K, I_V, O> List<O> extract(Map<I_K, I_V> input, BiFunction<I_K, I_V, O> refiner){
-        return input.entrySet().stream().map((kv) -> refiner.apply(kv.getKey(), kv.getValue())).collect(toList());
+        return input.entrySet().stream().map(kv -> refiner.apply(kv.getKey(), kv.getValue())).collect(toList());
     }
 
     /**

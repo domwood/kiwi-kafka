@@ -14,13 +14,15 @@ import java.util.Set;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
 
-public interface KafkaTaskUtils {
+public class KafkaTaskUtils {
 
-    Logger logger = LoggerFactory.getLogger(KafkaTaskUtils.class);
-    int pollInterval = 10;
-    int maxPollCount = 500;
+    private KafkaTaskUtils(){}
 
-    static Map<TopicPartition, Long> subscribeAndSeek(KafkaConsumerResource<?, ?> resource,
+    private static final Logger logger = LoggerFactory.getLogger(KafkaTaskUtils.class);
+    private static final int POLL_INTERVAL = 10;
+    private static final int MAX_POLL_COUNT = 500;
+
+    public static Map<TopicPartition, Long> subscribeAndSeek(KafkaConsumerResource<?, ?> resource,
                                                       List<String> topics,
                                                       boolean seekToBeginning) {
         resource.subscribe(topics);
@@ -30,12 +32,12 @@ public interface KafkaTaskUtils {
         Set<org.apache.kafka.common.TopicPartition> topicPartitionSet = resource.assignment();
 
         int pollCount = 0;
-        while (topicPartitionSet.isEmpty() && pollCount++ < maxPollCount) {
-            resource.poll(Duration.of(pollInterval, MILLIS));
+        while (topicPartitionSet.isEmpty() && pollCount++ < MAX_POLL_COUNT) {
+            resource.poll(Duration.of(POLL_INTERVAL, MILLIS));
             topicPartitionSet = resource.assignment();
         }
 
-        if (pollCount > maxPollCount && topicPartitionSet.isEmpty()) {
+        if (pollCount > MAX_POLL_COUNT && topicPartitionSet.isEmpty()) {
             throw new ConsumerAssignmentTimeoutException("Timed out awaiting an assignment for topics " + topics);
         }
 
@@ -47,12 +49,10 @@ public interface KafkaTaskUtils {
             logger.debug("Consumer sought to beginning, polling for records");
         }
 
-        Map<TopicPartition, java.lang.Long> endOffsets = resource.endOffsets(topicPartitionSet);
-
-        return endOffsets;
+        return resource.endOffsets(topicPartitionSet);
     }
 
-    static String formatCoordinator(Node coordinator){
+    public static String formatCoordinator(Node coordinator){
         return String.format("%s (%s:%s)", coordinator.id(), coordinator.host(), coordinator.port());
     }
 }

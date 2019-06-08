@@ -4,14 +4,16 @@ import java.util.function.Supplier;
 
 public class TimeProvider {
 
-    private static Supplier<Long> timeProvider = System::currentTimeMillis;
+    private TimeProvider(){}
+
+    private static Supplier<Long> timeFn = System::currentTimeMillis;
 
     public static void defineTimeProvider(Supplier<Long> time){
-        timeProvider = time;
+        timeFn = time;
     }
 
     public static long getTime(){
-        return timeProvider.get();
+        return timeFn.get();
     }
 
 }

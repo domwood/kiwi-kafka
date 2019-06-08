@@ -55,7 +55,7 @@ public class KiwiWebSocketConsumerHandler {
 
     public void removeConsumerTask(String id){
         if(consumers.containsKey(id)){
-            logger.info("Close and remove continuous consumer task for {} " + id);
+            logger.info("Close and remove continuous consumer task for {} ", id);
             this.consumers.get(id).close();
             this.consumers.remove(id);
         }

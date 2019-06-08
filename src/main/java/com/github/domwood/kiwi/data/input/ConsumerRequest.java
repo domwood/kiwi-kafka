@@ -6,7 +6,6 @@ import com.github.domwood.kiwi.data.input.filter.MessageFilter;
 import org.immutables.value.Value;
 
 import java.util.List;
-import java.util.Optional;
 
 @JsonSerialize(as = ImmutableConsumerRequest.class)
 @JsonDeserialize(as = ImmutableConsumerRequest.class)

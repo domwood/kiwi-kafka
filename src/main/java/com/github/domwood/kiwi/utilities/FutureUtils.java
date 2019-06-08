@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.utilities;
 
+import com.github.domwood.kiwi.kafka.exceptions.KiwiFutureException;
 import com.github.domwood.kiwi.kafka.task.KiwiTaskExecutor;
 
 import java.util.concurrent.CompletableFuture;
@@ -8,14 +9,14 @@ import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 public class FutureUtils {
+    private FutureUtils(){}
 
     public static <T> CompletableFuture<T> toCompletable(Future<T> future){
         return CompletableFuture.supplyAsync(() -> {
             try {
-                T result = future.get();
-                return result;
+                return future.get();
             } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
+                throw new KiwiFutureException(e);
             }
         }, KiwiTaskExecutor.getInstance());
     }

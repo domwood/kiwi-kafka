@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 
@@ -25,9 +26,14 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
     }
 
     @Override
-    protected void closeClient() throws Exception {
+    protected void closeClient() throws KafkaResourceClientCloseException {
         //TODO sort out concurrent modification issue
-        this.getClient().close();
+        try{
+            this.getClient().close();
+        }
+        catch (Exception e){
+            throw new KafkaResourceClientCloseException("Failed to cleanly close client, due to "+e.getMessage(), e);
+        }
     }
 
     public void subscribe(List<String> topics){

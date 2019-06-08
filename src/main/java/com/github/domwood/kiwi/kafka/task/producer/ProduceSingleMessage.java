@@ -26,16 +26,13 @@ public class ProduceSingleMessage extends AbstractKafkaTask<ProducerRequest, Pro
     @Override
     protected CompletableFuture<ProducerResponse> delegateExecute() {
         try {
+
+            String topic = input.topic();
+            String key = input.key();
             ProducerRecord<String, String> record =
-                    new ProducerRecord<>(input.topic(), null, input.key(), input.payload().orElse(null), toKafkaHeaders(input.headers()));
+                    new ProducerRecord<>(topic, null, key, input.payload().orElse(null), toKafkaHeaders(input.headers()));
 
-
-            if(input.payload().isPresent()){
-                logger.info("Attempting to produce to {} with key {}", input.topic(), input.key());
-            }
-            else{
-                logger.info("Attempting to tombstone on {} for key {}", input.topic(), input.key());
-            }
+            logger.info("Attempting to {} to {} with key {}", input.payload().isPresent() ? "Produce": "Tombstone", topic, key);
 
             return resource.send(record)
                     .thenApply(result -> onSuccess(result, resource));

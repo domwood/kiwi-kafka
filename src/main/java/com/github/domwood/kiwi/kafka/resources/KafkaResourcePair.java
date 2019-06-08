@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Properties;
@@ -22,7 +23,7 @@ public class KafkaResourcePair<R1 extends AbstractKafkaResource, R2 extends Abst
     }
 
     @Override
-    protected void closeClient() throws Exception {
+    protected void closeClient() throws KafkaResourceClientCloseException {
         this.client1.closeClient();
         this.client2.closeClient();
     }

@@ -5,8 +5,6 @@ import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 

@@ -9,11 +9,9 @@ import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.data.output.OutboundResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
-import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
-import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -23,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -35,7 +32,7 @@ import static java.util.Collections.emptyList;
 public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, Void, KafkaConsumerResource<String, String>> implements KafkaContinuousTask<ConsumerRequest>{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Integer batchSize = 50;
+    private static final Integer BATCH_SIZE = 50;
     private final AtomicBoolean closeTask;
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
@@ -46,7 +43,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     public ContinuousConsumeMessages(KafkaConsumerResource<String, String> resource, ConsumerRequest input){
         super(resource, input);
 
-        this.consumer = (message) -> logger.warn("No consumer attached to kafka task");
+        this.consumer = message -> logger.warn("No consumer attached to kafka task");
         this.closeTask = new AtomicBoolean(false);
         this.paused = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
@@ -102,7 +99,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                     } else {
                         idleCount = 0;
                         Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(this.filters);
-                        ArrayList<ConsumedMessage<String, String>> messages = new ArrayList<>(batchSize);
+                        ArrayList<ConsumedMessage<String, String>> messages = new ArrayList<>(BATCH_SIZE);
 
                         Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
                         Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
@@ -114,7 +111,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                                 toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                             }
 
-                            if (messages.size() >= batchSize) {
+                            if (messages.size() >= BATCH_SIZE) {
                                 forwardAndCommit(resource, messages, toCommit);
                             }
                         }
@@ -127,9 +124,6 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
         }
         catch (Exception e){
             logger.error("Error occurred during continuous kafka consuming", e);
-        }
-        finally {
-            resource.discard();
         }
         return null;
     }

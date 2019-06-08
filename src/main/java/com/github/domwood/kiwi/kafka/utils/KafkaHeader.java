@@ -2,7 +2,6 @@ package com.github.domwood.kiwi.kafka.utils;
 
 import org.apache.kafka.common.header.Header;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Map;
 

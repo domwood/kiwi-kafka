@@ -43,51 +43,51 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
 
         try {
             InboundRequest inboundRequest = objectMapper.readValue(message.getPayload(), InboundRequest.class);
-            if(inboundRequest instanceof ConsumerRequest){
+            if (inboundRequest instanceof ConsumerRequest) {
                 ConcurrentWebSocketSessionDecorator decorator = sessions.get(session.getId());
                 consumerHandler.addConsumerTask(session.getId(), (ConsumerRequest) inboundRequest, this.sendTextMessage(decorator));
-            }
-            else if(inboundRequest instanceof CloseTaskRequest){
+            } else if (inboundRequest instanceof CloseTaskRequest) {
                 consumerHandler.removeConsumerTask(session.getId());
             }
         } catch (IOException e) {
-            logger.error("Failed to parse inbound websocket request "+ message.getPayload(), e);
+            logger.error("Failed to parse inbound websocket request " + message.getPayload(), e);
         }
     }
 
-    //Blocks until socket is available
-    private Consumer<OutboundResponse> sendTextMessage(ConcurrentWebSocketSessionDecorator session){
-        return (response) -> {
-            try{
-                while(session.getBufferSize() > 0){
+    @SuppressWarnings("squid:S2142") //Ignored as can't throw interrupt from within Consumer
+    private Consumer<OutboundResponse> sendTextMessage(ConcurrentWebSocketSessionDecorator session) {
+        return (OutboundResponse response) -> {
+            try {
+                while (session.getBufferSize() > 0) {
+                    //Blocks upstream if socket is backlogged (ie will block kafka consumer polling further)
                     Thread.sleep(10);
                 }
                 String payload = objectMapper.writeValueAsString(response);
                 session.sendMessage(new TextMessage(payload));
-            }
-            catch (JsonProcessingException e){
+            } catch (JsonProcessingException e) {
                 logger.error("Failed to serialize response " + response, e);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 logger.error("Failed to send response via websocket" + response, e);
-            }
-            catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 logger.error("Interrupted whilst awaiting socket availability", e);
             }
         };
     }
 
+    @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         this.sessions.put(session.getId(), new ConcurrentWebSocketSessionDecorator(session, 200, 100));
         logger.info("Websocket session established with id {} from {}", session.getId(), session.getRemoteAddress());
     }
 
+    @Override
     public void handleTransportError(WebSocketSession session, Throwable e) throws Exception {
-        logger.error("Websocket transport error for session id "+session.getId()+" from "+ session.getRemoteAddress(), e);
+        logger.error("Websocket transport error for session id " + session.getId() + " from " + session.getRemoteAddress(), e);
         this.sessions.remove(session.getId());
         this.consumerHandler.removeConsumerTask(session.getId());
     }
 
+    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         logger.info("Websocket session closed with id {} from {} with status {}", session.getId(), session.getRemoteAddress(), status);
         this.sessions.remove(session.getId());

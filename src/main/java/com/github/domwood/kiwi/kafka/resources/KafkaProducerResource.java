@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -21,8 +22,13 @@ public class KafkaProducerResource<K, V> extends AbstractKafkaResource<KafkaProd
     }
 
     @Override
-    protected void closeClient() throws Exception {
-        this.getClient().close(20, TimeUnit.SECONDS);
+    protected void closeClient() throws KafkaResourceClientCloseException {
+        try {
+            this.getClient().close(20, TimeUnit.SECONDS);
+        }
+        catch (Exception e){
+            throw new KafkaResourceClientCloseException("Failed to cleanly close client, due to "+e.getMessage(), e);
+        }
     }
 
     public CompletableFuture<RecordMetadata> send(ProducerRecord<K, V> record){

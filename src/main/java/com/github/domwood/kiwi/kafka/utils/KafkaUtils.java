@@ -13,6 +13,8 @@ import static java.util.stream.Collectors.toMap;
 
 public class KafkaUtils {
 
+    private KafkaUtils(){}
+
     public static Iterable<Header> toKafkaHeaders(Map<String, String> headers){
         return headers.entrySet()
                 .stream()

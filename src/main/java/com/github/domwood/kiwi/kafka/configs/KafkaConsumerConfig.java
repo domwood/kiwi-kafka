@@ -12,9 +12,9 @@ import java.util.Properties;
 @ConfigurationProperties(prefix = "kafka.consumer")
 public class KafkaConsumerConfig extends KafkaConfig{
 
-    public String groupId;
-    public String enableAutoCommit;
-    public String autoOffsetReset;
+    private String groupId;
+    private String enableAutoCommit;
+    private String autoOffsetReset;
 
     public String getGroupId() {
         return groupId;

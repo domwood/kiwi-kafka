@@ -40,7 +40,7 @@ public class CreateTopicConfig extends FuturisingAbstractKafkaTask<Void, CreateT
         try {
             return String.valueOf(configField.get(configObj));
         } catch (IllegalAccessException e) {
-            logger.error("Failed to access field " + configField.getName() + " on kafka topic config");
+            logger.error("Failed to access field {} on kafka topic config", configField.getName());
         }
         return null;
     }

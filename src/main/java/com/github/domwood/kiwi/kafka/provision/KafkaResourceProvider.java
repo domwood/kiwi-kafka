@@ -4,8 +4,6 @@ import com.github.domwood.kiwi.kafka.configs.KafkaAdminConfig;
 import com.github.domwood.kiwi.kafka.configs.KafkaConsumerConfig;
 import com.github.domwood.kiwi.kafka.configs.KafkaProducerConfig;
 import com.github.domwood.kiwi.kafka.resources.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +17,6 @@ import java.util.Properties;
 @Component
 public class KafkaResourceProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(KafkaResourceProvider.class);
     private final KafkaAdminConfig adminConfig;
     private final KafkaConsumerConfig consumerConfig;
     private final KafkaProducerConfig producerConfig;
@@ -34,19 +31,16 @@ public class KafkaResourceProvider {
     }
 
     public KafkaConsumerResource<String, String> kafkaStringConsumerResource(Optional<String> bootStrapServers){
-        KafkaConsumerResource consumerResource = new KafkaConsumerResource<>(consumerConfig.createStringConfig(bootStrapServers));
-        return consumerResource;
+        return new KafkaConsumerResource<>(consumerConfig.createStringConfig(bootStrapServers));
     }
 
     public KafkaProducerResource<String, String> kafkaStringProducerResource(Optional<String> bootStrapServers){
-        KafkaProducerResource producerResource = new KafkaProducerResource<>(producerConfig.createStringConfig(bootStrapServers));
-        return producerResource;
+        return new KafkaProducerResource<>(producerConfig.createStringConfig(bootStrapServers));
     }
 
     public KafkaAdminResource kafkaAdminResource(Optional<String> bootStrapServers){
         Properties props = adminConfig.createConfig(bootStrapServers);
-        KafkaAdminResource adminResource = new KafkaAdminResource(props);
-        return adminResource;
+        return new KafkaAdminResource(props);
     }
 
     public KafkaTopicConfigResource kafkaTopicConfigResource(){

@@ -25,6 +25,7 @@ public abstract class AbstractKafkaTask<I, O, R extends AbstractKafkaResource> i
 
     protected abstract CompletableFuture<O> delegateExecute();
 
+    @SuppressWarnings("squid:S1172")
     private void handleCompletion(O outcome, Throwable e){
         if(e != null){
             logger.error("Task completed with failure ", e);

@@ -10,6 +10,7 @@ import java.util.Properties;
 @ConfigurationProperties(prefix = "kafka.admin")
 public class KafkaAdminConfig extends KafkaConfig {
 
+    @Override
     public Properties createConfig(Optional<String> localServers){
         return super.createConfig(localServers);
     }

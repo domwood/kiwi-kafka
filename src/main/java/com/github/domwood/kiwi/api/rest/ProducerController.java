@@ -2,7 +2,6 @@ package com.github.domwood.kiwi.api.rest;
 
 import com.github.domwood.kiwi.data.input.ProducerRequest;
 import com.github.domwood.kiwi.data.output.ProducerResponse;
-import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.producer.ProduceSingleMessage;
 import org.springframework.beans.factory.annotation.Autowired;

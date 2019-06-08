@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.common.config.TopicConfig;
 
 import java.util.Properties;
@@ -15,7 +16,7 @@ public class KafkaTopicConfigResource extends AbstractKafkaResource<TopicConfig>
     }
 
     @Override
-    protected void closeClient() throws Exception {
+    protected void closeClient() throws KafkaResourceClientCloseException {
         //Do nothing
     }
 

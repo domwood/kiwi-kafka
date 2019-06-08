@@ -5,13 +5,12 @@ import com.github.domwood.kiwi.kafka.utils.KafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class FilterBuilder {
 
-
+    private FilterBuilder() {}
 
     public static Predicate<ConsumerRecord<String, String>> compileFilters(List<MessageFilter> messageFilterList){
         return messageFilterList.stream().map(FilterBuilder::compileFilter)
@@ -51,7 +50,7 @@ public class FilterBuilder {
             case REGEX:
                 return regex(messageFilter.filter());
             default:
-                return (s) -> true;
+                return s -> true;
         }
     }
 

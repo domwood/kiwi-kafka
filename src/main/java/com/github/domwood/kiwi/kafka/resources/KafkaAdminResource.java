@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
+import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.config.ConfigResource;
 
@@ -20,8 +21,13 @@ public class KafkaAdminResource extends AbstractKafkaResource<AdminClient> {
     }
 
     @Override
-    protected void closeClient() throws Exception {
-        this.getClient().close(10, TimeUnit.SECONDS);
+    protected void closeClient() throws KafkaResourceClientCloseException {
+        try{
+            this.getClient().close(10, TimeUnit.SECONDS);
+        }
+        catch (Exception e){
+            throw new KafkaResourceClientCloseException("Kafka admin resource failed to close cleanly", e);
+        }
     }
 
     public DescribeClusterResult describeCluster(){

@@ -3,12 +3,8 @@ package com.github.domwood.kiwi.api.rest;
 import com.github.domwood.kiwi.data.input.CreateTopicRequest;
 import com.github.domwood.kiwi.data.input.UpdateTopicConfig;
 import com.github.domwood.kiwi.data.output.*;
-import com.github.domwood.kiwi.kafka.provision.KafkaResourceProvider;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
-import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
-import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.admin.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -94,7 +90,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<BrokerLogInfoList> brokers(@RequestParam Integer brokerId,
                                                         @RequestParam(required = false) Optional<String> bootStrapServers) {
-        BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation(brokerId,bootStrapServers);
+        BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation(brokerId, bootStrapServers);
         return brokerInformation.execute();
     }
 
@@ -129,7 +125,7 @@ public class AdminController {
     @PostMapping("/updateTopicConfig")
     @ResponseBody
     public CompletableFuture<Void> updateTopicConfig(@RequestParam(required = false) Optional<String> bootStrapServers,
-                                                     @RequestBody UpdateTopicConfig topicConfig){
+                                                     @RequestBody UpdateTopicConfig topicConfig) {
         UpdateTopicConfiguration topicConfiguration = this.taskProvider.updateTopicConfiguration(topicConfig, bootStrapServers);
         return topicConfiguration.execute();
     }
