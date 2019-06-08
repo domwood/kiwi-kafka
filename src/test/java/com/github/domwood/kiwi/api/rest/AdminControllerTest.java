@@ -70,6 +70,8 @@ public class AdminControllerTest {
         verify(listTopics, times(1)).execute();
     }
 
+
+
     private TopicList expected(String... topics){
         return ImmutableTopicList.builder()
                 .addTopics(topics)

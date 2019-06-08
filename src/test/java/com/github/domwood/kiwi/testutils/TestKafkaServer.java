@@ -23,37 +23,43 @@ public class TestKafkaServer implements BeforeAllCallback, AfterAllCallback {
     private KafkaServerStartable kafkaServer;
     private TestingServer zookeeper;
 
+    public static Integer testBrokerId = 46;
+    public static String kafkaHost = "localhost";
+    public static Integer kafkaPort = null;
+    public static Integer zookeeperPort = null;
+
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
 
-        Integer zooPort = randomAddress();
-        zookeeper = new TestingServer(zooPort, getTemporaryFile("zookeeper-tmp"));
+        zookeeperPort = randomAddress();
+        zookeeper = new TestingServer(zookeeperPort, getTemporaryFile("zookeeper-tmp"));
         zookeeper.start();
 
         logger.info("Started Test Zookeeper server on " + zookeeper.getConnectString());
 
         Map<String, String> kafkaServerConfig = new HashMap<>();
-        Integer kafkaPort = randomAddress();
+        kafkaPort = randomAddress();
 
         kafkaServerConfig.put("log.dir", getTemporaryFile("kafka-tmp").getPath());
         kafkaServerConfig.put("auto.create.topics.enable", "false");
         kafkaServerConfig.put("port", kafkaPort.toString());
         kafkaServerConfig.put("host.name","localhost");
-        kafkaServerConfig.put("advertised.host.name","localhost");
+        kafkaServerConfig.put("advertised.host.name",kafkaHost);
         kafkaServerConfig.put("zookeeper.connect", zookeeper.getConnectString());
         kafkaServerConfig.put("offsets.topic.replication.factor", "1");
         kafkaServerConfig.put("min.insync.replicas", "1");
         kafkaServerConfig.put("default.replication.factor", "1");
+        kafkaServerConfig.put("broker.id", String.valueOf(testBrokerId));
 
         KafkaConfig serverConfig = new KafkaConfig(kafkaServerConfig);
 
-        String kafkaAddress = formatAddress("localhost", kafkaPort);
+        String kafkaAddress = formatAddress(kafkaHost, kafkaPort);
         logger.info("Starting Test Kafka server on " + kafkaAddress);
 
         kafkaServer = new KafkaServerStartable(serverConfig);
         kafkaServer.startup();
 
-        System.setProperty("kafka.bootstrapServers", formatAddress("localhost", kafkaPort));
+        System.setProperty("kafka.bootstrapServers", formatAddress(kafkaHost, kafkaPort));
     }
 
     @Override

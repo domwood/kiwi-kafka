@@ -1,10 +1,11 @@
 package com.github.domwood.kiwi;
 
 import com.github.domwood.kiwi.data.error.ApiError;
-import com.github.domwood.kiwi.data.input.*;
+import com.github.domwood.kiwi.data.input.ConsumerRequest;
+import com.github.domwood.kiwi.data.input.CreateTopicRequest;
+import com.github.domwood.kiwi.data.input.ProducerRequest;
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.testutils.TestKafkaServer;
-import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,12 +21,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
 import static com.github.domwood.kiwi.testutils.HttpTestUtils.asJsonPayload;
-import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,11 +45,6 @@ public class KiwiEmbeddedTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
-    private final String testKey = "testKey";
-    private final String testPayload = "testPayload";
-    private final Map<String, String> testHeaders = ImmutableMap.of("TestHeaderKey", "TestHeaderValue");
-
-
     @DisplayName("Test querying a topic that doesn't exist returns 404")
     @Test
     public void handleTopicDoesntExist(){
@@ -59,7 +54,6 @@ public class KiwiEmbeddedTest {
         assertEquals(HttpStatus.NOT_FOUND, requestError.getStatusCode());
         assertEquals(UnknownTopicOrPartitionException.class.getName(), requestError.getBody().rootCause());
     }
-
 
     @DisplayName("Test can create a topic on a kafka broker")
     @Test
@@ -71,9 +65,12 @@ public class KiwiEmbeddedTest {
         ResponseEntity<TopicInfo> topicInfoRequest =
                 testRestTemplate.getForEntity("http://localhost:"+serverPort+"/api/topicInfo/"+createdTestTopic, TopicInfo.class);
 
-        assertEquals(createdTestTopic, topicInfoRequest.getBody().topic());
-        assertEquals(7, topicInfoRequest.getBody().partitionCount());
-        assertEquals("compact", topicInfoRequest.getBody().configuration().get("cleanup.policy"));
+        TopicInfo expected = ImmutableTopicInfo.builder()
+                .from(buildTopicInfo(createdTestTopic))
+                .configuration(topicInfoRequest.getBody().configuration()) //Default configs defined by server
+                .build();
+
+        assertEquals(expected, topicInfoRequest.getBody());
     }
 
     @DisplayName("Test can delete a topic on a kafka broker")
@@ -94,7 +91,6 @@ public class KiwiEmbeddedTest {
         });
 
     }
-
 
     @DisplayName("Test created topic will then be returned in a topic list query")
     @Test
@@ -143,33 +139,19 @@ public class KiwiEmbeddedTest {
         assertEquals(testHeaders, message.headers());
     }
 
+    @DisplayName("Test Broker Information Returned")
+    @Test
+    public void brokerInfoTest(){
+        ResponseEntity<BrokerInfoList> brokerInfo =
+                testRestTemplate.getForEntity("http://localhost:"+serverPort+"/api/brokers", BrokerInfoList.class);
 
-    private CreateTopicRequest createTopicRequest(String name){
-        return ImmutableCreateTopicRequest
-                .builder()
-                .replicationFactor(1)
-                .partitions(7)
-                .name(name)
-                .putConfiguration("cleanup.policy", "compact")
-                .build();
+        assertTrue(brokerInfo.getStatusCode().is2xxSuccessful());
+
+        BrokerInfoList expected = buildBrokerInfoList();
+        assertEquals(expected, brokerInfo.getBody());
     }
 
-    private ProducerRequest buildProducerRequest(String topic){
-        return ImmutableProducerRequest.builder()
-                .topic(topic)
-                .key(testKey)
-                .payload(testPayload)
-                .headers(testHeaders)
-                .build();
-    }
 
-    private ConsumerRequest buildConsumerRequest(String topic){
-        return ImmutableConsumerRequest.builder()
-                .topics(singletonList(topic))
-                .limit(1)
-                .limitAppliesFromStart(false)
-                .build();
-    }
 
     private <T> ResponseEntity<T> awaitAndReturn(Supplier<ResponseEntity<T>> supplier, Predicate<ResponseEntity<T>> asserter){
         List<ResponseEntity<T>> latestResponse = new ArrayList<>(1);

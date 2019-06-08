@@ -13,17 +13,18 @@ import java.util.Map;
 @Value.Style(depluralize = true)
 public interface ConsumedMessage<K, V> extends OutboundResponse{
 
-    long timestamp();
-
-    int partition();
-
-    long offset();
-
     @Nullable
     K message();
 
     @Nullable
     V key();
+
+    @Nullable
+    Long timestamp();
+
+    int partition();
+
+    long offset();
 
     Map<String, Object> headers();
 
