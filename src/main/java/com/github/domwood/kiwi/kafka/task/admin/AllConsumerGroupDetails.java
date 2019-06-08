@@ -31,7 +31,7 @@ public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGro
     }
 
     @Override
-    public CompletableFuture<ConsumerGroups> delegateExecute() {
+    protected CompletableFuture<ConsumerGroups> delegateExecute() {
 
         return toCompletable(resource.listConsumerGroups().all())
                 .thenCompose(list -> fromConsumerGroupList(resource, list));

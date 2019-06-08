@@ -21,7 +21,7 @@ public class BrokerInformation extends AbstractKafkaTask<Void, BrokerInfoList, K
     }
 
     @Override
-    public CompletableFuture<BrokerInfoList> delegateExecute() {
+    protected CompletableFuture<BrokerInfoList> delegateExecute() {
         DescribeClusterResult clusterResult = resource.describeCluster();
 
         return FutureUtils.toCompletable(clusterResult.nodes())

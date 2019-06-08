@@ -38,7 +38,7 @@ public class TopicInformation extends AbstractKafkaTask<String, TopicInfo, Kafka
     }
 
     @Override
-    public CompletableFuture<TopicInfo> delegateExecute() {
+    protected CompletableFuture<TopicInfo> delegateExecute() {
         try{
             ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, input);
             DescribeConfigsResult configsResult = resource.describeConfigs(singletonList(configResource));

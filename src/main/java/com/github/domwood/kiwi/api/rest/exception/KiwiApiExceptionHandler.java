@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 @ControllerAdvice
 public class KiwiApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(KiwiApiExceptionHandler.class);
-    private final Integer MAX_DEPTH = 30;
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntime(Exception ex, WebRequest request){
@@ -48,27 +44,5 @@ public class KiwiApiExceptionHandler extends ResponseEntityExceptionHandler {
         logger.warn("Failed to handle api call, body {} lead to error {}", body, error);
 
         return new ResponseEntity(error, headers, status);
-    }
-
-    private Throwable discoverCause(Throwable ex, int depth){
-        if(depth >= MAX_DEPTH){
-            return ex;
-        }
-        if(ex.getCause() == null){
-            return ex;
-        }
-        else if(ex.getCause().getClass().getName().equals(ex.getClass().getName())){
-            return ex;
-        }
-        else{
-            return this.discoverCause(ex.getCause(), depth++);
-        }
-    }
-
-    private String stackAsString(Exception ex) {
-
-        StringWriter sw = new StringWriter();
-        ex.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
     }
 }

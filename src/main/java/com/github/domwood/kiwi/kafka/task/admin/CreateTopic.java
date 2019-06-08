@@ -16,7 +16,7 @@ public class CreateTopic extends AbstractKafkaTask<CreateTopicRequest, Void, Kaf
     }
 
     @Override
-    public CompletableFuture<Void> delegateExecute() {
+    protected CompletableFuture<Void> delegateExecute() {
         NewTopic newTopic = asNewTopic(input);
         return toCompletable(resource.createTopics(asList(newTopic))
                 .values()

@@ -23,7 +23,7 @@ public class BrokerLogInformation extends AbstractKafkaTask<Integer, BrokerLogIn
     }
 
     @Override
-    public CompletableFuture<BrokerLogInfoList> delegateExecute() {
+    protected CompletableFuture<BrokerLogInfoList> delegateExecute() {
         DescribeLogDirsResult result = resource.describeLogDirs(singletonList(input));
 
         return FutureUtils.toCompletable(result.values().get(input))

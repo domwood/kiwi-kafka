@@ -35,9 +35,9 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRe
     }
 
     @Override
-    public ConsumerResponse<String, String> delegateExecuteSync() {
+    protected ConsumerResponse<String, String> delegateExecuteSync() {
 
-        try{
+        try {
             Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
 
             Queue<ConsumedMessage<String, String>> queue = selectQueueType();
@@ -46,22 +46,21 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRe
             int pollEmptyCount = 0;
             Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(input.filters());
 
-            while(running){
+            while (running) {
                 ConsumerRecords<String, String> records = resource.poll(Duration.of(200, MILLIS));
                 Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
 
-                if(records.isEmpty()){
+                if (records.isEmpty()) {
                     logger.debug("No records polled updating empty count");
                     pollEmptyCount++;
-                }
-                else{
+                } else {
                     logger.debug("Polled {} messages from {} topic ", records.count(), input.topics());
 
                     pollEmptyCount = 0;
                     Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
-                    while(recordIterator.hasNext() && !inputLimitReached(queue)){
+                    while (recordIterator.hasNext() && !inputLimitReached(queue)) {
                         ConsumerRecord<String, String> record = recordIterator.next();
-                        if(filter.test(record)){
+                        if (filter.test(record)) {
                             queue.add(asConsumedRecord(record));
                             toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         }
@@ -76,8 +75,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRe
                             .sorted(Comparator.comparingLong(ConsumedMessage::timestamp))
                             .collect(toList()))
                     .build();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Failed to complete task of consuming from topics " + input.topics(), e);
             throw e;
         }
@@ -86,17 +84,17 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRe
     private boolean shouldContinueRunning(int pollEmptyCount,
                                           Map<TopicPartition, Long> endOffsets,
                                           Map<TopicPartition, OffsetAndMetadata> toCommit,
-                                          Queue<ConsumedMessage<String, String>> queue){
+                                          Queue<ConsumedMessage<String, String>> queue) {
 
-        if(pollEmptyCount > 3){
+        if (pollEmptyCount > 3) {
             logger.debug("Polled empty 3 times, closing consumer");
             return false;
         }
-        if(inputLimitReached(queue)){
+        if (inputLimitReached(queue)) {
             logger.debug("Max queue size reached");
             return false;
         }
-        if(isEndOfData(endOffsets, toCommit)){
+        if (isEndOfData(endOffsets, toCommit)) {
             logger.debug("End of data reached");
             return false;
         }
@@ -104,49 +102,52 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRe
         return true;
     }
 
-    private boolean inputLimitReached(Queue<ConsumedMessage<String, String>> queue){
-        return input.limit() > 1 && input.limitAppliesFromStart() && queue.size() > input.limit();
+    private boolean inputLimitReached(Queue<ConsumedMessage<String, String>> queue) {
+        if(input.limit() < 1){
+            return false;
+        }
+        if(input.limitAppliesFromStart()){
+            return queue.size() >= input.limit();
+        }
+        return false;
     }
 
-    private Queue<ConsumedMessage<String, String>> selectQueueType(){
-        if(input.limit() > 0 && !input.limitAppliesFromStart()){
+    private Queue<ConsumedMessage<String, String>> selectQueueType() {
+        if (input.limit() > 0 && !input.limitAppliesFromStart()) {
             return new CircularFifoQueue<>(input.limit());
-        }
-        else{
+        } else {
             return new LinkedList<>();
         }
     }
 
-    private void commitAsync(Map<TopicPartition, OffsetAndMetadata> toCommit){
-        if(!toCommit.isEmpty()){
+    private void commitAsync(Map<TopicPartition, OffsetAndMetadata> toCommit) {
+        if (!toCommit.isEmpty()) {
             resource.commitAsync(toCommit, this::logCommit);
             resource.keepAlive();
         }
     }
 
-    private void logCommit(Map<TopicPartition, OffsetAndMetadata> offsetData, Exception exception){
-        if(exception != null){
+    private void logCommit(Map<TopicPartition, OffsetAndMetadata> offsetData, Exception exception) {
+        if (exception != null) {
             logger.error("Failed to commit offset ", exception);
-        }
-        else{
+        } else {
             logger.debug("Commit offset data {}", offsetData);
         }
     }
 
-    private boolean isEndOfData(Map<TopicPartition, Long> endOffsets, Map<TopicPartition, OffsetAndMetadata> lastCommit){
+    private boolean isEndOfData(Map<TopicPartition, Long> endOffsets, Map<TopicPartition, OffsetAndMetadata> lastCommit) {
         return endOffsets.entrySet().stream()
                 .allMatch(kv -> {
-                    if(kv.getValue() < 1){
+                    if (kv.getValue() < 1) {
                         return true;
-                    }
-                    else{
+                    } else {
                         OffsetAndMetadata latestCommit = lastCommit.get(kv.getKey());
-                        return latestCommit != null && latestCommit.offset()+1 >= kv.getValue();
+                        return latestCommit != null && latestCommit.offset() + 1 >= kv.getValue();
                     }
                 });
     }
 
-     ConsumedMessage<String, String> asConsumedRecord(ConsumerRecord<String, String> record){
+    private ConsumedMessage<String, String> asConsumedRecord(ConsumerRecord<String, String> record) {
         return ImmutableConsumedMessage.<String, String>builder()
                 .timestamp(record.timestamp())
                 .offset(record.offset())

@@ -71,7 +71,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     }
 
     @Override
-    public Void delegateExecuteSync() {
+    protected Void delegateExecuteSync() {
         this.filters = input.filters();
 
         try{

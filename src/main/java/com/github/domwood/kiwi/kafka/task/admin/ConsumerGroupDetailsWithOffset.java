@@ -39,7 +39,7 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
     }
 
     @Override
-    public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> delegateExecute() {
+    protected CompletableFuture<ConsumerGroupTopicWithOffsetDetails> delegateExecute() {
         CompletableFuture<Map<TopicPartition, OffsetAndMetadata>> groupAssignment =
                 toCompletable(resource.getLeft().listConsumerGroupOffsets(input).partitionsToOffsetAndMetadata());
 

@@ -24,7 +24,7 @@ public class ListTopics extends AbstractKafkaTask<Void, TopicList, KafkaAdminRes
     }
 
     @Override
-    public CompletableFuture<TopicList> delegateExecute() {
+    protected CompletableFuture<TopicList> delegateExecute() {
         try{
             ListTopicsResult topicsResult = resource.listTopics();
 

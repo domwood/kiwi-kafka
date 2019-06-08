@@ -21,7 +21,7 @@ public class UpdateTopicConfiguration extends AbstractKafkaTask<UpdateTopicConfi
     }
 
     @Override
-    public CompletableFuture<Void> delegateExecute() {
+    protected CompletableFuture<Void> delegateExecute() {
         return toCompletable(resource.updateTopicConfiguration(asConfigs(input)).all());
     }
 

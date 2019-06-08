@@ -19,7 +19,7 @@ public class ConsumerGroupInformation extends AbstractKafkaTask<Void, ConsumerGr
     }
 
     @Override
-    public CompletableFuture<ConsumerGroupList> delegateExecute() {
+    protected CompletableFuture<ConsumerGroupList> delegateExecute() {
         return toCompletable(resource.listConsumerGroups().all())
                 .thenApply(this::consumerGroupList);
     }

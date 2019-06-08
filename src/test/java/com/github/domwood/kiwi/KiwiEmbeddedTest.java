@@ -106,7 +106,7 @@ public class KiwiEmbeddedTest {
         assertThat(listableTopic, isIn(topicList.getBody().topics()));
     }
 
-    @DisplayName("Test correctly produce anc consume a message from kafka")
+    @DisplayName("Test correctly produce and consume a message from kafka")
     @SuppressWarnings("unchecked")
     @Test
     public void readWriteTest(){

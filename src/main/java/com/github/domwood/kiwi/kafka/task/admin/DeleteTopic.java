@@ -15,7 +15,7 @@ public class DeleteTopic extends AbstractKafkaTask<String, Void, KafkaAdminResou
     }
 
     @Override
-    public CompletableFuture<Void> delegateExecute() {
+    protected CompletableFuture<Void> delegateExecute() {
         return toCompletable(resource.deleteTopics(asList(input)).all());
     }
 }

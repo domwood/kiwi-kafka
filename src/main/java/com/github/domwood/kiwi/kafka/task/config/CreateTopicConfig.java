@@ -23,7 +23,7 @@ public class CreateTopicConfig extends FuturisingAbstractKafkaTask<Void, CreateT
     }
 
     @Override
-    public CreateTopicConfigOptions delegateExecuteSync() {
+    protected CreateTopicConfigOptions delegateExecuteSync() {
         TopicConfig topicConfig = resource.getConfig();
         Set<String> configs = Stream.of(topicConfig.getClass().getFields())
                 .filter(field -> field.getName().endsWith("_CONFIG"))
