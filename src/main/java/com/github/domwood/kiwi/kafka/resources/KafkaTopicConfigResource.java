@@ -1,6 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
-import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
+import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.common.config.TopicConfig;
 
 import java.util.Properties;

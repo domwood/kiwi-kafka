@@ -1,12 +1,10 @@
 package com.github.domwood.kiwi.kafka.resources;
 
-import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
+import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
 import com.github.domwood.kiwi.kafka.utils.TimeProvider;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Properties;
 
 public abstract class AbstractKafkaResource<CLIENT> {
@@ -28,7 +26,7 @@ public abstract class AbstractKafkaResource<CLIENT> {
             }
         }
         catch (Exception e){
-            logger.error("Attempted to close and admin client resource but failed ", e);
+            logger.error("Attempted to close and admin WebSocketService resource but failed ", e);
         }
         this.client = null;
     }

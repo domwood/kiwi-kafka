@@ -1,6 +1,6 @@
 package com.github.domwood.kiwi.utilities;
 
-import com.github.domwood.kiwi.kafka.exceptions.KiwiFutureException;
+import com.github.domwood.kiwi.exceptions.KiwiFutureException;
 import com.github.domwood.kiwi.kafka.task.KiwiTaskExecutor;
 
 import java.util.concurrent.CompletableFuture;

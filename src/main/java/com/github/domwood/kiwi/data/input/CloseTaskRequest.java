@@ -9,4 +9,8 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableCloseTaskRequest.class)
 @Value.Immutable
 public interface CloseTaskRequest extends InboundRequest{
+    @Value.Default
+    default Boolean closeSession(){
+        return false;
+    }
 }

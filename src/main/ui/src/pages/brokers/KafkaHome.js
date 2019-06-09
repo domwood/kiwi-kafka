@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {Button, Container, Table} from "reactstrap";
 import * as ApiService from "../../services/ApiService";
-import DataStore from "../../services/GlobalStore";
 import {toast} from "react-toastify";
 import "../../App.css";
 
@@ -17,19 +16,11 @@ class KafkaHome extends Component {
     }
 
     componentDidMount(){
-        if(DataStore.get("brokerList")){
+        ApiService.getBrokers((brokers) => {
             this.setState({
-                brokers:  DataStore.get("brokerList")
-            })
-        }
-        else{
-            ApiService.getBrokers((brokers) => {
-                DataStore.put("brokerList", brokers);
-                this.setState({
-                    brokers:brokers
-                });
-            }, () => toast.error("Could not retrieve broker list from server"));
-        }
+                brokers:brokers
+            });
+        }, () => toast.error("Could not retrieve broker list from server"));
     }
 
     logFiles = (id) => {

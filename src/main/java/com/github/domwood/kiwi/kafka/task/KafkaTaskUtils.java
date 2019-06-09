@@ -1,6 +1,6 @@
 package com.github.domwood.kiwi.kafka.task;
 
-import com.github.domwood.kiwi.kafka.exceptions.ConsumerAssignmentTimeoutException;
+import com.github.domwood.kiwi.exceptions.ConsumerAssignmentTimeoutException;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;

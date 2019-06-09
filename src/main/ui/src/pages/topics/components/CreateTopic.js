@@ -10,7 +10,6 @@ import {
 } from "reactstrap";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import DataStore from "../../../services/GlobalStore";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
 
@@ -27,20 +26,11 @@ class CreateTopic extends Component {
     }
 
     componentDidMount(){
-        let createTopicConfig = DataStore.get("createTopicConfig");
-        if(createTopicConfig && createTopicConfig.length > 0){
+        ApiService.getCreateTopicConfig(config =>{
             this.setState({
-                createTopicConfig: createTopicConfig
-            })
-        }
-        else{
-            ApiService.getCreateTopicConfig(config =>{
-                this.setState({
-                    createTopicConfig: config
-                });
-                DataStore.put("createTopicConfig", config);
-            }, () => toast.warn("Could not default create topic configuration from server"))
-        }
+                createTopicConfig: config
+            });
+        }, () => toast.warn("Could not default create topic configuration from server"))
     }
 
     onClose = () => {

@@ -1,6 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
-import com.github.domwood.kiwi.kafka.exceptions.KafkaResourceClientCloseException;
+import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 
@@ -32,7 +32,7 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
             this.getClient().close();
         }
         catch (Exception e){
-            throw new KafkaResourceClientCloseException("Failed to cleanly close client, due to "+e.getMessage(), e);
+            throw new KafkaResourceClientCloseException("Failed to cleanly close WebSocketService, due to "+e.getMessage(), e);
         }
     }
 

@@ -12,7 +12,7 @@ import java.util.Properties;
 
 //TODO we can't really close these resources externally
 // they need to be closed by the thread which created the
-// underlying client, else we throw concurrent modification exes
+// underlying WebSocketService, else we throw concurrent modification exes
 // So many of these cleanup methods aren't suitable and need rethought
 @Component
 public class KafkaResourceProvider {

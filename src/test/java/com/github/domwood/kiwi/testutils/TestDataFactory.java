@@ -101,14 +101,18 @@ public class TestDataFactory {
 
     public static ConsumerResponse<String, String> buildConsumerResponse(){
         return ImmutableConsumerResponse.<String, String>builder()
-                .messages(asList(ImmutableConsumedMessage.<String, String>builder()
-                        .key(testKey)
-                        .headers(testHeaders)
-                        .message(testPayload)
-                        .offset(testOffset)
-                        .partition(testPartition)
-                        .timestamp(testTimestamp)
-                        .build()))
+                .messages(asList(buildConsumedMessage()))
+                .build();
+    }
+
+    public static ConsumedMessage<String, String> buildConsumedMessage(){
+        return ImmutableConsumedMessage.<String, String>builder()
+                .key(testKey)
+                .headers(testHeaders)
+                .message(testPayload)
+                .offset(testOffset)
+                .partition(testPartition)
+                .timestamp(testTimestamp)
                 .build();
     }
 

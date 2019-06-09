@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom';
 import KafkaGet from './KafkaGet';
 import * as ApiService from "../../services/ApiService";
 import WebSocketService from "../../services/WebSocketService";
-import DataStore from "../../services/GlobalStore";
 import {mount} from "enzyme/build";
 import { waitForState, wait } from 'enzyme-async-helpers';
 
 jest.mock("../../services/ApiService");
 jest.mock("../../services/WebSocketService");
-jest.mock("../../services/GlobalStore");
 
 const testDataResponse = {
     responseType:".ImmutableConsumerResponse",
@@ -44,7 +42,6 @@ beforeEach(() => {
     ApiService.getTopics.mockClear();
     ApiService.consume.mockClear();
     WebSocketService.consume.mockClear();
-    DataStore.get.mockImplementation((topics) => [])
 });
 
 it('renders without crashing', () => {
