@@ -26,3 +26,6 @@ src/main/ui/node_modules/
 src/main/ui/build
 .idea/
 package-lock.json
+
+release.properties
+pom.xml.releaseBackup

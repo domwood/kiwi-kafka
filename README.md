@@ -33,7 +33,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
 #### Running via Docker
 
-`docker run -p 8080:8080 dmwood/kiwi`
+`docker run -p 8080:8080 dmwood/kiwi `
  
 #### Build & Run Jar
 
