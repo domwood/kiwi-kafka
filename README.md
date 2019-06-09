@@ -43,7 +43,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
  - Download jar from releases page
  
-java -jar target/kiwi-$version.jar
+`java -jar target/kiwi-$version.jar`
  
 #### Build & Run Jar
 
