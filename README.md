@@ -33,7 +33,17 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
 #### Running via Docker
 
-`docker run -p 8080:8080 dmwood/kiwi `
+`docker run -p -e KAFKA_BOOTSTRAPSERVERS=${KAFKA_SERVER_IP}:9092 8080:8080 dmwood/kiwi:latest`
+
+- To connect to a locally running kafka you can do something like this:
+
+`docker run --network="host" -e KAFKA_BOOTSTRAPSERVERS=localhost:9092 dmwood/kiwi:latest`
+ 
+#### Run jar
+
+ - Download jar from releases page
+ 
+java -jar target/kiwi-$version.jar
  
 #### Build & Run Jar
 
