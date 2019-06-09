@@ -1,7 +1,7 @@
 # KIWI - Kafka Interactive Web Interface 
 
-[![status](https://img.shields.io/badge/status-WIP-yellow.svg)]()
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Status](https://img.shields.io/badge/Status-WIP-yellow.svg)]()
 
 A Kafka Web Interface, written to help my professional day to day role working with kafka, but provided here in the event anyone else may benefit from using it.
 
@@ -34,7 +34,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
 #### Running via Docker
 
-`docker run -p -e KAFKA_BOOTSTRAPSERVERS=${KAFKA_SERVER_IP}:9092 8080:8080 dmwood/kiwi:latest`
+`docker run -p -e KAFKA_BOOTSTRAPSERVERS=kafka.ip.preprod1.myorg.com:9092 8080:8080 dmwood/kiwi:latest`
 
 - To connect to a locally running kafka you can do something like this:
 
@@ -44,7 +44,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
  - Download jar from releases page
  
-`java -jar target/kiwi-$version.jar`
+`java -jar -DKAFKA_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
  
 #### Build & Run Jar
 
@@ -55,7 +55,7 @@ Dependencies:
  
 Build:
  - Run `mvn clean install`
- - or Jar runnable via `java -jar target/kiwi-$version.jar`
+ - or Jar runnable via `java -jar -DKAFKA_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
   
 #### Development - Getting Started
 
