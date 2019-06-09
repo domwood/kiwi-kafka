@@ -16,6 +16,20 @@
     <name>kiwi</name>
     <description>Kafka Interactive Web Interface</description>
 
+    <scm>
+        <connection>scm:git:git@github.com:domwood/kiwi.git</connection>
+        <url>scm:git:git@github.com:domwood/kiwi.git</url>
+        <developerConnection>scm:git:git@github.com:domwood/kiwi.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <java.version>1.8</java.version>
         <frontendSrcDir>${project.basedir}/src/main/ui/</frontendSrcDir>
@@ -301,6 +315,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.1</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
+                    <releaseProfiles>release</releaseProfiles>
+                </configuration>
             </plugin>
 
             <plugin>
