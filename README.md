@@ -1,5 +1,6 @@
-# KIWI - Kafka Interactive Web Interface
+# KIWI - Kafka Interactive Web Interface 
 
+[![status](https://img.shields.io/badge/status-WIP-yellow.svg)]()
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A Kafka Web Interface, written to help my professional day to day role working with kafka, but provided here in the event anyone else may benefit from using it.
