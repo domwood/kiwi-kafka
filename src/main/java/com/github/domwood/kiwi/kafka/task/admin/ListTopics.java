@@ -30,7 +30,10 @@ public class ListTopics extends AbstractKafkaTask<Void, TopicList, KafkaAdminRes
 
             return toCompletable(topicsResult.listings())
                     .thenApply(result -> ImmutableTopicList.builder()
-                            .addAllTopics(result.stream().map(TopicListing::name).collect(toList()))
+                            .addAllTopics(result.stream()
+                                    .map(TopicListing::name)
+                                    .sorted()
+                                    .collect(toList()))
                             .build());
         }
         catch (Exception e){
