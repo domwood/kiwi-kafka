@@ -1,7 +1,8 @@
 import React, {Component} from "react";
-import {Input, InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem} from "reactstrap";
+import {InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem} from "reactstrap";
 import "../../App.css";
 import PropTypes from "prop-types";
+import {Typeahead} from "react-bootstrap-typeahead";
 
 class SearchableViewList extends Component {
 
@@ -45,9 +46,11 @@ class SearchableViewList extends Component {
                         <InputGroupAddon addonType="prepend">
                             <InputGroupText>Filter:</InputGroupText>
                         </InputGroupAddon>
-                        <Input type="text"
-                               defaultValue=""
-                               onChange={event => this.filterList(event.target.value)}/>
+                        <Typeahead
+                            onChange={selected => selected ? this.filterList(selected[0]) : ''}
+                            options={this.state.unfilteredList}
+                            className={"StretchedInput"}
+                        />
                     </InputGroup>
                 </ListGroupItem>
                 {

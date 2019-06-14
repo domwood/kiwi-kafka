@@ -5,7 +5,6 @@ import {
     DropdownMenu,
     DropdownToggle,
     FormGroup,
-    Input,
     InputGroup,
     InputGroupButtonDropdown,
     Label
@@ -15,6 +14,8 @@ import React, {Component} from "react";
 import { MdRefresh } from "react-icons/md/index";
 import PropTypes from "prop-types";
 import {toast} from "react-toastify";
+import {Typeahead} from 'react-bootstrap-typeahead';
+import "../../App.css";
 
 class TopicInput extends Component {
 
@@ -60,10 +61,13 @@ class TopicInput extends Component {
                 <Label for="topic">Topic:</Label>
 
                 <InputGroup>
-                    <Input type="text" name="topic" id="topicInput"
-                           value={this.props.targetTopic}
-                           onChange={event => this.setTargetTopic(event.target.value)}
-                           required />
+
+                    <Typeahead
+                        id={"topicInput"}
+                        onChange={selected => selected ? this.setTargetTopic(selected[0]) : ''}
+                        options={this.state.topicList}
+                        className={"StretchedInput"}
+                    />
 
                     <InputGroupButtonDropdown addonType="append" isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown}>
 

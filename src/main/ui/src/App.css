@@ -67,3 +67,8 @@
 .WideBoi {
   max-width:90%;
 }
+
+
+.StretchedInput {
+  flex: 1 1 auto;
+}
