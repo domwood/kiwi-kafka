@@ -33,7 +33,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     @Value("${websocket.wait.interval.ms:10}")
     Long waitInterval;
 
-    @Value("${websocket.message.buffer.limit:200}")
+    @Value("${websocket.message.buffer.limit:5}")
     Integer websocketBufferLimit;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -100,6 +100,8 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
             while (session.getBufferSize() >= websocketBufferLimit-1 &&
                     sleeps++ < maxWaitCount &&
                     session.isOpen()) {
+                logger.info("Waiting for websocket backlog to clear");
+
                 //Blocks upstream if socket is backlogged (ie will block kafka consumer polling further)
                 Thread.sleep(10);
             }

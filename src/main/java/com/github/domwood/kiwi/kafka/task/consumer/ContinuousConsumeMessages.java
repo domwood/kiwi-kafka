@@ -103,7 +103,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
 
                         Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
                         Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
-                        while (recordIterator.hasNext()) {
+                        while (recordIterator.hasNext() && !this.isClosed()) {
                             ConsumerRecord<String, String> record = recordIterator.next();
 
                             if (filter.test(record)) {
@@ -154,9 +154,11 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
         //Blocking Call
         logger.info("Message batch size forwarding to consumers");
 
-        this.consumer.accept(ImmutableConsumerResponse.<String, String>builder()
-                .messages(messages)
-                .build());
+        if(!this.isClosed()){
+            this.consumer.accept(ImmutableConsumerResponse.<String, String>builder()
+                    .messages(messages)
+                    .build());
+        }
 
         resource.commitAsync(toCommit, this::logCommit);
 
