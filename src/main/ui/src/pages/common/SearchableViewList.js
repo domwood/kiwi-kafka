@@ -20,18 +20,20 @@ class SearchableViewList extends Component {
             this.setState({
                 unfilteredList: this.props.elementList,
                 filteredList: this.props.elementList
-            });
+            }, () => this.filterList(this.state.filterWord));
         }
     }
 
     filterList = (filterWord) => {
         if (filterWord && filterWord.length > 0) {
             this.setState({
+                filterWord: filterWord,
                 filteredList: this.state.unfilteredList
                     .filter(element => element.toLowerCase().search(filterWord.toLowerCase()) !== -1)
             })
         } else {
             this.setState({
+                filterWord: '',
                 filteredList: this.state.unfilteredList
             })
         }
@@ -47,7 +49,9 @@ class SearchableViewList extends Component {
                             <InputGroupText>Filter:</InputGroupText>
                         </InputGroupAddon>
                         <Typeahead
-                            onChange={selected => selected ? this.filterList(selected[0]) : ''}
+                            id={"searchList"}
+                            onChange={selected => selected && selected[0] ? this.filterList(selected[0]) : ''}
+                            onInputChange={i => this.filterList(i || '')}
                             options={this.state.unfilteredList}
                             className={"StretchedInput"}
                         />

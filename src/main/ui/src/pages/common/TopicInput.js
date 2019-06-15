@@ -1,12 +1,9 @@
 import * as ApiService from "../../services/ApiService";
 
 import {
-    DropdownItem,
-    DropdownMenu,
-    DropdownToggle,
+    Button,
     FormGroup,
-    InputGroup,
-    InputGroupButtonDropdown,
+    InputGroup, InputGroupAddon,
     Label
 } from "reactstrap";
 
@@ -37,9 +34,6 @@ class TopicInput extends Component {
                 this.setState({
                     topicList:topics
                 });
-                if(topics.length > 0){
-                    this.setTargetTopic(topics[0])
-                }
             }, () => toast.warn("Could not retrieve topic list from server"));
         }
     };
@@ -52,7 +46,7 @@ class TopicInput extends Component {
     };
 
     setTargetTopic = (topic) => {
-        this.props.onUpdate(topic);
+        this.props.onUpdate(topic || '');
     };
 
     render() {
@@ -63,47 +57,17 @@ class TopicInput extends Component {
                 <InputGroup>
 
                     <Typeahead
+                        defaultInputValue={this.props.targetTopic}
                         id={"topicInput"}
-                        onChange={selected => selected ? this.setTargetTopic(selected[0]) : ''}
+                        onChange={select => this.setTargetTopic(select[0]) || ''}
+                        onInputChange={i =>this.setTargetTopic(i || '') }
                         options={this.state.topicList}
                         className={"StretchedInput"}
                     />
 
-                    <InputGroupButtonDropdown addonType="append" isOpen={this.state.dropdownOpen} toggle={this.toggleDropDown}>
-
-                        <DropdownToggle caret>
-                            Topic List
-                        </DropdownToggle>
-                        <DropdownMenu
-                            modifiers={{
-                                setMaxHeight: {
-                                    enabled: true,
-                                    order: 890,
-                                    fn: (data) => {
-                                        return {
-                                            ...data,
-                                            styles: {
-                                                ...data.styles,
-                                                overflow: 'auto',
-                                                maxHeight: 500,
-                                            },
-                                        };
-                                    },
-                                },
-                            }}>
-
-
-                            {
-                                this.state.topicList.map(topic =>
-                                    <DropdownItem key={topic} name={topic} onClick={() => this.setTargetTopic(topic)}>{topic}</DropdownItem>)
-                            }
-                            <DropdownItem divider />
-                            <DropdownItem onClick={() => this.getTopicList(true)} >
-                                <MdRefresh /> Reload Topics
-                            </DropdownItem>
-                        </DropdownMenu>
-
-                    </InputGroupButtonDropdown>
+                    <InputGroupAddon addonType="append">
+                        <Button color="primary" onClick={() => this.getTopicList(true)}>Refresh Topics<MdRefresh/></Button>
+                    </InputGroupAddon>
                 </InputGroup>
             </FormGroup>
         )

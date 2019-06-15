@@ -62,7 +62,7 @@ class KafkaGet extends Component {
                 <h1>Get Data From Kafka</h1>
                 <div className="mt-lg-4"/>
                 <Form>
-                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic}/>
+                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic || ''}/>
 
                     <div className="mt-lg-1"/>
 
@@ -80,7 +80,7 @@ class KafkaGet extends Component {
                     <MessageReader
                         name={"messageReader"} id={"messageReader"}
                         filters={this.state.filters}
-                        targetTopic={this.state.targetTopic}
+                        targetTopic={this.state.targetTopic || ''}
                         messageLimit={this.state.messageLimit}
                         messageFromEnd={this.state.messageFromEnd}
                         isReversed={true}

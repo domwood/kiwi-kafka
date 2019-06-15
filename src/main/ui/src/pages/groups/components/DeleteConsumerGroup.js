@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import {MdWarning} from "react-icons/md";
 
 class DeleteConsumerGroup extends Component {
     constructor(props) {
@@ -34,8 +35,8 @@ class DeleteConsumerGroup extends Component {
 
     render() {
         return (
-            <div>
-                <Button color="danger" onClick={() => this.open()}>Delete Consumer Group</Button>
+            <span>
+                <Button color="danger" onClick={() => this.open()}>Delete Consumer Group <MdWarning /></Button>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Consumer Group</ModalHeader>
@@ -55,7 +56,7 @@ class DeleteConsumerGroup extends Component {
                     </ModalFooter>
                 </Modal>
 
-            </div>
+            </span>
         )
     }
 }

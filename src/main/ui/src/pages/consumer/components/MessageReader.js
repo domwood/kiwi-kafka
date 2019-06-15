@@ -24,23 +24,25 @@ class MessageReader extends Component {
     }
 
     onWebSocketMessage = (response) => {
-        let messages;
-        if(this.props.isReversed){
-            messages = response.messages
-                .reverse()
-                .concat(this.props.messages)
-                .slice(0, this.props.messageLimit);
+        if(this.state.continuous){
+            let messages;
+            if(this.props.isReversed){
+                messages = response.messages
+                    .reverse()
+                    .concat(this.props.messages)
+                    .slice(0, this.props.messageLimit);
+            }
+            else{
+                messages = this.props.messages
+                    .concat(response.messages)
+                    .slice(this.state.messages.length + response.messages.length > this.props.messageLimit ?  -this.props.messageLimit : 0);
+            }
+            this.props.updateMessages(messages)
+            this.setState({
+                continuous: true,
+                consumeCount: this.state.consumeCount+response.messages.length,
+            });
         }
-        else{
-            messages = this.props.messages
-                .concat(response.messages)
-                .slice(this.state.messages.length + response.messages.length > this.props.messageLimit ?  -this.props.messageLimit : 0);
-        }
-        this.props.updateMessages(messages)
-        this.setState({
-            continuous: true,
-            consumeCount: this.state.consumeCount+response.messages.length,
-        });
     };
 
     onWebsocketError = (error) => {
@@ -148,7 +150,7 @@ MessageReader.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     filters: PropTypes.array.isRequired,
-    targetTopic: PropTypes.string.isRequired,
+    targetTopic: PropTypes.string,
     messageLimit: PropTypes.number.isRequired,
     messageFromEnd: PropTypes.bool.isRequired,
     isReversed: PropTypes.bool.isRequired,

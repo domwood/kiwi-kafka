@@ -3,6 +3,8 @@ package com.github.domwood.kiwi.kafka.resources;
 import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 
 public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaConsumer<K, V>> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public KafkaConsumerResource(Properties config) {
         super(config);
@@ -28,8 +32,16 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
     @Override
     protected void closeClient() throws KafkaResourceClientCloseException {
         //TODO sort out concurrent modification issue
+        logger.info("Kafka consumer client closing...");
+        try{
+            this.getClient().unsubscribe();
+        }
+        catch (Exception e){
+            logger.warn("Failed to cleanly unsubscribe");
+        }
         try{
             this.getClient().close();
+            logger.info("Kafka consumer closed");
         }
         catch (Exception e){
             throw new KafkaResourceClientCloseException("Failed to cleanly close WebSocketService, due to "+e.getMessage(), e);
