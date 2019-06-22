@@ -24,7 +24,8 @@
     "start": "react-scripts start",
     "build": "REACT_APP_ENV=production react-scripts build",
     "test": "CI=true react-scripts test 2>&1",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache"
   },
   "eslintConfig": {
     "extends": "react-app"

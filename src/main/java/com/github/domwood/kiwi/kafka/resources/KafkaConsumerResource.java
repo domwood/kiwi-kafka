@@ -1,6 +1,7 @@
 package com.github.domwood.kiwi.kafka.resources;
 
 import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toMap;
 
 public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaConsumer<K, V>> {
 
@@ -66,6 +69,12 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
 
     public Map<TopicPartition, Long> endOffsets(Set<TopicPartition> topicPartitions){
         return this.getClient().endOffsets(topicPartitions);
+    }
+
+    public Map<TopicPartition, Long> currentPosition(Set<TopicPartition> topicPartitions){
+        return topicPartitions.stream()
+                .map(tp -> Pair.of(tp, getClient().position(tp)))
+                .collect(toMap(Pair::getLeft, Pair::getRight));
     }
 
     public void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback){

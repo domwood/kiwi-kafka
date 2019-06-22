@@ -2,6 +2,7 @@ package com.github.domwood.kiwi.kafka.task;
 
 import com.github.domwood.kiwi.exceptions.ConsumerAssignmentTimeoutException;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -23,8 +24,8 @@ public class KafkaTaskUtils {
     private static final int MAX_POLL_COUNT = 500;
 
     public static Map<TopicPartition, Long> subscribeAndSeek(KafkaConsumerResource<?, ?> resource,
-                                                      List<String> topics,
-                                                      boolean seekToBeginning) {
+                                                             List<String> topics,
+                                                             boolean seekToBeginning) {
         resource.subscribe(topics);
 
         logger.debug("Consumer awaiting assignment for {} ...", topics);

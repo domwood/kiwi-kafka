@@ -68,7 +68,16 @@
   max-width:90%;
 }
 
+.FullSpan {
+  max-width:100%;
+  width:100%;
+}
 
 .StretchedInput {
   flex: 1 1 auto;
+}
+
+.ListGroupNoHorizontalPad{
+  padding-left: 0rem;
+  padding-right: 0rem;
 }

@@ -4,10 +4,26 @@ import KafkaGet from './KafkaGet';
 import * as ApiService from "../../services/ApiService";
 import WebSocketService from "../../services/WebSocketService";
 import {mount} from "enzyme/build";
-import { waitForState, wait } from 'enzyme-async-helpers';
+import { waitForState } from 'enzyme-async-helpers';
 
 jest.mock("../../services/ApiService");
 jest.mock("../../services/WebSocketService");
+
+//Apparently need this junk??
+jest.mock('popper.js', () => {
+    const PopperJS = jest.requireActual('popper.js');
+
+    return class {
+        static placements = PopperJS.placements;
+
+        constructor() {
+            return {
+                destroy: () => {},
+                scheduleUpdate: () => {}
+            };
+        }
+    };
+});
 
 const testDataResponse = {
     responseType:".ImmutableConsumerResponse",
@@ -56,64 +72,31 @@ it('renders via enzyme', () => {
     expect(wrapper.contains(title)).toEqual(true);
 });
 
-it('check kafka messages from rest', async () => {
-
-    ApiService.getTopics.mockImplementation((cb, eb) => {
-        cb(topicList);
-    });
-
-    ApiService.consume.mockImplementation((topics, limit, fromStart, filters, cb, eb) => {
-        cb(testDataResponse)
-    });
-
-    const wrapper = mount(<KafkaGet />);
-
-    wrapper.find('#topicInput').at(0)
-        .simulate('change', { target: { value: 'testDataTopic' } })
-
-    wrapper.find("#messageLimitInput").at(0)
-        .simulate('change', { target: { value: 2 } });
-
-    wrapper.find('#consumeViaRestButton').at(0)
-        .simulate('click');
-
-    await waitForState(wrapper, state => state.messages && state.messages.length > 0);
-
-    expect(wrapper.exists(`#record_row_${testDataResponse.messages[0].partition}_${testDataResponse.messages[0].offset}`)).toBeTruthy();
-    expect(wrapper.exists(`#record_row_${testDataResponse.messages[1].partition}_${testDataResponse.messages[1].offset}`)).toBeTruthy();
-
-    expect(ApiService.getTopics).toHaveBeenCalledTimes(1);
-    expect(ApiService.consume).toHaveBeenCalledTimes(1);
-    expect(ApiService.consume).toHaveBeenCalledWith(
-        ['testDataTopic'],
-        2,
-        expect.any(Boolean),
-        [],
-        expect.any(Function),
-        expect.any(Function)
-    );
-});
 
 it('check kafka messages from websocket', async () => {
 
+    WebSocketService.consume.mockImplementation((topics, filters, cb, eb, close) => {
+        cb(testDataResponse);
+    });
+
     ApiService.getTopics.mockImplementation((cb, eb) => {
         cb(topicList);
     });
 
-    WebSocketService.consume.mockImplementation((topics, filters, cb, eb, close) => {
-        cb(testDataResponse)
-    });
-
     const wrapper = mount(<KafkaGet />);
-
-    wrapper.find('#topicInput').at(0)
-        .simulate('change', { target: { value: 'testDataTopic' } })
+    
+    wrapper.find('.rbt-input-main').at(0)
+         .simulate('change', { target: { value: 'testDataTopic' } })
 
     wrapper.find("#messageLimitInput").at(0)
         .simulate('change', { target: { value: 2 } });
 
     wrapper.find('#consumeViaWebSocketButton').at(0)
         .simulate('click');
+
+    //await ready;
+
+    //expect(wrapper.state().messages).toBe(testDataResponse.messages);
 
     await waitForState(wrapper, state => state.messages && state.messages.length > 0);
 

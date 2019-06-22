@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import {Button, ButtonGroup, Spinner} from "reactstrap";
-import * as ApiService from "../../../services/ApiService";
+import {Button, Progress, Spinner} from "reactstrap";
 import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
 
@@ -11,7 +10,8 @@ class MessageReader extends Component {
         super(props);
         this.state = {
             id: props.id,
-            name: props.name
+            name: props.name,
+            position: 0
         }
     }
 
@@ -23,8 +23,20 @@ class MessageReader extends Component {
         WebSocketService.disconnect();
     }
 
+    clearCounts = (cb) => {
+        this.setState({
+            consuming: false,
+            consumeCount:0,
+            totalRecords: 0,
+            position:0,
+            startValue: 0,
+            endValue: 0,
+            consumerPosition: 0
+        },cb)
+    };
+
     onWebSocketMessage = (response) => {
-        if(this.state.continuous){
+        if(this.state.consuming){
             let messages;
             if(this.props.isReversed){
                 messages = response.messages
@@ -39,108 +51,83 @@ class MessageReader extends Component {
             }
             this.props.updateMessages(messages)
             this.setState({
-                continuous: true,
+                consuming: true,
                 consumeCount: this.state.consumeCount+response.messages.length,
+                position: response.position.percentage,
+                totalRecords: response.position.totalRecords,
+                startValue: response.position.startValue,
+                endValue: response.position.endValue,
+                consumerPosition: response.position.consumerPosition
             });
         }
     };
 
     onWebsocketError = (error) => {
         toast.error(`Failed to retrieve data from server ${error.message}`)
-        this.setState({continuous: false});
+        this.clearCounts();
         WebSocketService.disconnect();
     };
 
     onWebSocketClose = () => {
-        this.setState({continuous: false});
-        toast.info("Consumer connection closed");
-    };
-
-    onRestResponse = (response) => {
-        this.setState({
-            consuming: false,
-        }, () => {
-            this.props.updateMessages(this.props.isReversed? response.messages.reverse() : response.messages);
-            toast.info(`Retrieved ${response.messages.length} records from ${this.state.targetTopic}`)
-        })
-    };
-
-    onRestError = (error) => {
-        this.setState({
-            consuming: false
-        });
-        toast.error(`Failed to retrieve data from server ${error.message}`)
-    };
-
-    getKafkaMessage = () => {
-        if(!this.props.targetTopic){
-            toast.error("Consumer cannot be started, no topic specified");
-            return;
-        }
-
-        this.setState({
-            consuming: true
-        }, () => {
-            ApiService.consume(
-                [this.props.targetTopic],
-                this.props.messageLimit,
-                this.props.messageFromEnd,
-                this.props.filters,
-                this.onRestResponse,
-                this.onRestError)
-        })
+        this.clearCounts();
+        toast.warn("Consumer connection closed");
     };
 
     startConsumer = () => {
+        console.log("Socket started")
         if(!this.props.targetTopic){
             toast.error("Consumer cannot be started, no topic specified");
             return;
         }
 
-        this.setState({
-            continuous: true,
-            consumeCount:0
+        this.clearCounts(() => {
+            this.props.updateMessages([]);
+
+            WebSocketService.consume(
+                [this.props.targetTopic],
+                this.props.filters,
+                this.onWebSocketMessage,
+                this.onWebsocketError,
+                this.onWebSocketClose
+            );
+            this.setState({
+                consuming: true
+            })
         });
-
-        this.props.updateMessages([]);
-
-        WebSocketService.consume(
-            [this.props.targetTopic],
-            this.props.filters,
-            this.onWebSocketMessage,
-            this.onWebsocketError,
-            this.onWebSocketClose
-        );
     };
 
     stopConsumer = () => {
-        this.setState({
-            continuous: false
-        }, () => WebSocketService.disconnect());
+        this.clearCounts(() => WebSocketService.disconnect());
     };
 
     render() {
         return (
             <div>
                 {
-                    !this.state.continuous ?
+                    !this.state.consuming ?
                         <div>
-                            <ButtonGroup>
-                                <Button onClick={this.getKafkaMessage} id="consumeViaRestButton">Read and Close</Button>
-                                <Button onClick={this.startConsumer} id="consumeViaWebSocketButton">Read Continuously</Button>
-                            </ButtonGroup>
+                                {/*<Button onClick={this.getKafkaMessage} id="consumeViaRestButton">Read and Close</Button>*/}
+                            <Button onClick={this.startConsumer} color={"success"} id="consumeViaWebSocketButton" block>Read</Button>
+                            {this.state.consumeCount > 0 ? <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span> :null}
                         </div>
                         :
                         <div>
-                            <ButtonGroup>
-                                <Button onClick={this.getKafkaMessage} disabled={true} id="consumeViaRestButton">Read and Close</Button>
-                                <Button color="warning" onClick={this.stopConsumer} id="consumeViaWebSocketButton">Stop Reading</Button>
-                            </ButtonGroup>
-                            <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span>
-                            <Spinner color="secondary" />
+                                {/*<Button onClick={this.getKafkaMessage} disabled={true} id="consumeViaRestButton">Read and Close</Button>*/}
+                            <Button color="warning" onClick={this.stopConsumer} id="consumeViaWebSocketButton" block>
+                                Stop Reading
+                            </Button>
                         </div>
                 }
-                {this.state.consuming ? <Spinner color="secondary" /> : ''}
+
+                <div>
+                    <div className={"Gap"}></div>
+                    <div className="text-center">{
+                        this.state.consuming ?
+                            'Showing: ' +  this.props.messages.length + ', Matched: '+this.state.consumeCount+', Records: '+ this.state.totalRecords +
+                            ', Offsets: '+ this.state.consumerPosition+' of ' +  (this.state.endValue - this.state.startValue) : ''
+                    }</div>
+                    <Progress animated color="success" value={this.state.position} />
+                </div>
             </div>
         )
     }

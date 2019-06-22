@@ -54,6 +54,7 @@ class SearchableViewList extends Component {
                             onInputChange={i => this.filterList(i || '')}
                             options={this.state.unfilteredList}
                             className={"StretchedInput"}
+                            selectHintOnEnter={true}
                         />
                     </InputGroup>
                 </ListGroupItem>

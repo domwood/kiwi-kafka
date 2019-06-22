@@ -87,7 +87,7 @@ class ConsumerGroupDetailsView extends Component {
                                     <tbody key={`${this.props.groupId}_${topic}`}>
                                     {(this.props.topics || []).length !== 1 ?
                                         <tr className="table-primary" key={`${topic}_header_row`}>
-                                            <td colSpan="8" style={{"textAlign": "center"}}>{topic}</td>
+                                            <td colSpan="8" style={{"textAlign": "center"}}>Topic: {topic}</td>
                                         </tr> : <tr className="table-primary" key={`${topic}_header_row`}/>
                                     }
                                     {

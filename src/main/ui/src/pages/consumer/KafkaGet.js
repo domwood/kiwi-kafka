@@ -21,7 +21,7 @@ class KafkaGet extends Component {
             alerts: [],
             bootstrapServers: "",
             targetTopic: "",
-            messageLimit: 100,
+            messageLimit: 1000,
             messageFromEnd: true,
             messages: [],
             filters: [],
@@ -37,10 +37,6 @@ class KafkaGet extends Component {
 
     setMessageLimit = (messageLimit) => {
         this.setState({messageLimit:messageLimit})
-    };
-
-    setMessageFromEnd = (fromEnd) => {
-        this.setState({messageFromEnd:fromEnd})
     };
 
     setFilter = (filters) => {
@@ -70,8 +66,6 @@ class KafkaGet extends Component {
                         <MessageLimit id={"messageLimit"}
                                       name={"messageLimit"}
                                       messageLimit={this.state.messageLimit}
-                                      messageFromEnd={this.state.messageFromEnd}
-                                      onMessageEndUpdate={this.setMessageFromEnd}
                                       onMessageLimitUpdate={this.setMessageLimit}
                                       />
                         <FilterConfigurer name={"filterConfigurer"} id={"filterConfigurer"} onUpdate={this.setFilter}/>
@@ -82,7 +76,7 @@ class KafkaGet extends Component {
                         filters={this.state.filters}
                         targetTopic={this.state.targetTopic || ''}
                         messageLimit={this.state.messageLimit}
-                        messageFromEnd={this.state.messageFromEnd}
+                        messageFromEnd={false}
                         isReversed={true}
                         updateMessages={this.setMessages}
                         messages={this.state.messages}
@@ -91,6 +85,7 @@ class KafkaGet extends Component {
                     <div className="mt-lg-4"/>
                     <div className="mt-lg-4"/>
                 </Form>
+
                 <MessageTable name={"messageTable"} id={"messageTable"} messages={this.state.messages} />
             </Container>
         );

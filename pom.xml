@@ -30,6 +30,7 @@
     </licenses>
 
     <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <java.version>1.8</java.version>
         <frontendSrcDir>${project.basedir}/src/main/ui/</frontendSrcDir>
         <node.version>v8.15.0</node.version>

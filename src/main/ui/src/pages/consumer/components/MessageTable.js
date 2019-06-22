@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Table} from "reactstrap";
+import {Button, ButtonGroup, Table} from "reactstrap";
 import PropTypes from "prop-types";
 import * as GeneralUtilities from "../../../services/GeneralUtilities";
 
@@ -11,23 +11,49 @@ class MessageTable extends Component {
         this.state = {
             id: props.id,
             name: props.name,
+
+            showTimestamp: true,
+            showDateTime: false,
+            showPartition: true,
+            showOffset: true,
+            showKey: true,
+            showHeaders: true,
+            showValue: true
         }
     }
 
+    toggleField = (field) => {
+        this.setState({
+            [field]: !this.state[field]
+        })
+    };
+
     render() {
         return (
-            <div>
-                {
-                    this.props.messages.length > 0 ?
+                this.props.messages.length > 0 ?
+                    <div>
+                        <ButtonGroup className={"FullSpan"} >
+                            <Button size="sm" onClick={() => this.toggleField('showTimestamp')} outline={!this.state.showTimestamp}>Timestamp</Button>
+                            <Button size="sm" onClick={() => this.toggleField('showDateTime')} outline={!this.state.showDateTime}>Date&Time</Button>
+                            <Button size="sm" onClick={() => this.toggleField('showPartition')} outline={!this.state.showPartition}>Partition</Button>
+                            <Button size="sm" onClick={() => this.toggleField('showOffset')}    outline={!this.state.showOffset}>Offset</Button>
+                            <Button size="sm" onClick={() => this.toggleField('showKey')}       outline={!this.state.showKey}>Key</Button>
+                            <Button size="sm" onClick={() => this.toggleField('showHeaders')}   outline={!this.state.showHeaders}>Headers</Button>
+                            <Button size="sm" onClick={() => this.toggleField('showValue')}     outline={!this.state.showValue}>Value</Button>
+                        </ButtonGroup>
+
+                        <div className={"TwoGap"} />
+
                         <Table size="sm" bordered >
                             <thead>
                             <tr>
-                                <th>Timestamp</th>
-                                <th>Partition</th>
-                                <th>Offset</th>
-                                <th>Key</th>
-                                <th>Headers</th>
-                                <th>Message</th>
+                                {this.state.showTimestamp ? <th>Timestamp</th> : null}
+                                {this.state.showDateTime ?  <th>Date&Time</th> : null}
+                                {this.state.showPartition ? <th>Partition</th> : null}
+                                {this.state.showOffset ?    <th>Offset</th> : null}
+                                {this.state.showKey ?       <th>Key</th> : null}
+                                {this.state.showHeaders ?   <th>Headers</th> : null}
+                                {this.state.showValue ?     <th>Value</th> : null}
                             </tr>
                             </thead>
                             <tbody className="WrappedTable">
@@ -35,20 +61,21 @@ class MessageTable extends Component {
                                 this.props.messages.map(m => {
                                     return (
                                         <tr key={`${m.partition}_${m.offset}`} id={`record_row_${m.partition}_${m.offset}`}>
-                                            <td width="10%">{m.timestamp}</td>
-                                            <td width="8%">{m.partition}</td>
-                                            <td width="6%">{m.offset}</td>
-                                            <td width="10%">{m.key}</td>
-                                            <td width="20%">{GeneralUtilities.isEmpty(m.headers) ? "" : JSON.stringify(m.headers)}</td>
-                                            <td width="46%">{m.message}</td>
+                                            {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
+                                            {this.state.showDateTime ?  <td width="10%">{GeneralUtilities.prettyTimestamp(m.timestamp)}</td> : null}
+                                            {this.state.showPartition ? <td width="3%">{m.partition}</td>  : null}
+                                            {this.state.showOffset ?    <td width="3%">{m.offset}</td>     : null}
+                                            {this.state.showKey ?       <td width="10%">{m.key}</td> : null}
+                                            {this.state.showHeaders ?   <td width="18%">{GeneralUtilities.isEmpty(m.headers) ? "" : JSON.stringify(m.headers)}</td> : null}
+                                            {this.state.showValue ?     <td width="46%">{m.message}</td>: null}
                                         </tr>
                                     )
                                 })
                             }
                             </tbody>
-                        </Table> : ''
-                }
-            </div>
+                        </Table>
+                    </div> :
+                    <div></div>
         )
     }
 }

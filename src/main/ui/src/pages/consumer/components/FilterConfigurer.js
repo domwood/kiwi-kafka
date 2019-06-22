@@ -124,7 +124,7 @@ class FilterConfigurer extends Component {
                         {
                             this.state.filters.map((filter, index) => {
                                 return (
-                                        <ListGroupItem key={index}>
+                                        <ListGroupItem key={index} className={"ListGroupNoHorizontalPad"}>
                                             <InputGroup>
                                             <InputGroupButtonDropdown addonType="prepend"
                                                                       isOpen={this.state.filters[index].filterApplicationButtonOpen}
@@ -165,7 +165,7 @@ class FilterConfigurer extends Component {
                                                     <Button onClick={() => this.setCaseSensitive(index)}>
                                                         {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive' }
                                                     </Button>
-                                                    : ''
+                                                    : null
                                             }
                                         </InputGroup>
                                             {
@@ -180,7 +180,7 @@ class FilterConfigurer extends Component {
                                                             </Button>
                                                         </ButtonGroup>
                                                     </div>
-                                                    : ''
+                                                    : null
                                             }
 
                                     </ListGroupItem>

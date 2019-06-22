@@ -11,7 +11,13 @@ const WebSocketService = {
     open: false
 };
 
-const websocketDataHandler = (message, messageHandler, errorHandler) => {
+const websocketAck = (sender) => {
+    return () => sender({
+        requestType: ".MessageAcknowledge",
+    });
+};
+
+const websocketDataHandler = (message, messageHandler, errorHandler, ack) => {
     if(message.data){
         try{
             let data = JSON.parse(message.data);
@@ -21,6 +27,7 @@ const websocketDataHandler = (message, messageHandler, errorHandler) => {
             errorHandler({ message: "Failed to parse server websocket message"})
         }
     }
+    ack();
 };
 
 WebSocketService.send = (data) => {
@@ -52,7 +59,7 @@ WebSocketService.connect = (cb) => {
 };
 
 WebSocketService.consume = (topics, filters, messageHandler, errorHandler, closeHandler) => {
-    WebSocketService.socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler);
+    WebSocketService.socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler, websocketAck(WebSocketService.send));
     WebSocketService.socket.onerror = errorHandler;
     WebSocketService.socket.onclose = () => {
         WebSocketService.open = false;

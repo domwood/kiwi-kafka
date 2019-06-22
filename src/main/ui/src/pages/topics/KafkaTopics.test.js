@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import KafkaTopics from './KafkaTopics';
 import * as ApiService from "../../services/ApiService";
 import {mount} from "enzyme/build";
-import { waitForState, wait } from 'enzyme-async-helpers';
+import { waitForState } from 'enzyme-async-helpers';
 
 jest.mock("../../services/ApiService");
 
