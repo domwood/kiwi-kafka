@@ -28,3 +28,4 @@ src/main/ui/build
 
 release.properties
 pom.xml.releaseBackup
+src/main/ui/package-lock.json
