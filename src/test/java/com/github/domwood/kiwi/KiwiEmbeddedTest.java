@@ -192,6 +192,7 @@ public class KiwiEmbeddedTest {
                         .offset(observed.messages().get(0).offset()) //Can't really guarantee these values
                         .timestamp(observed.messages().get(0).timestamp())
                         .build())
+                .position(observed.position())
                 .build();
 
         assertEquals(expected, observed);

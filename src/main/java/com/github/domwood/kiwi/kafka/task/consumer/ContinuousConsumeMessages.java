@@ -110,10 +110,8 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                                 forwardAndCommit(resource, messages, toCommit, position);
                             }
                         }
-                        if(messages.isEmpty()){
-                            ConsumerPosition position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
-                            forwardAndCommit(resource, messages, toCommit, position);
-                        }
+                        ConsumerPosition position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
+                        forwardAndCommit(resource, messages, toCommit, position);
                     }
                 }
             }
