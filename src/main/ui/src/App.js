@@ -1,5 +1,6 @@
 import logo from './imgs/Kiwi2.png';
 import github from './imgs/github.svg';
+import docker from './imgs/docker.svg';
 
 import React, { Component } from 'react';
 import {
@@ -17,8 +18,9 @@ import KafkaTopics from "./pages/topics/KafkaTopics";
 import KafkaPost from "./pages/producer/KafkaPost";
 import KafkaGet from "./pages/consumer/KafkaGet";
 import KafkaConsumerGroups from "./pages/groups/KafkaConsumerGroups";
-import {ToastContainer} from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import * as ApiService from "./services/ApiService";
 
 class App extends Component {
     constructor(props) {
@@ -26,15 +28,26 @@ class App extends Component {
 
         this.toggle = this.toggle.bind(this);
         this.state = {
-            isOpen: false
+            isOpen: false,
+            version: ''
         };
 
     }
+
+    componentDidMount(){
+        ApiService.getVersion((version) => {
+            this.setState({
+                version: version
+            })
+        }, () => toast.error("No connection to server"))
+    }
+
     toggle() {
         this.setState({
             isOpen: !this.state.isOpen
         });
     }
+
     render() {
 
         return (
@@ -77,8 +90,18 @@ class App extends Component {
                                 </Nav>
                                 <Nav className="ml-auto" navbar>
                                     <NavItem>
-                                        <NavLink href="https://github.com/domwood">
-                                            <img src={github} height="20" width="20" alt="Github Link: https://github.com/domwood" />
+                                        <div style={{padding:0.5 +'rem'}}>
+                                            Version: {this.state.version}
+                                        </div>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink href="https://github.com/domwood/kiwi">
+                                            <img src={github} height="20" width="20" alt="Github Link: https://github.com/domwood/kiwi" />
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink href="https://hub.docker.com/r/dmwood/kiwi">
+                                            <img src={docker} height="20" width="20" alt="Docker Link: https://hub.docker.com/r/dmwood/kiwi" />
                                         </NavLink>
                                     </NavItem>
                                 </Nav>

@@ -3,6 +3,7 @@ package com.github.domwood.kiwi.api.rest;
 import com.github.domwood.kiwi.data.output.CreateTopicConfigOptions;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,9 @@ import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 @RestController
 @RequestMapping(API_ENDPOINT)
 public class ConfigController {
+
+    @Value("${app.version:dev}")
+    private String appVersion;
 
     private final KafkaTaskProvider taskProvider;
 
@@ -27,6 +31,12 @@ public class ConfigController {
     @ResponseBody
     public CompletableFuture<CreateTopicConfigOptions> createTopicConfigOptions(){
         return this.taskProvider.createTopicConfigOptions().execute();
+    }
+
+    @GetMapping("/version")
+    @ResponseBody
+    public String version(){
+        return this.appVersion;
     }
 
 }

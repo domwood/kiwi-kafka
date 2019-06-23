@@ -38,13 +38,6 @@ class TopicInput extends Component {
         }
     };
 
-    toggleDropDown = () => {
-        this.getTopicList();
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        });
-    };
-
     setTargetTopic = (topic) => {
         this.props.onUpdate(topic || '');
     };

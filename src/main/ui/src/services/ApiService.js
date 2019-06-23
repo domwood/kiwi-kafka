@@ -15,6 +15,16 @@ const statusHandler = (response) => {
     }
 };
 
+export const getVersion = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.version)
+        .then(statusHandler)
+        .then(res => res.text())
+        .then(result => cb(result))
+        .catch(errorhandler);
+};
+
 export const getTopics = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
