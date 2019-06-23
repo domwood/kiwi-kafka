@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import {Button, Progress, Spinner} from "reactstrap";
+import {Button, Progress} from "reactstrap";
 import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
 
@@ -124,7 +124,7 @@ class MessageReader extends Component {
                     <div className="text-center">{
                         this.state.consuming ?
                             'Showing: ' +  this.props.messages.length + ', Matched: '+this.state.consumeCount+', Records: '+ this.state.totalRecords +
-                            ', Offsets: '+ this.state.consumerPosition+' of ' +  (this.state.endValue - this.state.startValue) : ''
+                            ', Offset: '+ (this.state.consumerPosition)+' of ' +  (this.state.endValue) : ''
                     }</div>
                     <Progress animated color="success" value={this.state.position} />
                 </div>

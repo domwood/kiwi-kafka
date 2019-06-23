@@ -133,7 +133,7 @@ class FilterConfigurer extends Component {
                                                 <DropdownMenu>
                                                     <DropdownItem header>Filter Applies To</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterApplication("KEY", index)}>Key</DropdownItem>
-                                                    <DropdownItem onClick={() => this.setFilterApplication("VALUE", index)}>Message</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterApplication("VALUE", index)}>Value</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterApplication("HEADER_KEY", index)}>Header Key</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header Value</DropdownItem>
                                                 </DropdownMenu>

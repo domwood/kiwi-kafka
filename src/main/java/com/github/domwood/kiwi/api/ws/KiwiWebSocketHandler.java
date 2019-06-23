@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     @Value("${websocket.max.wait.ms:30000}")
     Long maxWaitTime;
 
-    @Value("${websocket.wait.interval.ms:100}")
+    @Value("${websocket.wait.interval.ms:10}")
     Long waitInterval;
 
     @Value("${websocket.message.buffer.limit:1}")
@@ -105,7 +104,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
             long maxWaitCount = this.maxWaitTime / this.waitInterval;
             while (!session.isReady() &&
                     sleeps++ < maxWaitCount && session.isOpen()) {
-                logger.info("Waiting for websocket backlog to clear");
+                if(logger.isDebugEnabled()) logger.debug("Waiting for websocket backlog to clear");
 
                 //Blocks upstream if socket is backlogged (ie will block kafka consumer polling further)
                 Thread.sleep(waitInterval);
