@@ -94,10 +94,6 @@ it('check kafka messages from websocket', async () => {
     wrapper.find('#consumeViaWebSocketButton').at(0)
         .simulate('click');
 
-    //await ready;
-
-    //expect(wrapper.state().messages).toBe(testDataResponse.messages);
-
     await waitForState(wrapper, state => state.messages && state.messages.length > 0);
 
     expect(wrapper.exists(`#record_row_${testDataResponse.messages[0].partition}_${testDataResponse.messages[0].offset}`)).toBeTruthy();

@@ -11,7 +11,13 @@ class MessageReader extends Component {
         this.state = {
             id: props.id,
             name: props.name,
-            position: 0
+            consuming: false,
+            consumeCount:0,
+            totalRecords: 0,
+            position:0,
+            startValue: 0,
+            endValue: 0,
+            consumerPosition: 0
         }
     }
 
@@ -23,9 +29,9 @@ class MessageReader extends Component {
         WebSocketService.disconnect();
     }
 
-    clearCounts = (cb) => {
+    clearCounts = (cb, consuming) => {
         this.setState({
-            consuming: false,
+            consuming: consuming || false,
             consumeCount:0,
             totalRecords: 0,
             position:0,
@@ -50,14 +56,15 @@ class MessageReader extends Component {
                     .slice(this.state.messages.length + response.messages.length > this.props.messageLimit ?  -this.props.messageLimit : 0);
             }
             this.props.updateMessages(messages)
+            let position = (response.position||{})
             this.setState({
                 consuming: true,
                 consumeCount: this.state.consumeCount+response.messages.length,
-                position: response.position.percentage,
-                totalRecords: response.position.totalRecords,
-                startValue: response.position.startValue,
-                endValue: response.position.endValue,
-                consumerPosition: response.position.consumerPosition
+                position: position.percentage || 0,
+                totalRecords: position.totalRecords || 0,
+                startValue: position.startValue || 0,
+                endValue: position.endValue || 0,
+                consumerPosition: position.consumerPosition ||0
             });
         }
     };
@@ -90,10 +97,7 @@ class MessageReader extends Component {
                 this.onWebsocketError,
                 this.onWebSocketClose
             );
-            this.setState({
-                consuming: true
-            })
-        });
+        }, true);
     };
 
     stopConsumer = () => {
@@ -106,13 +110,11 @@ class MessageReader extends Component {
                 {
                     !this.state.consuming ?
                         <div>
-                                {/*<Button onClick={this.getKafkaMessage} id="consumeViaRestButton">Read and Close</Button>*/}
                             <Button onClick={this.startConsumer} color={"success"} id="consumeViaWebSocketButton" block>Read</Button>
                             {this.state.consumeCount > 0 ? <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span> :null}
                         </div>
                         :
                         <div>
-                                {/*<Button onClick={this.getKafkaMessage} disabled={true} id="consumeViaRestButton">Read and Close</Button>*/}
                             <Button color="warning" onClick={this.stopConsumer} id="consumeViaWebSocketButton" block>
                                 Stop Reading
                             </Button>
