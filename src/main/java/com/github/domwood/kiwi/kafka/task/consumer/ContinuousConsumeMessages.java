@@ -179,7 +179,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
         long end =  asTotalOffset(endOffsets);
         long position = asTotalOffset(currentOffsets);
         if(end <  position) end = position;
-        int percentage = (int)(((double)position / (double)(Long.max(end - start, 1L))) * 100);
+        int percentage = (int)(((double)(position - start) / (double)(Long.max(end - start, 1L))) * 100);
 
         return ImmutableConsumerPosition.builder()
                 .startValue(start)
