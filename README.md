@@ -34,7 +34,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
 #### Running via Docker
 
-`docker run -p -e KAFKA_BOOTSTRAPSERVERS=kafka.ip.preprod1.myorg.com:9092 8080:8080 dmwood/kiwi:latest`
+`docker run -p 8080:8080 -e KAFKA_BOOTSTRAPSERVERS=kafka.ip.preprod1.myorg.com:9092 dmwood/kiwi:latest`
 
 - To connect to a locally running kafka you can do something like this:
 
