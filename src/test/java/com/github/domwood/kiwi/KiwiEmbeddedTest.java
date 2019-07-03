@@ -182,7 +182,12 @@ public class KiwiEmbeddedTest {
         String message = this.mapper.writeValueAsString(buildConsumerRequest(testWebSocketTopic));
         testWebSocketClient.send(message);
 
-        await().atMost(10, TimeUnit.SECONDS).until(() -> testWebSocketClient.getReceived().size() == 1);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> testWebSocketClient.getReceived().size() > 1);
+
+        ConsumerResponse<String, String> initialPosition = mapper.readValue(testWebSocketClient.getReceived().poll().getPayload(), ConsumerResponse.class);
+
+        assertEquals(0, initialPosition.messages().size());
+        assertEquals(0, initialPosition.position().get().totalRecords());
 
         ConsumerResponse<String, String> observed = mapper.readValue(testWebSocketClient.getReceived().poll().getPayload(), ConsumerResponse.class);
 

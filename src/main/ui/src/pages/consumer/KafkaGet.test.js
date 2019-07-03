@@ -75,6 +75,8 @@ it('renders via enzyme', () => {
 
 it('check kafka messages from websocket', async () => {
 
+    WebSocketService.connect.mockImplementation(cb => cb());
+
     WebSocketService.consume.mockImplementation((topics, filters, cb, eb, close) => {
         cb(testDataResponse);
     });

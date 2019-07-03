@@ -25,11 +25,12 @@ import java.util.function.Predicate;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, Void, KafkaConsumerResource<String, String>> implements KafkaContinuousTask<ConsumerRequest>{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final Integer BATCH_SIZE = 50;
+    private static final Integer BATCH_SIZE = 250;
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
 
@@ -74,6 +75,9 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
             Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
             Map<TopicPartition, Long> startOffsets = resource.currentPosition(endOffsets.keySet());
 
+            ConsumerPosition position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), 0);
+            forward(emptyList(), position);
+
             int totalRecords = 0;
             boolean running = true;
             int idleCount = 0;
@@ -88,6 +92,8 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                         idleCount++;
                         logger.debug("No records polled for topic {} ", input.topics());
                         resource.keepAlive();
+                        position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
+                        forward(emptyList(), position);
 
                     } else {
                         idleCount = 0;
@@ -106,11 +112,11 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                             }
 
                             if (messages.size() >= BATCH_SIZE) {
-                                ConsumerPosition position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
+                                position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
                                 forwardAndCommit(resource, messages, toCommit, position);
                             }
                         }
-                        ConsumerPosition position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
+                        position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
                         forwardAndCommit(resource, messages, toCommit, position);
                     }
                 }
@@ -151,10 +157,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
         logger.info("Message batch size forwarding to consumers");
 
         if(!this.isClosed()){
-            this.consumer.accept(ImmutableConsumerResponse.<String, String>builder()
-                    .messages(messages)
-                    .position(position)
-                    .build());
+            forward(messages, position);
 
             resource.commitAsync(toCommit, this::logCommit);
 
@@ -162,6 +165,16 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
             toCommit.clear();
 
             resource.keepAlive();
+        }
+    }
+
+    private void forward(List<ConsumedMessage<String, String>> messages,
+                         ConsumerPosition position){
+        if(!this.isClosed()){
+            this.consumer.accept(ImmutableConsumerResponse.<String, String>builder()
+                    .messages(messages)
+                    .position(position)
+                    .build());
         }
     }
 
@@ -179,13 +192,16 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
         long end =  asTotalOffset(endOffsets);
         long position = asTotalOffset(currentOffsets);
         if(end <  position) end = position;
-        int percentage = (int)(((double)(position - start) / (double)(Long.max(end - start, 1L))) * 100);
+
+        double positionDiff = (double)Long.max(position - start, 1L);
+        double size = (double)Long.max(end - start, 1L);
+        double percentage = (positionDiff / size) * 100;
 
         return ImmutableConsumerPosition.builder()
                 .startValue(start)
                 .endValue(end)
                 .consumerPosition(position)
-                .percentage(percentage)
+                .percentage((int)percentage)
                 .totalRecords(totalRecords)
                 .build();
     }

@@ -65,6 +65,7 @@ public class TestWebSocketClient{
         @Override
         public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
             this.received.add((WebSocketMessage<String>)message);
+            this.send("{\"requestType\": \".MessageAcknowledge\"}");
         }
 
         @Override

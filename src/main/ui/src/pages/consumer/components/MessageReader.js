@@ -87,17 +87,19 @@ class MessageReader extends Component {
             return;
         }
 
-        this.clearCounts(() => {
-            this.props.updateMessages([]);
+        WebSocketService.connect(() => {
+            this.clearCounts(() => {
+                this.props.updateMessages([]);
 
-            WebSocketService.consume(
-                [this.props.targetTopic],
-                this.props.filters,
-                this.onWebSocketMessage,
-                this.onWebsocketError,
-                this.onWebSocketClose
-            );
-        }, true);
+                WebSocketService.consume(
+                    [this.props.targetTopic],
+                    this.props.filters,
+                    this.onWebSocketMessage,
+                    this.onWebsocketError,
+                    this.onWebSocketClose
+                );
+            }, true);
+        });
     };
 
     stopConsumer = () => {

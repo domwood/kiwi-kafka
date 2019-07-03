@@ -1,5 +1,6 @@
 import WebSocketFactory from "./WebSocketFactory";
 
+
 //TODO WIP POC
 const WebSocketService = {
     socket:{
@@ -47,6 +48,8 @@ WebSocketService.send = (data) => {
 
 WebSocketService.connect = (cb) => {
     if(WebSocketService.socket.readyState > 1){
+        console.log("Opening new websocket")
+
         WebSocketService.socket = WebSocketFactory();
         WebSocketService.socket.onopen = () => {
             WebSocketService.open = true;
@@ -56,6 +59,7 @@ WebSocketService.connect = (cb) => {
             WebSocketService.open = false;
         };
     }
+    cb();
 };
 
 WebSocketService.consume = (topics, filters, messageHandler, errorHandler, closeHandler) => {
