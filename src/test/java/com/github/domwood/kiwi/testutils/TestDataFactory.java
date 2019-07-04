@@ -110,9 +110,19 @@ public class TestDataFactory {
                 .key(testKey)
                 .headers(testHeaders)
                 .message(testPayload)
-                .offset(testOffset)
+                .offset(0L)
                 .partition(testPartition)
                 .timestamp(testTimestamp)
+                .build();
+    }
+
+    public static ConsumerPosition buildConsumerPosition(){
+        return ImmutableConsumerPosition.builder()
+                .startValue(0L)
+                .endValue(1L)
+                .consumerPosition(1L)
+                .percentage(100)
+                .totalRecords(1)
                 .build();
     }
 

@@ -194,10 +194,9 @@ public class KiwiEmbeddedTest {
         ConsumerResponse expected = ImmutableConsumerResponse.<String, String>builder()
                 .addMessage(ImmutableConsumedMessage.<String, String>builder()
                         .from(buildConsumedMessage())
-                        .offset(observed.messages().get(0).offset()) //Can't really guarantee these values
-                        .timestamp(observed.messages().get(0).timestamp())
+                        .timestamp(observed.messages().get(0).timestamp())//Can't really guarantee these values
                         .build())
-                .position(observed.position())
+                .position(buildConsumerPosition())
                 .build();
 
         assertEquals(expected, observed);

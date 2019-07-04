@@ -9,6 +9,7 @@ import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
+import com.github.domwood.kiwi.kafka.utils.KafkaConsumerTracker;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -25,7 +26,6 @@ import java.util.function.Predicate;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 
 public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, Void, KafkaConsumerResource<String, String>> implements KafkaContinuousTask<ConsumerRequest>{
 
@@ -74,14 +74,12 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
         try{
             Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
             Map<TopicPartition, Long> startOffsets = resource.currentPosition(endOffsets.keySet());
+            KafkaConsumerTracker tracker = new KafkaConsumerTracker(endOffsets,startOffsets);
 
-            ConsumerPosition position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), 0);
-            forward(emptyList(), position);
+            forward(emptyList(), tracker.position(resource));
 
-            int totalRecords = 0;
-            boolean running = true;
             int idleCount = 0;
-            while(running && !this.isClosed()) {
+            while(!this.isClosed()) {
                 if(this.paused.get()){
                     Thread.sleep(20);
                     resource.keepAlive();
@@ -92,8 +90,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                         idleCount++;
                         logger.debug("No records polled for topic {} ", input.topics());
                         resource.keepAlive();
-                        position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
-                        forward(emptyList(), position);
+                        forward(emptyList(), tracker.position(resource));
 
                     } else {
                         idleCount = 0;
@@ -104,7 +101,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                         Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
                         while (recordIterator.hasNext() && !this.isClosed()) {
                             ConsumerRecord<String, String> record = recordIterator.next();
-                            totalRecords++;
+                            tracker.incrementRecordCount();
 
                             if (filter.test(record)) {
                                 messages.add(asConsumedRecord(record));
@@ -112,12 +109,10 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                             }
 
                             if (messages.size() >= BATCH_SIZE) {
-                                position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
-                                forwardAndCommit(resource, messages, toCommit, position);
+                                forwardAndCommit(resource, messages, toCommit, tracker.position(resource));
                             }
                         }
-                        position = track(startOffsets, endOffsets, resource.currentPosition(endOffsets.keySet()), totalRecords);
-                        forwardAndCommit(resource, messages, toCommit, position);
+                        forwardAndCommit(resource, messages, toCommit, tracker.position(resource));
                     }
                 }
             }
@@ -150,9 +145,9 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     }
 
     private void forwardAndCommit(KafkaConsumerResource<String, String> resource,
-                                 List<ConsumedMessage<String, String>> messages,
-                                 Map<TopicPartition, OffsetAndMetadata> toCommit,
-                                 ConsumerPosition position){
+                                  List<ConsumedMessage<String, String>> messages,
+                                  Map<TopicPartition, OffsetAndMetadata> toCommit,
+                                  ConsumerPosition position){
         //Blocking Call
         logger.info("Message batch size forwarding to consumers");
 
@@ -181,33 +176,6 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     @Override
     public boolean isClosed() {
         return this.closed.get();
-    }
-
-    //TODO move to some tracking class
-    private ConsumerPosition track(Map<TopicPartition, Long> startOffsets,
-                                   Map<TopicPartition, Long> endOffsets,
-                                   Map<TopicPartition, Long> currentOffsets,
-                                   int totalRecords){
-        long start = asTotalOffset(startOffsets);
-        long end =  asTotalOffset(endOffsets);
-        long position = asTotalOffset(currentOffsets);
-        if(end <  position) end = position;
-
-        double positionDiff = (double)Long.max(position - start, 1L);
-        double size = (double)Long.max(end - start, 1L);
-        double percentage = (positionDiff / size) * 100;
-
-        return ImmutableConsumerPosition.builder()
-                .startValue(start)
-                .endValue(end)
-                .consumerPosition(position)
-                .percentage((int)percentage)
-                .totalRecords(totalRecords)
-                .build();
-    }
-
-    private long asTotalOffset(Map<TopicPartition, Long> offsets){
-       return offsets.values().stream().reduce(Long::sum).orElse(0l);
     }
 
 }
