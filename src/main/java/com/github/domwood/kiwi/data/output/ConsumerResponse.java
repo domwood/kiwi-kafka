@@ -11,7 +11,7 @@ import java.util.Optional;
 @JsonSerialize(as = ImmutableConsumerResponse.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerResponse<K, V> extends OutboundResponse{
+public interface ConsumerResponse<K, V> extends OutboundResponseWithPosition{
     Optional<ConsumerPosition> position();
     List<ConsumedMessage<K, V>> messages();
 }

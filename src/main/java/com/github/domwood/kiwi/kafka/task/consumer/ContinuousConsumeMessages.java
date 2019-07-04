@@ -34,10 +34,11 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
 
-    private Consumer<OutboundResponse> consumer;
+    private Consumer<OutboundResponseWithPosition> consumer;
     private volatile List<MessageFilter> filters;
 
-    public ContinuousConsumeMessages(KafkaConsumerResource<String, String> resource, ConsumerRequest input){
+    public ContinuousConsumeMessages(KafkaConsumerResource<String, String> resource,
+                                     ConsumerRequest input){
         super(resource, input);
 
         this.consumer = message -> logger.warn("No consumer attached to kafka task");
@@ -63,7 +64,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     }
 
     @Override
-    public void registerConsumer(Consumer<OutboundResponse> consumer) {
+    public void registerConsumer(Consumer<OutboundResponseWithPosition> consumer) {
         this.consumer = consumer;
     }
 
@@ -149,7 +150,7 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
                                   Map<TopicPartition, OffsetAndMetadata> toCommit,
                                   ConsumerPosition position){
         //Blocking Call
-        logger.info("Message batch size forwarding to consumers");
+        logger.info("Message batch size {} forwarding to consumers", messages.size());
 
         if(!this.isClosed()){
             forward(messages, position);
