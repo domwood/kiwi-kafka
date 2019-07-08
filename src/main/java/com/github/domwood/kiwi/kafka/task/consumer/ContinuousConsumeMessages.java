@@ -30,7 +30,7 @@ import static java.util.Collections.emptyList;
 public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, Void, KafkaConsumerResource<String, String>> implements KafkaContinuousTask<ConsumerRequest>{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final Integer BATCH_SIZE = 250;
+    private static final Integer BATCH_SIZE = 100;
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
 

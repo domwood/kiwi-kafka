@@ -1,6 +1,10 @@
 import api from "./ApiConfig";
 import {toast} from "react-toastify";
 
+const doubleEncode = (param) => {
+    return encodeURIComponent(encodeURIComponent(param))
+};
+
 const errorHandler = (error) => {
     console.error(error);
     toast.error(error);
@@ -38,7 +42,7 @@ export const getTopics = (cb, eb) => {
 export const getTopicInfo = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.topicInfo}/${topic}`)
+    fetch(`${api.topicInfo}/${doubleEncode(topic)}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result))
@@ -58,7 +62,7 @@ export const getBrokers = (cb, eb) => {
 export const getLogs = (id, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.logs}?brokerId=${id}`)
+    fetch(`${api.logs}?brokerId=${doubleEncode(id)}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.brokerLogInfo))
@@ -89,7 +93,7 @@ export const getConsumerGroups = (cb, eb) => {
 export const deleteConsumerGroup = (groupId, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.deleteConsumerGroup}/${groupId}`, {
+    fetch(`${api.deleteConsumerGroup}/${doubleEncode(groupId)}`, {
         method: 'DELETE',
     })
     .then(statusHandler)
@@ -119,7 +123,7 @@ export const updateTopicConfig = (topic, config, cb, eb) => {
 export const getConsumerGroupsForTopic = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.consumerGroupsForTopic}/${topic}`)
+    fetch(`${api.consumerGroupsForTopic}/${doubleEncode(topic)}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.groups))
@@ -130,7 +134,7 @@ export const getConsumerGroupsForTopic = (topic, cb, eb) => {
 export const getConsumerGroupDetailsWithOffsets = (groupdId, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.listConsumerGroupDetailsWithOffsets}/${groupdId}`)
+    fetch(`${api.listConsumerGroupDetailsWithOffsets}/${doubleEncode(groupdId)}`)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.offsets))
@@ -167,7 +171,7 @@ export const createTopic = (topicData, cb, eb) => {
 export const deleteTopic = (topic, cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(`${api.deleteTopic}/${topic}`, {
+    fetch(`${api.deleteTopic}/${doubleEncode(topic)}`, {
         method: 'DELETE',
     })
     .then(statusHandler)
