@@ -21,9 +21,8 @@ public class KiwiConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer customize(){
+    public Jackson2ObjectMapperBuilderCustomizer restObjectMapperCustomisation(){
         return builder -> builder.modules(new GuavaModule(), new Jdk8Module());
     }
-
 
 }

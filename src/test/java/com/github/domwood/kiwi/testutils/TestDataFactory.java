@@ -2,6 +2,7 @@ package com.github.domwood.kiwi.testutils;
 
 import com.github.domwood.kiwi.data.input.*;
 import com.github.domwood.kiwi.data.output.*;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 
@@ -27,6 +28,7 @@ public class TestDataFactory {
     public static final SortedMap<String, String> topicConfiguration = ImmutableSortedMap
             .of("cleanup.policy", "compact",
                 "segment.ms", "18000000");
+    public static final String testClientId = "kiwiTestClient";
 
     public static CreateTopicRequest createTopicRequest(String name){
         return ImmutableCreateTopicRequest
@@ -131,6 +133,32 @@ public class TestDataFactory {
                 .offset(testOffset)
                 .partition(testPartition)
                 .topic(testTopic)
+                .build();
+    }
+
+    public static ConsumerGroupTopicWithOffsetDetails buildGroupTopicWithOffsetDetails(){
+        return ImmutableConsumerGroupTopicWithOffsetDetails.builder()
+                .putOffset(testTopic, ImmutableList.of(buildTopicGroupAssignmentWithOffset()))
+                .build();
+    }
+
+    public static TopicGroupAssignmentWithOffset buildTopicGroupAssignmentWithOffset(){
+        return ImmutableTopicGroupAssignmentWithOffset.builder()
+                .clientId(testClientId)
+                .groupId(testClientId)
+                .offset(buildPartitionOffset())
+                .partition(testPartition)
+                .topic(testTopic)
+                .coordinator("0")
+                .groupState("UNKNOWN")
+                .build();
+    }
+
+    public static PartitionOffset buildPartitionOffset(){
+        return ImmutablePartitionOffset.builder()
+                .groupOffset(testOffset)
+                .partitionOffset(testOffset)
+                .lag(0L)
                 .build();
     }
 
