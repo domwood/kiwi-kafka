@@ -84,7 +84,7 @@ class ConsumerGroupDetailsView extends Component {
                             .filter(([topic, data]) => !this.props.topics || this.props.topics.includes(topic))
                             .map(([topic, data]) => {
                                 return (
-                                    <tbody key={`${this.props.groupId}_${topic}`}>
+                                    <tbody key={`${encodeURIComponent(this.props.groupId)}_${topic}`}>
                                     {(this.props.topics || []).length !== 1 ?
                                         <tr className="table-primary" key={`${topic}_header_row`}>
                                             <td colSpan="8" style={{"textAlign": "center"}}>Topic: {topic}</td>
@@ -92,7 +92,7 @@ class ConsumerGroupDetailsView extends Component {
                                     }
                                     {
                                         data.map(assignment => (<ConsumerGroupTopicDetailsView
-                                            key={`${this.props.groupId}_${assignment.partition}_topicview`}
+                                            key={`${encodeURIComponent(this.props.groupId)}_${assignment.partition}_topicview`}
                                             groupId={this.props.groupId}
                                             topic={topic}
                                             assignment={assignment}/>))
@@ -101,10 +101,14 @@ class ConsumerGroupDetailsView extends Component {
                                 );
                             })
                         }
-                    </Table> : !this.state.loading ? <Table>
-                        <tr className="table-primary" key={`${this.props.groupId}_inactive`}>
-                            <td colSpan="8" style={{"textAlign":"center"}}>No current assignment for: {this.props.groupId}</td>
-                        </tr>
+                    </Table>
+                    : !this.state.loading ?
+                    <Table>
+                        <tbody>
+                            <tr className="table-primary" key={`${this.props.groupId}_inactive`}>
+                                <td colSpan="8" style={{"textAlign":"center"}}>No current assignment for: {this.props.groupId}</td>
+                            </tr>
+                        </tbody>
                     </Table> : ''
                 }
             </div>

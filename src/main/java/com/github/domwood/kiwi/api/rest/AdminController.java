@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.github.domwood.kiwi.api.rest.utils.RestUtils.unEncodeParameter;
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 
 @CrossOrigin("*")
@@ -39,7 +40,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                   @PathVariable String topic) {
-        TopicInformation topicInformation = this.taskProvider.topicInfo(topic, bootStrapServers);
+        TopicInformation topicInformation = this.taskProvider.topicInfo(unEncodeParameter(topic), bootStrapServers);
         return topicInformation.execute();
     }
 
@@ -56,7 +57,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<ConsumerGroupList> consumerGroupsForTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                                        @PathVariable String topic) {
-        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic(topic, bootStrapServers);
+        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic(unEncodeParameter(topic), bootStrapServers);
         return consumerGroupByTopic.execute();
     }
 
@@ -73,7 +74,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                                                             @PathVariable String groupId) {
-        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation(groupId, bootStrapServers);
+        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation(unEncodeParameter(groupId), bootStrapServers);
         return consumerGroupInformation.execute();
     }
 
@@ -108,7 +109,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<Void> deleteTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                @PathVariable String topic) {
-        DeleteTopic deleteTopic = this.taskProvider.deleteTopic(topic, bootStrapServers);
+        DeleteTopic deleteTopic = this.taskProvider.deleteTopic(unEncodeParameter(topic), bootStrapServers);
         return deleteTopic.execute();
     }
 
@@ -117,7 +118,7 @@ public class AdminController {
     @ResponseBody
     public CompletableFuture<Void> deleteConsumerGroup(@RequestParam(required = false) Optional<String> bootStrapServers,
                                                        @PathVariable String groupId) {
-        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup(groupId, bootStrapServers);
+        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup(unEncodeParameter(groupId), bootStrapServers);
         return deleteConsumerGroup.execute();
     }
 
