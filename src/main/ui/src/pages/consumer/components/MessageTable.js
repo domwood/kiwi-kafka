@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {Button, ButtonGroup, Table} from "reactstrap";
 import PropTypes from "prop-types";
 import * as GeneralUtilities from "../../../services/GeneralUtilities";
+import ColumnFilterButtons from "./ColumnFilterButtons";
 
 
 class MessageTable extends Component {
@@ -32,15 +33,17 @@ class MessageTable extends Component {
         return (
                 this.props.messages.length > 0 ?
                     <div>
-                        <ButtonGroup className={"FullSpan"} >
-                            <Button size="sm" onClick={() => this.toggleField('showTimestamp')} outline={!this.state.showTimestamp}>Timestamp</Button>
-                            <Button size="sm" onClick={() => this.toggleField('showDateTime')} outline={!this.state.showDateTime}>Date&Time</Button>
-                            <Button size="sm" onClick={() => this.toggleField('showPartition')} outline={!this.state.showPartition}>Partition</Button>
-                            <Button size="sm" onClick={() => this.toggleField('showOffset')}    outline={!this.state.showOffset}>Offset</Button>
-                            <Button size="sm" onClick={() => this.toggleField('showKey')}       outline={!this.state.showKey}>Key</Button>
-                            <Button size="sm" onClick={() => this.toggleField('showHeaders')}   outline={!this.state.showHeaders}>Headers</Button>
-                            <Button size="sm" onClick={() => this.toggleField('showValue')}     outline={!this.state.showValue}>Value</Button>
-                        </ButtonGroup>
+                        <div className={"TwoGap"} />
+
+                        <ColumnFilterButtons name={'MessageTableFilter'} id={'MessageTableFilter'} buttons={[
+                            {key: 'showTimestamp', displayName: 'Timestamp'},
+                            {key: 'showDateTime', displayName: 'Date&Time'},
+                            {key: 'showPartition', displayName: 'Partition'},
+                            {key: 'showOffset', displayName: 'Offset'},
+                            {key: 'showKey', displayName: 'Key'},
+                            {key: 'showHeaders', displayName: 'Headers'},
+                            {key: 'showValue', displayName: 'Value'}
+                        ]} viewState={this.state} updater={this.toggleField} />
 
                         <div className={"TwoGap"} />
 

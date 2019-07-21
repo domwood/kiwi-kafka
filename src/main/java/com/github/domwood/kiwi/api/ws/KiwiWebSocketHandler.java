@@ -6,8 +6,7 @@ import com.github.domwood.kiwi.data.input.CloseTaskRequest;
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
 import com.github.domwood.kiwi.data.input.InboundRequest;
 import com.github.domwood.kiwi.data.input.MessageAcknowledge;
-import com.github.domwood.kiwi.data.output.OutboundResponse;
-import com.github.domwood.kiwi.data.output.OutboundResponseWithPosition;
+import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.exceptions.WebSocketSendFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +71,8 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private Consumer<OutboundResponseWithPosition> sendTextMessage(KiwiWebSocketSession session) {
-        return (OutboundResponseWithPosition response) -> {
+    private Consumer<ConsumerResponse> sendTextMessage(KiwiWebSocketSession session) {
+        return (ConsumerResponse response) -> {
             try {
                 String payload = objectMapper.writeValueAsString(response);
 

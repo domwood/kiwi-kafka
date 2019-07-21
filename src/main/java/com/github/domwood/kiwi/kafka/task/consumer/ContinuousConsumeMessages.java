@@ -1,7 +1,7 @@
 package com.github.domwood.kiwi.kafka.task.consumer;
 
 
-import com.github.domwood.kiwi.data.input.ConsumerRequest;
+import com.github.domwood.kiwi.data.input.AbstractConsumerRequest;
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
@@ -27,18 +27,20 @@ import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
 
-public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, Void, KafkaConsumerResource<String, String>> implements KafkaContinuousTask<ConsumerRequest>{
+public class ContinuousConsumeMessages
+        extends FuturisingAbstractKafkaTask<AbstractConsumerRequest, Void, KafkaConsumerResource<String, String>>
+        implements KafkaContinuousTask<AbstractConsumerRequest, ConsumerResponse>{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Integer BATCH_SIZE = 100;
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
 
-    private Consumer<OutboundResponseWithPosition> consumer;
+    private Consumer<ConsumerResponse> consumer;
     private volatile List<MessageFilter> filters;
 
     public ContinuousConsumeMessages(KafkaConsumerResource<String, String> resource,
-                                     ConsumerRequest input){
+                                     AbstractConsumerRequest input){
         super(resource, input);
 
         this.consumer = message -> logger.warn("No consumer attached to kafka task");
@@ -59,12 +61,12 @@ public class ContinuousConsumeMessages extends FuturisingAbstractKafkaTask<Consu
     }
 
     @Override
-    public void update(ConsumerRequest input) {
+    public void update(AbstractConsumerRequest input) {
         this.filters = input.filters();
     }
 
     @Override
-    public void registerConsumer(Consumer<OutboundResponseWithPosition> consumer) {
+    public void registerConsumer(Consumer<ConsumerResponse> consumer) {
         this.consumer = consumer;
     }
 

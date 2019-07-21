@@ -1,9 +1,6 @@
 package com.github.domwood.kiwi.kafka.provision;
 
-import com.github.domwood.kiwi.data.input.ConsumerRequest;
-import com.github.domwood.kiwi.data.input.CreateTopicRequest;
-import com.github.domwood.kiwi.data.input.ProducerRequest;
-import com.github.domwood.kiwi.data.input.UpdateTopicConfig;
+import com.github.domwood.kiwi.data.input.*;
 import com.github.domwood.kiwi.kafka.resources.*;
 import com.github.domwood.kiwi.kafka.task.admin.*;
 import com.github.domwood.kiwi.kafka.task.config.CreateTopicConfig;
@@ -93,7 +90,7 @@ public class KafkaTaskProvider {
         return new ConsumerGroupDetailsWithOffset(adminAndConsumer(bootstrapServers), groupId);
     }
 
-    public ContinuousConsumeMessages continousConsumeMessages(ConsumerRequest request) {
+    public ContinuousConsumeMessages continousConsumeMessages(AbstractConsumerRequest request) {
         return new ContinuousConsumeMessages(consumer(request.bootStrapServers()), request);
     }
 

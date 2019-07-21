@@ -80,4 +80,6 @@
 .ListGroupNoHorizontalPad{
   padding-left: 0rem;
   padding-right: 0rem;
+  border: none
 }
+

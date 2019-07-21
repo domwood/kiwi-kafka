@@ -129,7 +129,9 @@ class FilterConfigurer extends Component {
                                             <InputGroupButtonDropdown addonType="prepend"
                                                                       isOpen={this.state.filters[index].filterApplicationButtonOpen}
                                                                       toggle={() => this.toggleFilterTypeApplicationButton(index)}>
-                                                <DropdownToggle split outline />
+                                                <DropdownToggle caret>
+                                                    {this.state.filters[index].filterApplication}
+                                                </DropdownToggle>
                                                 <DropdownMenu>
                                                     <DropdownItem header>Filter Applies To</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterApplication("KEY", index)}>Key</DropdownItem>
@@ -137,12 +139,13 @@ class FilterConfigurer extends Component {
                                                     <DropdownItem onClick={() => this.setFilterApplication("HEADER_KEY", index)}>Header Key</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header Value</DropdownItem>
                                                 </DropdownMenu>
-                                                <Button disabled>{this.state.filters[index].filterApplication}</Button>
                                             </InputGroupButtonDropdown>
                                             <InputGroupButtonDropdown addonType="prepend"
                                                                       isOpen={this.state.filters[index].filterTypeButtonOpen}
                                                                       toggle={() => this.toggleFilterTypeButton(index)}>
-                                                <DropdownToggle split outline />
+                                                <DropdownToggle caret>
+                                                    {this.state.filters[index].filterType}
+                                                </DropdownToggle>
                                                 <DropdownMenu>
                                                     <DropdownItem header>Filter Type</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterType("MATCHES", index)}>Matches</DropdownItem>
@@ -151,7 +154,6 @@ class FilterConfigurer extends Component {
                                                     <DropdownItem onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
                                                     <DropdownItem onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
                                                 </DropdownMenu>
-                                                <Button disabled>{this.state.filters[index].filterType}</Button>
                                             </InputGroupButtonDropdown>
                                             <Input
                                                 type="text"
@@ -172,10 +174,10 @@ class FilterConfigurer extends Component {
                                                 index === this.state.filters.length-1 ?
                                                     <div className={"Gap"}>
                                                         <ButtonGroup>
-                                                            <Button onClick={() => this.addFilter()}>
+                                                            <Button onClick={() => this.addFilter()} color={'success'}>
                                                                 + Add
                                                             </Button>
-                                                            <Button onClick={() => this.removeFilter()}>
+                                                            <Button onClick={() => this.removeFilter()} color={'warning'}>
                                                                 - Remove
                                                             </Button>
                                                         </ButtonGroup>

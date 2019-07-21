@@ -1,8 +1,7 @@
 package com.github.domwood.kiwi.api.ws;
 
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
-import com.github.domwood.kiwi.data.output.OutboundResponse;
-import com.github.domwood.kiwi.data.output.OutboundResponseWithPosition;
+import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ public class KiwiWebSocketConsumerHandler {
 
     public void addConsumerTask(String id,
                                 ConsumerRequest request,
-                                Consumer<OutboundResponseWithPosition> consumer){
+                                Consumer<ConsumerResponse> consumer){
         if(consumers.containsKey(id) && consumers.get(id).isClosed()){
             logger.info("Consumer already present for session {}, but is closed, removing", id);
             this.consumers.remove(id);

@@ -70,7 +70,7 @@ class MessageReader extends Component {
     };
 
     onWebsocketError = (error) => {
-        toast.error(`Failed to retrieve data from server ${error.message}`)
+        toast.error(`Failed to r*etrieve data from server ${error.message}`)
         this.clearCounts();
         WebSocketService.disconnect();
     };
@@ -113,6 +113,7 @@ class MessageReader extends Component {
                     !this.state.consuming ?
                         <div>
                             <Button onClick={this.startConsumer} color={"success"} id="consumeViaWebSocketButton" block>Read</Button>
+
                             {this.state.consumeCount > 0 ? <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span> :null}
                         </div>
                         :

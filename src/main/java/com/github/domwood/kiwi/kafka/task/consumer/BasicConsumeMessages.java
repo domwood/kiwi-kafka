@@ -1,6 +1,6 @@
 package com.github.domwood.kiwi.kafka.task.consumer;
 
-import com.github.domwood.kiwi.data.input.ConsumerRequest;
+import com.github.domwood.kiwi.data.input.AbstractConsumerRequest;
 import com.github.domwood.kiwi.data.output.ConsumedMessage;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
@@ -26,11 +26,11 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.stream.Collectors.toList;
 
 
-public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<ConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>> {
+public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public BasicConsumeMessages(KafkaConsumerResource<String, String> resource, ConsumerRequest input) {
+    public BasicConsumeMessages(KafkaConsumerResource<String, String> resource, AbstractConsumerRequest input) {
         super(resource, input);
     }
 
