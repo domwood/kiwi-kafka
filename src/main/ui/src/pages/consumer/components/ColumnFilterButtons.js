@@ -18,7 +18,7 @@ class ColumnFilterButtons extends Component {
                     {
                         this.props.buttons.map(button => {
                             return (
-                                <Button size="sm" onClick={() => this.props.updater(button.key)} outline={!this.props.viewState[button.key]}>
+                                <Button key={'button_'+button.key} size="sm" onClick={() => this.props.updater(button.key)} outline={!this.props.viewState[button.key]}>
                                     {button.displayName}
                                 </Button>
                             )

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Button, ButtonGroup, Table} from "reactstrap";
+import {Table} from "reactstrap";
 import PropTypes from "prop-types";
 import * as GeneralUtilities from "../../../services/GeneralUtilities";
 import ColumnFilterButtons from "./ColumnFilterButtons";

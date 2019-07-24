@@ -116,7 +116,7 @@ class KafkaGet extends Component {
 
                         </TabPane>
                         <TabPane tabId="2">
-                            <FileDownloader />
+                            <FileDownloader id={'FileDownloader'} name={'FileDownloader'} />
                         </TabPane>
                     </TabContent>
 
