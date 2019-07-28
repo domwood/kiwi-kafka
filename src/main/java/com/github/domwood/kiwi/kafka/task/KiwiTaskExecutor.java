@@ -2,12 +2,14 @@ package com.github.domwood.kiwi.kafka.task;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public class KiwiTaskExecutor implements Executor {
+    private static final String uniqueTag = UUID.randomUUID().toString().substring(25, 36);
     private final ExecutorService delegate;
 
     private KiwiTaskExecutor(ThreadFactory kiwiFactory){
@@ -16,7 +18,7 @@ public class KiwiTaskExecutor implements Executor {
 
     private static class KiwiTaskExecutorHelper{
         private static final KiwiTaskExecutor INSTANCE = new KiwiTaskExecutor(new ThreadFactoryBuilder()
-                .setNameFormat("kiwi-task-thread-%d")
+                .setNameFormat("kiwi-thread-%d-"+uniqueTag)
                 .build());
     }
 
