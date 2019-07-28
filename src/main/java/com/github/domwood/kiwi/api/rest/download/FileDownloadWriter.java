@@ -57,10 +57,10 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
     }
 
     public void tryToClose(){
-        if(this.isClosed.getAndSet(true)){
+        if(!this.isClosed.get()){
+            this.isClosed.set(true);
             try {
                 logger.info("Finished Writing to file");
-                this.isClosed.set(true);
                 outputStream.close();
                 task.close();
             }
@@ -68,7 +68,6 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
                 throw new RuntimeException(e);
             }
         }
-
     }
 
 }

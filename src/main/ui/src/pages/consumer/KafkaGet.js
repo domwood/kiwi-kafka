@@ -64,7 +64,8 @@ class KafkaGet extends Component {
         return (
             <Container className={"WideBoi"}>
                 <div className="mt-lg-4"/>
-                <h1>{this.props.isDownload ? 'Download Data From Kafka' : 'Get Data From Kafka'}{this.props.isDownload ? <Badge color="warning">Experimental</Badge> : null}</h1>
+                <h4>{this.props.isDownload ? <Badge color="info" pill>Experimental</Badge> : null}</h4>
+                <h1>{this.props.isDownload ? 'Download Data From Kafka' : 'Get Data From Kafka'}</h1>
                 <div className="mt-lg-4"/>
                 <Form>
                     <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic || ''}/>

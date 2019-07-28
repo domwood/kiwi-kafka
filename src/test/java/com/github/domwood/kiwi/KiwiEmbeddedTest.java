@@ -195,6 +195,7 @@ public class KiwiEmbeddedTest {
                 .addMessage(ImmutableConsumedMessage.<String, String>builder()
                         .from(buildConsumedMessage())
                         .timestamp(observed.messages().get(0).timestamp())//Can't really guarantee these values
+                        .offset(0)
                         .build())
                 .position(buildConsumerPosition())
                 .build();

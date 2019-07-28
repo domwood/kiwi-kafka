@@ -28,8 +28,8 @@ public class CsvLineWriter implements FileLineWriter {
         writeTimestamp(message, buffer);
         writePartition(message, buffer);
         writeOffset(message, buffer);
-        writeValue(message, buffer);
         writeHeaders(message, buffer);
+        writeValue(message, buffer);
 
         return buffer.toString();
     }

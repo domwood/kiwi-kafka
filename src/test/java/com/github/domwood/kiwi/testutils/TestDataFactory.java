@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.IntStream;
 
@@ -69,6 +70,17 @@ public class TestDataFactory {
                 .build();
     }
 
+    public static ConsumerToFileRequest buildConsumerToFileRequest(ConsumerRequestFileType type, String delimiter, ConsumerRequestColumns... columns){
+        return ImmutableConsumerToFileRequest.builder()
+                .topics(singletonList(testTopic))
+                .limit(-1)
+                .limitAppliesFromStart(false)
+                .fileType(type)
+                .addColumns(columns)
+                .columnDelimiter(Optional.ofNullable(delimiter))
+                .build();
+    }
+
     public static TopicInfo buildTopicInfo(String topicName){
         return ImmutableTopicInfo.builder()
                 .partitionCount(partitionCount)
@@ -112,7 +124,7 @@ public class TestDataFactory {
                 .key(testKey)
                 .headers(testHeaders)
                 .message(testPayload)
-                .offset(0L)
+                .offset(testOffset)
                 .partition(testPartition)
                 .timestamp(testTimestamp)
                 .build();
