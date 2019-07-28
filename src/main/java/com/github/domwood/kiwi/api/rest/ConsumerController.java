@@ -1,16 +1,15 @@
 package com.github.domwood.kiwi.api.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.domwood.kiwi.api.rest.utils.FileDownloadWriter;
+import com.github.domwood.kiwi.api.rest.download.FileDownloadWriter;
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
 import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import static com.github.domwood.kiwi.api.rest.utils.RestUtils.*;
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 
 @CrossOrigin("*")
@@ -44,20 +44,25 @@ public class ConsumerController {
         return consumeMessages.execute();
     }
 
-    @PostMapping(value = "/consumeToFile", produces=MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/consumeToFile", produces=MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ResponseBody
-    public CompletableFuture consumeTopicDataToFile(@RequestBody ConsumerToFileRequest request, HttpServletResponse response) throws IOException {
+    public CompletableFuture consumeTopicDataToFile(@RequestParam("request") String requestEncoded,
+                                                    HttpServletResponse response) throws IOException {
+        String decodedRequest = base64Decoded(unEncodeParameter(requestEncoded));
+        ConsumerToFileRequest request = mapper.readValue(decodedRequest, ConsumerToFileRequest.class);
 
-        ContinuousConsumeMessages consumeMessages = taskProvider.continousConsumeMessages(request);
+        ContinuousConsumeMessages consumeMessagesTask = taskProvider.continousConsumeMessages(request);
 
         response.setContentType("application/force-download");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(request));
+
         ServletOutputStream outputStream = response.getOutputStream();
 
-        FileDownloadWriter writer = new FileDownloadWriter(mapper, outputStream, consumeMessages);
+        FileDownloadWriter writer = new FileDownloadWriter(mapper, request, outputStream, consumeMessagesTask);
 
-        consumeMessages.registerConsumer(writer);
+        consumeMessagesTask.registerConsumer(writer);
 
-        return consumeMessages.execute()
+        return consumeMessagesTask.execute()
                 .thenRun(() -> writer.tryToClose());
     }
 

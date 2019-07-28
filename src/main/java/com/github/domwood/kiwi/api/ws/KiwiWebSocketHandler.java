@@ -71,8 +71,8 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private Consumer<ConsumerResponse> sendTextMessage(KiwiWebSocketSession session) {
-        return (ConsumerResponse response) -> {
+    private Consumer<ConsumerResponse<String, String>> sendTextMessage(KiwiWebSocketSession session) {
+        return (ConsumerResponse<String, String> response) -> {
             try {
                 String payload = objectMapper.writeValueAsString(response);
 

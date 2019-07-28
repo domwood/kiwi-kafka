@@ -112,7 +112,11 @@ class MessageReader extends Component {
                 {
                     !this.state.consuming ?
                         <div>
-                            <Button onClick={this.startConsumer} color={"success"} id="consumeViaWebSocketButton" block>Read</Button>
+                            <Button onClick={this.startConsumer}
+                                    color={"success"}
+                                    id="consumeViaWebSocketButton"
+                                    disabled={!this.props.targetTopic || this.props.targetTopic.length === 0}
+                                    block>Read</Button>
 
                             {this.state.consumeCount > 0 ? <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span> :null}
                         </div>

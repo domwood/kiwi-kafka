@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ColumnFilterButtons from "./ColumnFilterButtons";
-import {Button, ButtonGroup, Input, Label, ListGroup} from "reactstrap";
-import ListGroupItem from "reactstrap/es/ListGroupItem";
+import {Button, ButtonGroup, Input, Label, ListGroup, ListGroupItem} from "reactstrap";
+import {toast} from "react-toastify";
+import * as ApiService from "../../../services/ApiService";
 
 class FileDownloader extends Component {
 
@@ -16,12 +17,12 @@ class FileDownloader extends Component {
             showKey: true,
             separator: '\t',
             buttons: [
-                {key: 'showKey', displayName: 'Key', example: '234232'},
-                {key: 'showValue', displayName: 'Value', example: '{"example","data"}'},
-                {key: 'showHeaders', displayName: 'Headers', example: '{"header","one"}'},
+                {key: 'showKey', displayName: 'Key', example: 'a78287b2-b118-11e9-ad57-2bd2664ff578'},
                 {key: 'showTimestamp', displayName: 'Timestamp', example: '1563951395000'},
                 {key: 'showPartition', displayName: 'Partition', example: '3'},
-                {key: 'showOffset', displayName: 'Offset', example: '232332'}
+                {key: 'showOffset', displayName: 'Offset', example: '232332'},
+                {key: 'showHeaders', displayName: 'Headers', example: {example: "header"}},
+                {key: 'showValue', displayName: 'Value', example: '{"example","data"}'}
             ]
         }
     }
@@ -67,22 +68,24 @@ class FileDownloader extends Component {
                 <ListGroupItem>
                     {this.state.buttons.reduce((base, element) =>{
                         if(this.state[element.key]){
-                            base = base + element.example + this.state.separator;
+                            let exampleColumn = element.example instanceof Object ? JSON.stringify(element.example) : element.example;
+                            base = base + exampleColumn + this.state.separator;
                         }
                         return base;
                     }, '')}
                 </ListGroupItem>
-
-                <ListGroupItem>
-                    {this.state.showKey ? 'DifferentKey' + this.state.separator : null}
-                    {this.state.showValue ? '{\'different\',\'data\'}' + this.state.separator : null}
-                    {this.state.showHeaders ? '-' + this.state.separator : null}
-                    {this.state.showTimestamp ? '1563951125000' + this.state.separator : null}
-                    {this.state.showPartition ? '0' + this.state.separator : null}
-                    {this.state.showOffset ? '11' + this.state.separator : null}
-                </ListGroupItem>
             </ListGroup>
         )
+    };
+
+    postForDownload = () => {
+        ApiService.consumeToFile(
+            [this.props.targetTopic],
+            this.props.filters,
+            this.state.format,
+            this.state.buttons.filter(b => this.state[b.key]).map(b => b.displayName.toUpperCase()),
+            this.state.separator,
+            () => toast.error("Failed to download data to file"));
     };
 
     render() {
@@ -90,9 +93,7 @@ class FileDownloader extends Component {
             <div>
                 <div className={"Gap"} />
 
-                <Label>File Format:</Label>
-
-                <div className={"Gap"} />
+                <Label>File Format: &nbsp;</Label>
 
                 <ButtonGroup>
                     <Button onClick={() => this.setFormat('CSV')} outline={this.state.format !== 'CSV'}>
@@ -104,20 +105,12 @@ class FileDownloader extends Component {
 
                 </ButtonGroup>
 
-                <div className={"Gap"} />
+                {this.props.filters.length > 0 ?
+                    <div>
+                        <div className={"Gap"} />
 
-                <Label>
-                    Include the following data in the file Download:
-                </Label>
-
-                <ColumnFilterButtons name={'MessageTableFilter'} id={'MessageTableFilter'} buttons={[
-                    {key: 'showKey', displayName: 'Key'},
-                    {key: 'showValue', displayName: 'Value'},
-                    {key: 'showHeaders', displayName: 'Headers'},
-                    {key: 'showTimestamp', displayName: 'Timestamp'},
-                    {key: 'showPartition', displayName: 'Partition'},
-                    {key: 'showOffset', displayName: 'Offset'}
-                ]} viewState={this.state} updater={this.toggleField} />
+                        ( {this.props.filters.length} Filters will be applied to the downloading data )
+                    </div> :null}
 
                 <div className={"Gap"} />
 
@@ -133,7 +126,7 @@ class FileDownloader extends Component {
                 <div className={"Gap"} />
 
                 <Label>
-                    Example File Format:
+                    Example format for each line:
                 </Label>
 
 
@@ -141,7 +134,19 @@ class FileDownloader extends Component {
 
                 <div className={"Gap"} />
 
-                <Button onClick={() => {}} color={"success"} id="consumeToFile" block>Download</Button>
+                <Label>
+                    The following columns will be included in the file download:
+                </Label>
+
+                <ColumnFilterButtons name={'MessageTableFilter'} id={'MessageTableFilter'} buttons={this.state.buttons} viewState={this.state} updater={this.toggleField} />
+
+                <div className={"Gap"} />
+
+                <Button onClick={this.postForDownload}
+                        color={"success"}
+                        id="consumeToFile"
+                        disabled={!this.props.targetTopic || this.props.targetTopic.length === 0}
+                        block>Download</Button>
             </div>
         )
     }
@@ -149,7 +154,9 @@ class FileDownloader extends Component {
 
 FileDownloader.propTypes = {
     name: PropTypes.string.isRequired,
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    filters: PropTypes.array.isRequired,
+    targetTopic: PropTypes.string.isRequired
 };
 
 export default FileDownloader;

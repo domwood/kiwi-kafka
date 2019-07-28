@@ -12,7 +12,7 @@ import java.util.Set;
 @Value.Immutable
 @Value.Style(depluralize = true)
 public interface ConsumerToFileRequest extends AbstractConsumerRequest{
-    ConsumerRequestFileType requestType();
+    ConsumerRequestFileType fileType();
     Optional<String> columnDelimiter();
     Set<ConsumerRequestColumns> columns();
 }

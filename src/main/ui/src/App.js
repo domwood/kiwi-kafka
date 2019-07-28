@@ -87,6 +87,9 @@ class App extends Component {
                                     <NavItem>
                                         <NavLink tag={Link} to="/get" replace={true} >Kafka Get</NavLink>
                                     </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/download" replace={true} >Kafka Download</NavLink>
+                                    </NavItem>
                                 </Nav>
                                 <Nav className="ml-auto" navbar>
                                     <NavItem>
@@ -112,7 +115,8 @@ class App extends Component {
                             <Route path="/topics" component={KafkaTopics} />
                             <Route path="/groups" component={KafkaConsumerGroups} />
                             <Route path="/post" component={KafkaPost} />
-                            <Route path="/get" component={KafkaGet} />
+                            <Route path="/get" component={props => <KafkaGet {...props} isDownload={false} />} />
+                            <Route path="/download" component={props => <KafkaGet {...props} isDownload={true} />} />
                             <Route redirectTo="/"/>
                         </Switch>
                     </div>

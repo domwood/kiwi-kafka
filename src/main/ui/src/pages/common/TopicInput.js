@@ -21,19 +21,28 @@ class TopicInput extends Component {
 
         this.state = {
             topicList: []
-        }
+        };
+
+        this._cancellable = false;
     }
 
     componentDidMount(){
-        this.getTopicList();
+        this._cancellable = true;
+        this._cancellable && this.getTopicList();
+    }
+
+    componentWillUnmount() {
+        this._cancellable = false;
     }
 
     getTopicList = (reload) => {
         if(this.state.topicList.length === 0 || reload){
             ApiService.getTopics((topics) => {
-                this.setState({
-                    topicList:topics
-                });
+                if(this._cancellable){
+                    this.setState({
+                        topicList:topics
+                    });
+                }
             }, () => toast.warn("Could not retrieve topic list from server"));
         }
     };

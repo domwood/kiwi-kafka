@@ -1,8 +1,9 @@
 import React, {Component} from "react";
 import {
+    Badge,
     Container,
     Form,
-    FormGroup, Nav, NavItem, NavLink, TabContent, TabPane,
+    FormGroup
 } from "reactstrap";
 
 import TopicInput from "../common/TopicInput"
@@ -11,8 +12,8 @@ import FilterConfigurer from "./components/FilterConfigurer";
 import MessageLimit from "./components/MessageLimit";
 import MessageReader from "./components/MessageReader";
 import MessageTable from "./components/MessageTable";
-import classnames from 'classnames';
 import FileDownloader from "./components/FileDownloader";
+import PropTypes from "prop-types";
 
 class KafkaGet extends Component {
 
@@ -20,7 +21,6 @@ class KafkaGet extends Component {
         super(props);
 
         this.state = {
-            activeTab: '1',
             alerts: [],
             bootstrapServers: "",
             targetTopic: "",
@@ -64,7 +64,7 @@ class KafkaGet extends Component {
         return (
             <Container className={"WideBoi"}>
                 <div className="mt-lg-4"/>
-                <h1>Get Data From Kafka</h1>
+                <h1>{this.props.isDownload ? 'Download Data From Kafka' : 'Get Data From Kafka'}{this.props.isDownload ? <Badge color="warning">Experimental</Badge> : null}</h1>
                 <div className="mt-lg-4"/>
                 <Form>
                     <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic || ''}/>
@@ -72,53 +72,44 @@ class KafkaGet extends Component {
                     <div className="mt-lg-1"/>
 
                     <FormGroup>
+                        {!this.props.isDownload ?
                         <MessageLimit id={"messageLimit"}
                                       name={"messageLimit"}
                                       messageLimit={this.state.messageLimit}
                                       onMessageLimitUpdate={this.setMessageLimit}
                                       />
+                                      : null
+                        }
                         <FilterConfigurer name={"filterConfigurer"} id={"filterConfigurer"} onUpdate={this.setFilter}/>
                     </FormGroup>
 
-                    <Nav tabs>
-                        <NavItem>
-                            <NavLink
-                                className={classnames({ active: this.state.activeTab === '1' })}
-                                onClick={() => { this.toggleActiveTab('1'); }}
-                            >
-                                View Data
-                            </NavLink>
-                        </NavItem>
-                        <NavItem>
-                            <NavLink
-                                className={classnames({ active: this.state.activeTab === '2' })}
-                                onClick={() => { this.toggleActiveTab('2'); }}
-                            >
-                                Download To File
-                            </NavLink>
-                        </NavItem>
-                    </Nav>
+                    {
+                        !this.props.isDownload ?
+                            <div>
+                                <MessageReader
+                                    name={"messageReader"} id={"messageReader"}
+                                    filters={this.state.filters}
+                                    targetTopic={this.state.targetTopic || ''}
+                                    messageLimit={this.state.messageLimit}
+                                    messageFromEnd={false}
+                                    isReversed={true}
+                                    updateMessages={this.setMessages}
+                                    messages={this.state.messages}
+                                />
 
-                    <TabContent activeTab={this.state.activeTab}>
-                        <TabPane tabId="1">
-                            <MessageReader
-                                name={"messageReader"} id={"messageReader"}
-                                filters={this.state.filters}
-                                targetTopic={this.state.targetTopic || ''}
-                                messageLimit={this.state.messageLimit}
-                                messageFromEnd={false}
-                                isReversed={true}
-                                updateMessages={this.setMessages}
-                                messages={this.state.messages}
-                            />
-
-                            <MessageTable name={"messageTable"} id={"messageTable"} messages={this.state.messages} />
-
-                        </TabPane>
-                        <TabPane tabId="2">
-                            <FileDownloader id={'FileDownloader'} name={'FileDownloader'} />
-                        </TabPane>
-                    </TabContent>
+                                <MessageTable name={"messageTable"}
+                                              id={"messageTable"}
+                                              messages={this.state.messages} />
+                            </div>
+                            :
+                            <div>
+                                <FileDownloader id={'FileDownloader'}
+                                                name={'FileDownloader'}
+                                                filters={this.state.filters}
+                                                targetTopic={this.state.targetTopic}
+                                />
+                            </div>
+                    }
 
                     <div className="mt-lg-4"/>
                     <div className="mt-lg-4"/>
@@ -129,5 +120,9 @@ class KafkaGet extends Component {
         );
     }
 }
+
+KafkaGet.propTypes = {
+    isDownload: PropTypes.bool.isRequired
+};
 
 export default KafkaGet;

@@ -1,0 +1,79 @@
+package com.github.domwood.kiwi.api.rest.download;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.domwood.kiwi.data.input.ConsumerRequestColumns;
+import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
+import com.github.domwood.kiwi.data.output.ConsumedMessage;
+
+import java.util.Set;
+
+public class CsvLineWriter implements FileLineWriter {
+
+    private final Set<ConsumerRequestColumns> columns;
+    private final String delimiter;
+    private final ObjectMapper mapper;
+
+    public CsvLineWriter(ObjectMapper mapper,
+                         ConsumerToFileRequest request){
+
+        this.mapper = mapper;
+        this.columns = request.columns();
+        this.delimiter = request.columnDelimiter().orElse("\t");
+    }
+
+    public String writeLine(ConsumedMessage message) throws JsonProcessingException {
+        StringBuffer buffer = new StringBuffer();
+        writeKey(message, buffer);
+        writeTimestamp(message, buffer);
+        writePartition(message, buffer);
+        writeOffset(message, buffer);
+        writeValue(message, buffer);
+        writeHeaders(message, buffer);
+
+        return buffer.toString();
+    }
+
+    private void writeOffset(ConsumedMessage<String, String> message, StringBuffer writer) {
+        if(columns.contains(ConsumerRequestColumns.OFFSET)){
+            if(writer.length() > 0) writer.append(delimiter);
+            writer.append(message.offset());
+        }
+    }
+
+    private void writePartition(ConsumedMessage<String, String> message, StringBuffer writer) {
+        if(columns.contains(ConsumerRequestColumns.PARTITION)){
+            if(writer.length() > 0) writer.append(delimiter);
+            writer.append(message.partition());
+        }
+    }
+
+    private void writeTimestamp(ConsumedMessage<String, String> message, StringBuffer writer) {
+        if(columns.contains(ConsumerRequestColumns.TIMESTAMP)){
+            if(writer.length() > 0) writer.append(delimiter);
+            writer.append(message.timestamp());
+        }
+    }
+
+    private void writeKey(ConsumedMessage<String, String> message, StringBuffer writer){
+        if(columns.contains(ConsumerRequestColumns.KEY)){
+            if(writer.length() > 0) writer.append(delimiter);
+            writer.append(message.key());
+        }
+    }
+
+    private void writeValue(ConsumedMessage<String, String> message, StringBuffer writer){
+        if(columns.contains(ConsumerRequestColumns.VALUE)){
+            if(writer.length() > 0) writer.append(delimiter);
+            writer.append(message.message());
+        }
+    }
+
+    private void writeHeaders(ConsumedMessage<String, String> message, StringBuffer writer) throws JsonProcessingException {
+        if(columns.contains(ConsumerRequestColumns.HEADERS)){
+            if(writer.length() > 0) writer.append(delimiter);
+            writer.append(mapper.writeValueAsString(message.headers()));
+        }
+    }
+
+}

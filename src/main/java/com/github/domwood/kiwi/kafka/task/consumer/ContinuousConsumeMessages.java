@@ -29,14 +29,14 @@ import static java.util.Collections.emptyList;
 
 public class ContinuousConsumeMessages
         extends FuturisingAbstractKafkaTask<AbstractConsumerRequest, Void, KafkaConsumerResource<String, String>>
-        implements KafkaContinuousTask<AbstractConsumerRequest, ConsumerResponse>{
+        implements KafkaContinuousTask<AbstractConsumerRequest, ConsumerResponse<String, String>>{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Integer BATCH_SIZE = 100;
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
 
-    private Consumer<ConsumerResponse> consumer;
+    private Consumer<ConsumerResponse<String, String>> consumer;
     private volatile List<MessageFilter> filters;
 
     public ContinuousConsumeMessages(KafkaConsumerResource<String, String> resource,
@@ -66,7 +66,7 @@ public class ContinuousConsumeMessages
     }
 
     @Override
-    public void registerConsumer(Consumer<ConsumerResponse> consumer) {
+    public void registerConsumer(Consumer<ConsumerResponse<String, String>> consumer) {
         this.consumer = consumer;
     }
 

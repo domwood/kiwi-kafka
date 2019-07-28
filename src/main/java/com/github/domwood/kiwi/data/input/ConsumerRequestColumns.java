@@ -1,7 +1,7 @@
 package com.github.domwood.kiwi.data.input;
 
 public enum ConsumerRequestColumns {
-    MESSAGE,
+    VALUE,
     KEY,
     HEADERS,
     TIMESTAMP,

@@ -32,7 +32,7 @@ export const getVersion = (cb, eb) => {
 export const getTopics = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 
-    fetch(api.listTopics)
+    return fetch(api.listTopics)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result.topics))
@@ -235,5 +235,28 @@ export const consume = (topics, limit, fromStart, filters, cb, eb) => {
         .then(res => res.json())
         .then(result => cb(result))
         .catch(errorhandler);
+    }
+};
+
+export const consumeToFile = (topics, filters, fileType, columns, separator, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error, "major");
+
+    if(!topics){
+        errorhandler(new Error("Topic must be defined to consume from kafka"));
+    }
+    else{
+        let data = JSON.stringify({
+            requestType: ".ConsumerToFileRequest",
+            topics: topics,
+            limit: -1,
+            limitAppliesFromStart: false,
+            filters: filters || [],
+            fileType: fileType,
+            columns: columns,
+            separator: separator
+        });
+        let encoded = window.btoa(data);
+        let request = `${api.consumeToFile}?request=${encodeURIComponent(encoded)}`;
+        window.open(request, "_blank");
     }
 };

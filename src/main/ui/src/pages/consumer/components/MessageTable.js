@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import {Table} from "reactstrap";
+import {Button, Table} from "reactstrap";
 import PropTypes from "prop-types";
 import * as GeneralUtilities from "../../../services/GeneralUtilities";
 import ColumnFilterButtons from "./ColumnFilterButtons";
-
+import {GoClippy} from "react-icons/go";
+import {toast} from "react-toastify";
 
 class MessageTable extends Component {
 
@@ -19,14 +20,59 @@ class MessageTable extends Component {
             showOffset: true,
             showKey: true,
             showHeaders: true,
-            showValue: true
+            showValue: true,
+            buttons: [
+                {key: 'showTimestamp', displayName: 'Timestamp'},
+                {key: 'showDateTime', displayName: 'Date&Time'},
+                {key: 'showPartition', displayName: 'Partition'},
+                {key: 'showOffset', displayName: 'Offset'},
+                {key: 'showKey', displayName: 'Key'},
+                {key: 'showHeaders', displayName: 'Headers'},
+                {key: 'showValue', displayName: 'Value'}
+            ]
         }
     }
 
     toggleField = (field) => {
         this.setState({
             [field]: !this.state[field]
-        })
+        });
+        console.log(this.state.buttons.filter(b => this.state[b.key]));
+    };
+
+    isLastHeader= (button) => {
+        return this.state.buttons
+            .filter(b => this.state[b.key])
+            .reduce((a,b) => b).key === button.key;
+    };
+
+    copyViewToClipboard = () => {
+        let el = document.getElementById('copiableTableBody')
+        let body = document.body, range, sel;
+        if (document.createRange && window.getSelection) {
+            range = document.createRange();
+            sel = window.getSelection();
+            sel.removeAllRanges();
+            try {
+                range.selectNodeContents(el);
+                sel.addRange(range);
+            } catch (e) {
+                range.selectNode(el);
+                sel.addRange(range);
+            }
+        } else if (body.createTextRange) {
+            range = body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+        }
+
+        let ok = document.execCommand('copy')
+        if (ok) {
+            toast.success("Copied current table view to clipboard");
+        }
+        else{
+            toast.error("Failed to table to clipboard");
+        }
     };
 
     render() {
@@ -35,31 +81,30 @@ class MessageTable extends Component {
                     <div>
                         <div className={"TwoGap"} />
 
-                        <ColumnFilterButtons name={'MessageTableFilter'} id={'MessageTableFilter'} buttons={[
-                            {key: 'showTimestamp', displayName: 'Timestamp'},
-                            {key: 'showDateTime', displayName: 'Date&Time'},
-                            {key: 'showPartition', displayName: 'Partition'},
-                            {key: 'showOffset', displayName: 'Offset'},
-                            {key: 'showKey', displayName: 'Key'},
-                            {key: 'showHeaders', displayName: 'Headers'},
-                            {key: 'showValue', displayName: 'Value'}
-                        ]} viewState={this.state} updater={this.toggleField} />
+                        <ColumnFilterButtons name={'MessageTableFilter'}
+                                             id={'MessageTableFilter'}
+                                             buttons={this.state.buttons}
+                                             viewState={this.state}
+                                             updater={this.toggleField} />
 
-                        <div className={"TwoGap"} />
+                        <div className={"Gap"} />
 
-                        <Table size="sm" bordered >
+                        <Table size="sm" id={'mainTable'} bordered >
                             <thead>
                             <tr>
-                                {this.state.showTimestamp ? <th>Timestamp</th> : null}
-                                {this.state.showDateTime ?  <th>Date&Time</th> : null}
-                                {this.state.showPartition ? <th>Partition</th> : null}
-                                {this.state.showOffset ?    <th>Offset</th> : null}
-                                {this.state.showKey ?       <th>Key</th> : null}
-                                {this.state.showHeaders ?   <th>Headers</th> : null}
-                                {this.state.showValue ?     <th>Value</th> : null}
+                                {this.state.buttons.map((button) => {
+                                    return this.state[button.key] ?
+                                        <th key={'table_th_'+button.displayName}>
+                                            <span style={{"float":"left"}}>{button.displayName}</span>
+                                            {this.isLastHeader(button) ?
+                                                <span style={{"float":"right", "margin" : "-4px"}}>
+                                                    <Button onClick={this.copyViewToClipboard} size={"sm"}><GoClippy /></Button>
+                                                </span>: null}
+                                        </th> : null
+                                })}
                             </tr>
                             </thead>
-                            <tbody className="WrappedTable">
+                            <tbody className="WrappedTable" id={'copiableTableBody'}>
                             {
                                 this.props.messages.map(m => {
                                     return (

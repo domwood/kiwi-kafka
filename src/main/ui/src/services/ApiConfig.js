@@ -25,4 +25,5 @@ export default {
     listConsumerGroupDetailsWithOffsets: `${baseRestApi}/listConsumerGroupDetailsWithOffsets`,
     deleteConsumerGroup: `${baseRestApi}/deleteConsumerGroup`,
     updateTopicConfig: `${baseRestApi}/updateTopicConfig`,
+    consumeToFile: `${baseRestApi}/consumeToFile`
 }
