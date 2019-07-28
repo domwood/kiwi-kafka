@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.api.rest.utils.RestUtils.*;
@@ -53,10 +55,11 @@ public class ConsumerController {
 
         ContinuousConsumeMessages consumeMessagesTask = taskProvider.continousConsumeMessages(request);
 
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("application/force-download");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, getContentDisposition(request));
 
-        ServletOutputStream outputStream = response.getOutputStream();
+        PrintWriter outputStream = response.getWriter();
 
         FileDownloadWriter writer = new FileDownloadWriter(mapper, request, outputStream, consumeMessagesTask);
 

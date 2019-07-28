@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.domwood.kiwi.data.input.ConsumerRequestFileType;
 import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
-import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
 import com.github.domwood.kiwi.data.output.ImmutableConsumerPosition;
 import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
@@ -13,8 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.ServletOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.KEY;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
@@ -26,7 +25,7 @@ public class FileDownloadWriterTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    ServletOutputStream outputStream;
+    PrintWriter outputStream;
 
     @Mock
     ContinuousConsumeMessages task;
@@ -113,6 +112,7 @@ public class FileDownloadWriterTest {
 
 
         verify(outputStream, times(1)).println(testKey);
+        verify(outputStream, times(1)).flush();
         verify(outputStream, times(1)).close();
         verify(task, times(1)).close();
 

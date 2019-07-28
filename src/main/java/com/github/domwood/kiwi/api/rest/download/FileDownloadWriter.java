@@ -9,8 +9,8 @@ import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -19,14 +19,14 @@ import static com.github.domwood.kiwi.data.input.ConsumerRequestFileType.CSV;
 public class FileDownloadWriter implements Consumer<ConsumerResponse<String, String>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ServletOutputStream outputStream;
+    private final PrintWriter outputStream;
     private final ContinuousConsumeMessages task;
     private final AtomicBoolean isClosed;
     private final FileLineWriter writer;
 
     public FileDownloadWriter(ObjectMapper mapper,
                               ConsumerToFileRequest request,
-                              ServletOutputStream outputStream,
+                              PrintWriter outputStream,
                               ContinuousConsumeMessages task){
         this.isClosed = new AtomicBoolean(false);
         this.outputStream = outputStream;
@@ -63,10 +63,15 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
                 logger.info("Finished Writing to file");
                 outputStream.flush();
                 outputStream.close();
+            }
+            catch (Exception e){
+                logger.error("Failed to safely clean up stream");
+            }
+            try{
                 task.close();
             }
-            catch (IOException e){
-                throw new RuntimeException(e);
+            catch (Exception e){
+                logger.error("Failed to safely clean up consumer");
             }
         }
     }
