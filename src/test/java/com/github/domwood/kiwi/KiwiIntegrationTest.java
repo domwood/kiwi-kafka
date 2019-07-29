@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext
 @ExtendWith({TestKafkaServer.class, SpringExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class KiwiEmbeddedTest {
+public class KiwiIntegrationTest {
 
     private static final int defaultTimeoutMs = 5000;
 

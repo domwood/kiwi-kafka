@@ -57,8 +57,7 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
     }
 
     public void tryToClose(){
-        if(!this.isClosed.get()){
-            this.isClosed.set(true);
+        if(!this.isClosed.getAndSet(true)){
             try {
                 logger.info("Finished Writing to file");
                 outputStream.flush();

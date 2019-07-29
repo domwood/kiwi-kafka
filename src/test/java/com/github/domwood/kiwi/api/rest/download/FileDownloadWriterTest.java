@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.KEY;
@@ -31,26 +30,12 @@ public class FileDownloadWriterTest {
     ContinuousConsumeMessages task;
 
     @Test
-    public void basicFileCSVDownloadTest() throws IOException {
+    public void basicFileCSVDownloadTest() {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
 
-        FileDownloadWriter writer = new FileDownloadWriter(
-                objectMapper,
-                request,
-                outputStream,
-                task
-        );
+        FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = ImmutableConsumerResponse.<String, String>builder()
-                .from(buildConsumerResponse())
-                .position(ImmutableConsumerPosition.builder()
-                        .percentage(50)
-                        .endValue(2L)
-                        .startValue(0L)
-                        .consumerPosition(1L)
-                        .totalRecords(1)
-                        .build())
-                .build();
+        ConsumerResponse<String, String> response = consumerResponse(50,2L, 1L);
 
         writer.accept(response);
 
@@ -59,26 +44,12 @@ public class FileDownloadWriterTest {
     }
 
     @Test
-    public void basicFileJsonDownloadTest() throws IOException {
+    public void basicFileJsonDownloadTest() {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", KEY);
 
-        FileDownloadWriter writer = new FileDownloadWriter(
-                objectMapper,
-                request,
-                outputStream,
-                task
-        );
+        FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = ImmutableConsumerResponse.<String, String>builder()
-                .from(buildConsumerResponse())
-                .position(ImmutableConsumerPosition.builder()
-                        .percentage(50)
-                        .endValue(2L)
-                        .startValue(0L)
-                        .consumerPosition(1L)
-                        .totalRecords(1)
-                        .build())
-                .build();
+        ConsumerResponse<String, String> response = consumerResponse(50,2L, 1L);
 
         writer.accept(response);
 
@@ -87,26 +58,12 @@ public class FileDownloadWriterTest {
     }
 
     @Test
-    public void testCloseWhenEmpty() throws IOException {
+    public void testCloseWhenEmpty() {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
 
-        FileDownloadWriter writer = new FileDownloadWriter(
-                objectMapper,
-                request,
-                outputStream,
-                task
-        );
+        FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = ImmutableConsumerResponse.<String, String>builder()
-                .from(buildConsumerResponse())
-                .position(ImmutableConsumerPosition.builder()
-                        .percentage(100)
-                        .endValue(1L)
-                        .startValue(0L)
-                        .consumerPosition(1L)
-                        .totalRecords(1)
-                        .build())
-                .build();
+        ConsumerResponse<String, String> response = consumerResponse(100,1L, 1L);
 
         writer.accept(response);
 
@@ -117,5 +74,45 @@ public class FileDownloadWriterTest {
         verify(task, times(1)).close();
 
         verifyNoMoreInteractions(outputStream, task);
+    }
+
+    @Test
+    public void testCloseWhenNoPositionSent() {
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
+
+        FileDownloadWriter writer = writer(request);
+
+        ConsumerResponse<String, String> response = buildConsumerResponse();
+
+        writer.accept(response);
+
+        verify(outputStream, times(1)).println(testKey);
+        verify(outputStream, times(1)).flush();
+        verify(outputStream, times(1)).close();
+        verify(task, times(1)).close();
+
+        verifyNoMoreInteractions(outputStream, task);
+    }
+
+    private FileDownloadWriter writer(ConsumerToFileRequest request){
+        return new FileDownloadWriter(
+                objectMapper,
+                request,
+                outputStream,
+                task
+        );
+    }
+
+    private ConsumerResponse<String, String> consumerResponse(Integer percentage, Long endValue, Long position){
+        return ImmutableConsumerResponse.<String, String>builder()
+                .from(buildConsumerResponse())
+                .position(ImmutableConsumerPosition.builder()
+                        .percentage(percentage)
+                        .endValue(endValue)
+                        .startValue(0L)
+                        .consumerPosition(position)
+                        .totalRecords(position.intValue())
+                        .build())
+                .build();
     }
 }
