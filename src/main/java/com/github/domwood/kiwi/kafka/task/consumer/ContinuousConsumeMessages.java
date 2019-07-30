@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -26,6 +27,7 @@ import java.util.function.Predicate;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class ContinuousConsumeMessages
         extends FuturisingAbstractKafkaTask<AbstractConsumerRequest, Void, KafkaConsumerResource<String, String>>
@@ -84,15 +86,13 @@ public class ContinuousConsumeMessages
             int idleCount = 0;
             while(!this.isClosed()) {
                 if(this.paused.get()){
-                    Thread.sleep(20);
-                    resource.keepAlive();
+                    MILLISECONDS.sleep(20);
                 }
                 else{
                     ConsumerRecords<String, String> records = resource.poll(Duration.of(Integer.max(10^(idleCount+1), 5000), MILLIS));
                     if (records.isEmpty()) {
                         idleCount++;
                         logger.debug("No records polled for topic {} ", input.topics());
-                        resource.keepAlive();
                         forward(emptyList(), tracker.position(resource));
 
                     } else {
@@ -161,8 +161,6 @@ public class ContinuousConsumeMessages
 
             messages.clear();
             toCommit.clear();
-
-            resource.keepAlive();
         }
     }
 

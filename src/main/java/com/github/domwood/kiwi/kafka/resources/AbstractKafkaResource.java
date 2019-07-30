@@ -1,7 +1,6 @@
 package com.github.domwood.kiwi.kafka.resources;
 
 import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
-import com.github.domwood.kiwi.kafka.utils.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +10,9 @@ public abstract class AbstractKafkaResource<CLIENT> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private CLIENT client;
-    private long lastKeepAlive;
     protected final Properties config;
 
     public AbstractKafkaResource(Properties props){
-        this.lastKeepAlive = TimeProvider.getTime();
         this.config = props;
     }
 
@@ -43,15 +40,4 @@ public abstract class AbstractKafkaResource<CLIENT> {
 
     protected abstract void closeClient() throws KafkaResourceClientCloseException;
 
-    public void keepAlive(){
-        this.lastKeepAlive = TimeProvider.getTime();
-    }
-
-    public long getLastKeepAlive(){
-        return this.lastKeepAlive;
-    }
-
-    public boolean isDiscarded(){
-        return this.client == null;
-    }
 }

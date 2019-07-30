@@ -21,6 +21,7 @@ public class KafkaHeader implements Header {
         this.key = key;
         this.value = asBytes(value);
     }
+
     private byte[] asBytes(String value){
         return value != null ? value.getBytes(format) : new byte[0];
     }

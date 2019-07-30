@@ -18,12 +18,14 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-//TODO WIP
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 @Component
 public class KiwiWebSocketHandler extends TextWebSocketHandler {
 
@@ -36,6 +38,8 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     @Value("${websocket.message.buffer.limit:1}")
     Integer websocketBufferLimit;
 
+    Long maxWaitCount = 3000L;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ObjectMapper objectMapper;
     private final KiwiWebSocketConsumerHandler consumerHandler;
@@ -46,6 +50,11 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         this.objectMapper = objectMapper;
         this.consumerHandler = consumerHandler;
         this.sessions = new ConcurrentHashMap<>();
+    }
+
+    @PostConstruct
+    public void init(){
+        this.maxWaitCount = this.maxWaitTime / this.waitInterval;
     }
 
     @Override
@@ -96,18 +105,16 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     }
 
 
-    //TODO Find a cleaner blocking implementation
-    @SuppressWarnings("squid:S2142") //Ignored for now
+    //@SuppressWarnings("squid:S2142")
     private void maybeBlockConsumer(KiwiWebSocketSession session){
         try{
             int sleeps = 0;
-            long maxWaitCount = this.maxWaitTime / this.waitInterval;
-            while (!session.isReady() &&
-                    sleeps++ < maxWaitCount && session.isOpen()) {
+            while (sessionIsAvailable(session, sleeps++)) {
+
                 if(logger.isDebugEnabled()) logger.debug("Waiting for websocket backlog to clear");
 
                 //Blocks upstream if socket is backlogged (ie will block kafka consumer polling further)
-                Thread.sleep(waitInterval);
+                MILLISECONDS.sleep(waitInterval);
             }
             if(sleeps >= maxWaitCount) throw new WebSocketSendFailedException("Websocket blocked for too long, reached max wait");
         } catch (InterruptedException e) {
@@ -154,7 +161,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
             logger.warn("Failed to cleanly close session after error", e);
         }
         finally {
-            //Should be done on session close, be in the event the session is not closed properly
+            //Should be done in the event the session is not closed properly
             this.consumerHandler.removeConsumerTask(session.getId());
         }
     }
@@ -163,5 +170,9 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         return this.sessions.get(session.getId());
     }
 
-
+    private boolean sessionIsAvailable(KiwiWebSocketSession session, int sleepCounter){
+        return !session.isReady() &&
+                sleepCounter <= this.maxWaitCount &&
+                session.isOpen();
+    }
 }

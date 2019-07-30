@@ -29,7 +29,6 @@ public class KafkaConsumerTracker {
         return track(startOffsets, endOffsets, currentPosition, totalRecords.getValue());
     }
 
-    //TODO move to some tracking class
     private ConsumerPosition track(Map<TopicPartition, Long> startOffsets,
                                    Map<TopicPartition, Long> endOffsets,
                                    Map<TopicPartition, Long> currentOffsets,

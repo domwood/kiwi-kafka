@@ -41,7 +41,6 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
             for(ConsumedMessage message : data.messages()){
                 outputStream.println(writer.writeLine(message));
             }
-
             if(hasReachedEnd(data)){
                 tryToClose();
             }

@@ -14,11 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.api.rest.utils.RestUtils.*;
@@ -66,7 +64,7 @@ public class ConsumerController {
         consumeMessagesTask.registerConsumer(writer);
 
         return consumeMessagesTask.execute()
-                .thenRun(() -> writer.tryToClose());
+                .thenRun(writer::tryToClose);
     }
 
 }

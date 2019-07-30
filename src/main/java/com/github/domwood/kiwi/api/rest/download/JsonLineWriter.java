@@ -2,14 +2,11 @@ package com.github.domwood.kiwi.api.rest.download;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.domwood.kiwi.data.file.ConsumedMessageLine;
 import com.github.domwood.kiwi.data.file.ImmutableConsumedMessageLine;
 import com.github.domwood.kiwi.data.input.ConsumerRequestColumns;
 import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
 import com.github.domwood.kiwi.data.output.ConsumedMessage;
 
-import java.util.Map;
 import java.util.Set;
 
 public class JsonLineWriter implements FileLineWriter{

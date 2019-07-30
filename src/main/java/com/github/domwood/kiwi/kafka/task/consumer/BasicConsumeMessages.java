@@ -123,7 +123,6 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
     private void commitAsync(Map<TopicPartition, OffsetAndMetadata> toCommit) {
         if (!toCommit.isEmpty()) {
             resource.commitAsync(toCommit, this::logCommit);
-            resource.keepAlive();
         }
     }
 

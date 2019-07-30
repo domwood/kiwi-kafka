@@ -5,6 +5,8 @@ import com.github.domwood.kiwi.kafka.utils.KafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -13,7 +15,9 @@ public class FilterBuilder {
     private FilterBuilder() {}
 
     public static Predicate<ConsumerRecord<String, String>> compileFilters(List<MessageFilter> messageFilterList){
-        return messageFilterList.stream().map(FilterBuilder::compileFilter)
+        return messageFilterList.stream()
+                .filter(FilterBuilder::isFilterValid)
+                .map(FilterBuilder::compileFilter)
                 .reduce(Predicate::and)
                 .orElse(dummyFilter());
     }
@@ -78,43 +82,48 @@ public class FilterBuilder {
     }
 
     private static Predicate<String> startsWithCaseInsensitive(String filterString){
-        return (String value) -> value != null && filterString != null && value.toLowerCase().startsWith(filterString.toLowerCase());
+        return (String value) -> value != null && value.toLowerCase().startsWith(filterString.toLowerCase());
     }
 
     private static Predicate<String> startsWith(String filterString){
-        return (String value) -> value != null && filterString != null && value.startsWith(filterString);
+        return (String value) -> value != null && value.startsWith(filterString);
     }
 
     private static Predicate<String> endsWithCaseInsensitive(String filterString){
-        return (String value) -> value != null && filterString != null && value.toLowerCase().endsWith(filterString.toLowerCase());
+        return (String value) -> value != null && value.toLowerCase().endsWith(filterString.toLowerCase());
     }
 
     private static Predicate<String> endsWith(String filterString){
-        return (String value) -> value != null && filterString != null && value.endsWith(filterString);
+        return (String value) -> value != null && value.endsWith(filterString);
     }
 
     private static Predicate<String> containsCaseInsensitive(String filterString){
-        return (String value) -> value != null && filterString != null && value.toLowerCase().contains(filterString.toLowerCase());
+        return (String value) -> value != null && value.toLowerCase().contains(filterString.toLowerCase());
     }
 
     private static Predicate<String> contains(String filterString){
-        return (String value) -> value != null && filterString != null && value.contains(filterString);
+        return (String value) -> value != null && value.contains(filterString);
     }
 
     private static Predicate<String> matchesCaseInsensitive(String filterString){
-        return (String value) -> value != null && filterString != null && value.equalsIgnoreCase(filterString);
+        return (String value) -> value != null && value.equalsIgnoreCase(filterString);
     }
 
     private static Predicate<String> matches(String filterString){
-        return (String value) -> value != null && filterString != null && value.equals(filterString);
+        return (String value) -> value != null && value.equals(filterString);
     }
 
     private static Predicate<String> regex(String filterString){
         Pattern p = Pattern.compile(filterString);
-        return (String value) -> p.matcher(value).find();
+        return (String value) -> value != null && p.matcher(value).find();
     }
 
     private static Predicate<ConsumerRecord<String, String>> dummyFilter(){
         return record -> true;
+    }
+
+    private static boolean isFilterValid(MessageFilter messageFilter){
+        return Objects.nonNull(messageFilter.filter()) &&
+                Objects.nonNull(messageFilter.isCaseSensitive());
     }
 }

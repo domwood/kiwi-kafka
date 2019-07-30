@@ -23,7 +23,7 @@ public class CsvLineWriter implements FileLineWriter {
     }
 
     public String writeLine(ConsumedMessage message) throws JsonProcessingException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         writeKey(message, buffer);
         writeTimestamp(message, buffer);
         writePartition(message, buffer);
@@ -34,42 +34,42 @@ public class CsvLineWriter implements FileLineWriter {
         return buffer.toString();
     }
 
-    private void writeOffset(ConsumedMessage<String, String> message, StringBuffer writer) {
+    private void writeOffset(ConsumedMessage<String, String> message, StringBuilder writer) {
         if(columns.contains(ConsumerRequestColumns.OFFSET)){
             if(writer.length() > 0) writer.append(delimiter);
             writer.append(message.offset());
         }
     }
 
-    private void writePartition(ConsumedMessage<String, String> message, StringBuffer writer) {
+    private void writePartition(ConsumedMessage<String, String> message, StringBuilder writer) {
         if(columns.contains(ConsumerRequestColumns.PARTITION)){
             if(writer.length() > 0) writer.append(delimiter);
             writer.append(message.partition());
         }
     }
 
-    private void writeTimestamp(ConsumedMessage<String, String> message, StringBuffer writer) {
+    private void writeTimestamp(ConsumedMessage<String, String> message, StringBuilder writer) {
         if(columns.contains(ConsumerRequestColumns.TIMESTAMP)){
             if(writer.length() > 0) writer.append(delimiter);
             writer.append(message.timestamp());
         }
     }
 
-    private void writeKey(ConsumedMessage<String, String> message, StringBuffer writer){
+    private void writeKey(ConsumedMessage<String, String> message, StringBuilder writer){
         if(columns.contains(ConsumerRequestColumns.KEY)){
             if(writer.length() > 0) writer.append(delimiter);
             writer.append(message.key());
         }
     }
 
-    private void writeValue(ConsumedMessage<String, String> message, StringBuffer writer){
+    private void writeValue(ConsumedMessage<String, String> message, StringBuilder writer){
         if(columns.contains(ConsumerRequestColumns.VALUE)){
             if(writer.length() > 0) writer.append(delimiter);
             writer.append(message.message());
         }
     }
 
-    private void writeHeaders(ConsumedMessage<String, String> message, StringBuffer writer) throws JsonProcessingException {
+    private void writeHeaders(ConsumedMessage<String, String> message, StringBuilder writer) throws JsonProcessingException {
         if(columns.contains(ConsumerRequestColumns.HEADERS)){
             if(writer.length() > 0) writer.append(delimiter);
             writer.append(mapper.writeValueAsString(message.headers()));
