@@ -30,7 +30,7 @@ public class KafkaTaskUtils {
 
         logger.debug("Consumer awaiting assignment for {} ...", topics);
 
-        Set<org.apache.kafka.common.TopicPartition> topicPartitionSet = resource.assignment();
+        Set<TopicPartition> topicPartitionSet = resource.assignment();
 
         int pollCount = 0;
         while (topicPartitionSet.isEmpty() && pollCount++ < MAX_POLL_COUNT) {

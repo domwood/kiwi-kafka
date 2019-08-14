@@ -15,5 +15,6 @@ public interface ConsumerPosition {
     Long endValue();
     Long consumerPosition();
     Integer percentage();
+    Integer skipped();
     Integer totalRecords();
 }

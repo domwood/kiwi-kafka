@@ -23,7 +23,7 @@ public class KafkaConsumerTracker {
         this.totalRecords.increment();
     }
 
-    public ConsumerPosition position(KafkaConsumerResource resource){
+    public <K, V> ConsumerPosition position(KafkaConsumerResource<K, V> resource){
         Map<TopicPartition, Long> currentPosition = resource.currentPosition(endOffsets.keySet());
 
         return track(startOffsets, endOffsets, currentPosition, totalRecords.getValue());
