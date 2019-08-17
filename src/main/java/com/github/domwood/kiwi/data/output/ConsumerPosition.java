@@ -15,6 +15,10 @@ public interface ConsumerPosition {
     Long endValue();
     Long consumerPosition();
     Integer percentage();
-    Integer skipped();
     Integer totalRecords();
+
+    @Value.Default
+    default Integer skippedPercentage(){
+        return 0;
+    }
 }

@@ -5,6 +5,7 @@ import com.github.domwood.kiwi.data.output.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.Map;
 import java.util.Optional;
@@ -59,14 +60,13 @@ public class TestDataFactory {
     }
 
     public static ConsumerRequest buildConsumerRequest(String topic){
-        return buildConsumerRequest(topic, false, 1);
+        return buildConsumerRequest(topic, 1);
     }
 
-    public static ConsumerRequest buildConsumerRequest(String topic, boolean appliesFromStart, int limit){
+    public static ConsumerRequest buildConsumerRequest(String topic, int limit){
         return ImmutableConsumerRequest.builder()
                 .topics(singletonList(topic))
                 .limit(limit)
-                .limitAppliesFromStart(appliesFromStart)
                 .build();
     }
 
@@ -74,7 +74,6 @@ public class TestDataFactory {
         return ImmutableConsumerToFileRequest.builder()
                 .topics(singletonList(testTopic))
                 .limit(-1)
-                .limitAppliesFromStart(false)
                 .fileType(type)
                 .addColumns(columns)
                 .columnDelimiter(Optional.ofNullable(delimiter))
@@ -173,5 +172,33 @@ public class TestDataFactory {
                 .lag(0L)
                 .build();
     }
+
+    public static TopicPartition topicPartition0 = new TopicPartition("test", 0);
+    public static TopicPartition topicPartition1 = new TopicPartition("test", 1);
+    public static TopicPartition topicPartition2 = new TopicPartition("test", 2);
+
+    public static Map<TopicPartition, Long> startAtZero = ImmutableMap.of(
+            topicPartition0, 0L,
+            topicPartition1, 0L,
+            topicPartition2, 0L
+    );
+
+    public static Map<TopicPartition, Long> middleOffset = ImmutableMap.of(
+            topicPartition0, 50L,
+            topicPartition1, 50L,
+            topicPartition2, 50L
+    );
+
+    public static Map<TopicPartition, Long> endOffsets = ImmutableMap.of(
+            topicPartition0, 100L,
+            topicPartition1, 100L,
+            topicPartition2, 100L
+    );
+
+    public static Map<TopicPartition, Long> beyondEndOffsets = ImmutableMap.of(
+            topicPartition0, 200L,
+            topicPartition1, 200L,
+            topicPartition2, 200L
+    );
 
 }

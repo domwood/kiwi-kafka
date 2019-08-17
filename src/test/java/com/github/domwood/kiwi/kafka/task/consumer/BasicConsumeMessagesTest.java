@@ -52,16 +52,6 @@ public class BasicConsumeMessagesTest {
     @Mock
     KafkaConsumerResource<String, String> consumerResource;
 
-    private void setupAssignment(int partitionCount, int perPartitionSize){
-        reset(consumerResource);
-
-        when(consumerResource.assignment())
-                .thenReturn(assignment(partitionCount));
-
-        when(consumerResource.endOffsets(any(Set.class)))
-                .thenReturn(endOffsets(partitionCount, perPartitionSize));
-    }
-
     private void setupMock(int partitionCount, int perPartitionSize, int recordsPerPoll){
 
         setupAssignment(partitionCount, perPartitionSize);
@@ -74,12 +64,22 @@ public class BasicConsumeMessagesTest {
         stub.thenReturn(emptyRecords());
     }
 
+    private void setupAssignment(int partitionCount, int perPartitionSize){
+        reset(consumerResource);
+
+        when(consumerResource.assignment())
+                .thenReturn(assignment(partitionCount));
+
+        when(consumerResource.endOffsets(any(Set.class)))
+                .thenReturn(endOffsets(partitionCount, perPartitionSize));
+    }
+
     @DisplayName("Basic test that message consuming works")
     @Test
     public void testConsumeMessages() throws InterruptedException, ExecutionException, TimeoutException {
         setupMock(2, 3, 1);
 
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, false, 100));
+        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, 100));
 
         ConsumerResponse<String, String> consumerResponse =
                 basicConsumeMessages.execute().get(20, TimeUnit.SECONDS);
@@ -90,48 +90,13 @@ public class BasicConsumeMessagesTest {
         assertEquals(consumerResponse.messages(), expected);
     }
 
-    @DisplayName("Test that limitFromStart to false and limit=1 returns last message")
-    @Test
-    public void testLimitFromEnd() throws InterruptedException, ExecutionException, TimeoutException {
-        setupMock(2, 3, 1);
-
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, false, 1));
-
-        ConsumerResponse<String, String> consumerResponse =
-                basicConsumeMessages.execute().get(20, TimeUnit.SECONDS);
-
-        assertEquals(1, consumerResponse.messages().size());
-
-        List<ConsumedMessage<String, String>> create = buildConsumedMessages(2, 3);
-        List<ConsumedMessage<String, String>> expected = singletonList(create.get(5)); //limit = 1, so expect last in list
-
-        assertEquals(consumerResponse.messages(), expected);
-    }
-
-    @DisplayName("Test that limitFromStart to true and limit=1 returns first message")
-    @Test
-    public void testLimitFromStart() throws InterruptedException, ExecutionException, TimeoutException {
-        setupMock(2, 3, 1);
-
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, true, 1));
-
-        ConsumerResponse<String, String> consumerResponse =
-                basicConsumeMessages.execute().get(20, TimeUnit.SECONDS);
-
-        assertEquals(1, consumerResponse.messages().size());
-
-        List<ConsumedMessage<String, String>> expected = buildConsumedMessages(1, 1);
-
-        assertEquals(consumerResponse.messages(), expected);
-    }
-
     @DisplayName("Test that limits are applied after filter checks")
     @Test
     public void testFiltersAppliedBeforeLimitCheck() throws InterruptedException, ExecutionException, TimeoutException {
         setupMock(2, 3, 1);
 
         ConsumerRequest request = ImmutableConsumerRequest.builder()
-                .from(buildConsumerRequest(testTopic, false, 2))
+                .from(buildConsumerRequest(testTopic, 2))
                 .filters(asList(ImmutableMessageFilter
                         .builder()
                         .filter(String.format(KEY_VALUE, 1))

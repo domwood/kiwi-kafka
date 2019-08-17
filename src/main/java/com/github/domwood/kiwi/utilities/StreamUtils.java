@@ -80,7 +80,7 @@ public class StreamUtils {
         return o1;
     }
 
-    public static <K, V> Collector<? extends Map.Entry<K, V>, ?, Map<K, V>> mapCollector(){
+    public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> mapCollector(){
         return toMap(Map.Entry::getKey, Map.Entry::getValue, StreamUtils::arbitrary);
     }
 

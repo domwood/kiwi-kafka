@@ -16,10 +16,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -108,7 +105,7 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
 
             if (topics.isEmpty()) return Collections.emptyMap();
 
-            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, false);
+            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, Optional.empty()).getEndOffsets();
 
             return mapToOffset(offsetData, endOffsets);
         });
