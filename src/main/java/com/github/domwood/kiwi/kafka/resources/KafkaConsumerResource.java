@@ -67,6 +67,10 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
         this.getClient().seekToBeginning(topicPartitions);
     }
 
+    public void seek(Map<TopicPartition, Long> topicPartitions){
+        topicPartitions.forEach((k, v) -> this.getClient().seek(k, v));
+    }
+
     public Map<TopicPartition, Long> endOffsets(Set<TopicPartition> topicPartitions){
         return this.getClient().endOffsets(topicPartitions);
     }

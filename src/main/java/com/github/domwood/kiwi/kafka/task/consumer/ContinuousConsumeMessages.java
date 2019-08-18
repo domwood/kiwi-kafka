@@ -10,6 +10,7 @@ import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.kafka.utils.KafkaConsumerTracker;
+import com.github.domwood.kiwi.kafka.utils.KafkaOffsetPositionCalculator;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static com.github.domwood.kiwi.kafka.utils.KafkaOffsetPositionCalculator.getStartingPositions;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
@@ -77,9 +79,7 @@ public class ContinuousConsumeMessages
         this.filters = input.filters();
 
         try{
-            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
-            Map<TopicPartition, Long> startOffsets = resource.currentPosition(endOffsets.keySet());
-            KafkaConsumerTracker tracker = new KafkaConsumerTracker(endOffsets,startOffsets);
+            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
 
             forward(emptyList(), tracker.position(resource));
 

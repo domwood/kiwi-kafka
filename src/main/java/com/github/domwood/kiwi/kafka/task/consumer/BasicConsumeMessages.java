@@ -9,6 +9,7 @@ import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
+import com.github.domwood.kiwi.kafka.utils.KafkaConsumerTracker;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -38,7 +39,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
     protected ConsumerResponse<String, String> delegateExecuteSync() {
 
         try {
-            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), true);
+            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
 
             Queue<ConsumedMessage<String, String>> queue = selectQueueType();
 
@@ -58,7 +59,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
 
                     pollEmptyCount = 0;
                     Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
-                    while (recordIterator.hasNext() && !inputLimitReached(queue)) {
+                    while (recordIterator.hasNext()) {
                         ConsumerRecord<String, String> record = recordIterator.next();
                         if (filter.test(record)) {
                             queue.add(asConsumedRecord(record));
@@ -67,7 +68,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
                     }
                     commitAsync(toCommit);
                 }
-                running = shouldContinueRunning(pollEmptyCount, endOffsets, toCommit, queue);
+                running = shouldContinueRunning(pollEmptyCount, tracker.getEndOffsets(), toCommit);
             }
 
             return ImmutableConsumerResponse.<String, String>builder()
@@ -83,15 +84,10 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
 
     private boolean shouldContinueRunning(int pollEmptyCount,
                                           Map<TopicPartition, Long> endOffsets,
-                                          Map<TopicPartition, OffsetAndMetadata> toCommit,
-                                          Queue<ConsumedMessage<String, String>> queue) {
+                                          Map<TopicPartition, OffsetAndMetadata> toCommit) {
 
         if (pollEmptyCount > 3) {
             logger.debug("Polled empty 3 times, closing consumer");
-            return false;
-        }
-        if (inputLimitReached(queue)) {
-            logger.debug("Max queue size reached");
             return false;
         }
         if (isEndOfData(endOffsets, toCommit)) {
@@ -102,22 +98,9 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
         return true;
     }
 
-    private boolean inputLimitReached(Queue<ConsumedMessage<String, String>> queue) {
-        if(input.limit() < 1){
-            return false;
-        }
-        if(input.limitAppliesFromStart()){
-            return queue.size() >= input.limit();
-        }
-        return false;
-    }
 
     private Queue<ConsumedMessage<String, String>> selectQueueType() {
-        if (input.limit() > 0 && !input.limitAppliesFromStart()) {
-            return new CircularFifoQueue<>(input.limit());
-        } else {
-            return new LinkedList<>();
-        }
+        return new CircularFifoQueue<>(input.limit());
     }
 
     private void commitAsync(Map<TopicPartition, OffsetAndMetadata> toCommit) {
