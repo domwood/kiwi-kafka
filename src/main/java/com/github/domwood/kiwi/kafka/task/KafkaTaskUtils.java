@@ -31,7 +31,7 @@ public class KafkaTaskUtils {
                                                         Optional<ConsumerStartPosition> startPostition) {
         resource.subscribe(topics);
 
-        logger.debug("Consumer awaiting assignment for {} ...", topics);
+        logger.info("Consumer awaiting assignment for {} ...", topics);
 
         Set<TopicPartition> topicPartitionSet = resource.assignment();
 
@@ -45,7 +45,7 @@ public class KafkaTaskUtils {
             throw new ConsumerAssignmentTimeoutException("Timed out awaiting an assignment for topics " + topics);
         }
 
-        logger.debug("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, topics);
+        logger.info("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, topics);
 
         resource.seekToBeginning(topicPartitionSet);
 
@@ -56,11 +56,11 @@ public class KafkaTaskUtils {
                 .orElse(startOffset);
 
         startPostition.ifPresent(s -> {
-            logger.debug("Consumer start position defined, scanning to the partition start");
+            logger.info("Consumer start position defined, scanning to the partition start");
             resource.seek(consumerStartingPosition);
         });
 
-        logger.debug("Consumer sought to beginning, polling for records");
+        logger.info("Consumer sought to beginning, polling for records");
 
         return new KafkaConsumerTracker(startOffset, endOffsets, consumerStartingPosition);
     }

@@ -54,7 +54,7 @@ public class KafkaOffsetPositionCalculator {
     }
 
     private static long calculateOffset(Long startOffset, Long offsetDifference, Double percentage){
-        return ((long) (offsetDifference.doubleValue() * percentage)) + startOffset;
+        return ((long) (offsetDifference.doubleValue() * (percentage/100))) + startOffset;
     }
 
     private static long rangeCheckOffsetValue(Long endOffset, Map.Entry<TopicPartition, Long> entry) {

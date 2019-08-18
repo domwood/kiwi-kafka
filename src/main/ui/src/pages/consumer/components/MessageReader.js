@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {Button, Progress} from "reactstrap";
 import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
+import ConsumerSlider from "./ConsumerSlider";
 
 class MessageReader extends Component {
 
@@ -17,7 +18,8 @@ class MessageReader extends Component {
             position:0,
             startValue: 0,
             endValue: 0,
-            consumerPosition: 0
+            consumerPosition: 0,
+            startingPosition: 0.0
         }
     }
 
@@ -37,7 +39,8 @@ class MessageReader extends Component {
             position:0,
             startValue: 0,
             endValue: 0,
-            consumerPosition: 0
+            consumerPosition: 0,
+            skippedPosition:0
         },cb)
     };
 
@@ -57,20 +60,23 @@ class MessageReader extends Component {
             }
             this.props.updateMessages(messages)
             let position = (response.position||{})
+
             this.setState({
                 consuming: true,
                 consumeCount: this.state.consumeCount+response.messages.length,
-                position: position.percentage || 0,
+                position: position.percentage - (position.skippedPercentage||0) || 0,
                 totalRecords: position.totalRecords || 0,
                 startValue: position.startValue || 0,
                 endValue: position.endValue || 0,
-                consumerPosition: position.consumerPosition ||0
+                consumerPosition: position.consumerPosition ||0,
+                skippedPosition: position.skippedPercentage || 0
             });
+            console.log(this.state);
         }
     };
 
     onWebsocketError = (error) => {
-        toast.error(`Failed to r*etrieve data from server ${error.message}`)
+        toast.error(`Failed to retrieve data from server ${error.message}`)
         this.clearCounts();
         WebSocketService.disconnect();
     };
@@ -94,6 +100,7 @@ class MessageReader extends Component {
                 WebSocketService.consume(
                     [this.props.targetTopic],
                     this.props.filters,
+                    this.state.startingPosition,
                     this.onWebSocketMessage,
                     this.onWebsocketError,
                     this.onWebSocketClose
@@ -104,6 +111,12 @@ class MessageReader extends Component {
 
     stopConsumer = () => {
         this.clearCounts(() => WebSocketService.disconnect());
+    };
+
+    onUpdateConsumerPosition = (value) => {
+        this.setState({
+            startingPosition: value
+        })
     };
 
     render() {
@@ -130,12 +143,28 @@ class MessageReader extends Component {
 
                 <div>
                     <div className={"Gap"}></div>
+
+                    <ConsumerSlider id={'slider'}
+                                    consumerPosition={this.state.startingPosition}
+                                    onUpdateConsumerPosition={this.onUpdateConsumerPosition}
+                                    disabled={this.state.consuming}
+                    />
+
+                    <div className={"Gap"}></div>
+
                     <div className="text-center">{
                         this.state.consuming ?
-                            'Showing: ' +  this.props.messages.length + ', Matched: '+this.state.consumeCount+', Records: '+ this.state.totalRecords +
-                            ', Offset: '+ (this.state.consumerPosition)+' of ' +  (this.state.endValue) : ''
+                            'Showing: ' +  this.props.messages.length +
+                            ', Matched: '+this.state.consumeCount +
+                            ', Records Processed: '+ this.state.totalRecords +
+                            ', Offset: '+ (this.state.consumerPosition)+' of ' +  (this.state.endValue) +
+                            (this.state.skippedPosition < 0.1 ? '' : ' ('+this.state.skippedPosition+'% Skipped)'): ''
                     }</div>
-                    <Progress animated color="success" value={this.state.position} />
+                    <Progress multi max={100}>
+                        <Progress animated bar color="danger" value={this.state.skippedPosition} />
+                        <Progress animated bar color="success" value={this.state.position} />
+                    </Progress>
+
                 </div>
             </div>
         )

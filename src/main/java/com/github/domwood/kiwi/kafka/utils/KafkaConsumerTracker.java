@@ -43,7 +43,7 @@ public class KafkaConsumerTracker {
         long currentPosition = asTotalOffset(currentOffsets);
         if(end <  currentPosition) end = currentPosition;
 
-        double skippedOffset = calculatePercentage(start, end, startingPosition);
+        double skippedOffset = start == end ? 0.0 : calculatePercentage(start, end, startingPosition);
         double percentageOffset = calculatePercentage(start, end, currentPosition);
 
         return ImmutableConsumerPosition.builder()

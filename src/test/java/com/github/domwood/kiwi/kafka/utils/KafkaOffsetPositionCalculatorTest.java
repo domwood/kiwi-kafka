@@ -16,7 +16,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void testTotalTopicPercentage(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(0.2)
+                .topicPercentage(20.0)
                 .build();
 
         Map<TopicPartition, Long> observed =
@@ -33,7 +33,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void testTotalTopicCanBe100Percent(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(1.0)
+                .topicPercentage(100.0)
                 .build();
 
         Map<TopicPartition, Long> observed =
@@ -45,7 +45,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void testTotalTopicCanBeNoMoreThan100Percent(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(2.0)
+                .topicPercentage(200.0)
                 .build();
 
         Map<TopicPartition, Long> observed =
@@ -58,9 +58,9 @@ public class KafkaOffsetPositionCalculatorTest {
     public void testPerPartitionPercentage(){
         ConsumerStartPosition positionPerPartitionOffsets = ImmutableConsumerStartPosition.builder()
                 .percentages(ImmutableMap.of(
-                        0, 0.5,
-                        1, 0.1,
-                        2, 0.2))
+                        0, 50.0,
+                        1, 10.0,
+                        2, 20.0))
                 .build();
 
         Map<TopicPartition, Long> observed =
@@ -98,7 +98,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void testOffsetAllZero(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(0.2)
+                .topicPercentage(20.0)
                 .build();
 
         Map<TopicPartition, Long> observed =
@@ -115,7 +115,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void testEndSameAsStartOffset(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(0.2)
+                .topicPercentage(20.0)
                 .build();
 
         Map<TopicPartition, Long> observed =
@@ -132,7 +132,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void checkPartitionsOfDifferingSize(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(0.2)
+                .topicPercentage(20.0)
                 .build();
 
         Map<TopicPartition, Long> input = ImmutableMap.of(
@@ -174,7 +174,7 @@ public class KafkaOffsetPositionCalculatorTest {
     @Test
     public void checkHandleNegativeOffsetsGreaterThanExpected(){
         ConsumerStartPosition positionTotalPercentage = ImmutableConsumerStartPosition.builder()
-                .topicPercentage(0.2)
+                .topicPercentage(20.0)
                 .build();
 
         Map<TopicPartition, Long> observed =

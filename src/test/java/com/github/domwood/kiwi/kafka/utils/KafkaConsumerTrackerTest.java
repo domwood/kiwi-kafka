@@ -114,7 +114,7 @@ public class KafkaConsumerTrackerTest {
 
         ConsumerPosition observed = consumerTracker.position(consumerResource);
 
-        ConsumerPosition expected = position(300, 300, 300, 100, 0, 100);
+        ConsumerPosition expected = position(300, 300, 300, 100, 0, 0);
 
         assertEquals(expected, observed);
     }

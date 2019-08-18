@@ -77,7 +77,7 @@ it('check kafka messages from websocket', async () => {
 
     WebSocketService.connect.mockImplementation(cb => cb());
 
-    WebSocketService.consume.mockImplementation((topics, filters, cb, eb, close) => {
+    WebSocketService.consume.mockImplementation((topics, filters, startPosition, cb, eb, close) => {
         cb(testDataResponse);
     });
 
@@ -107,6 +107,7 @@ it('check kafka messages from websocket', async () => {
     expect(WebSocketService.consume).toHaveBeenCalledWith(
         ['testDataTopic'],
         [],
+        0.0,
         expect.any(Function),
         expect.any(Function),
         expect.any(Function)
