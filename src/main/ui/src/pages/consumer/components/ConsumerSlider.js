@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import Slider, {Handle} from 'rc-slider';
-import {Input, InputGroup, InputGroupAddon, Tooltip} from "reactstrap";
+import {Input, InputGroup, InputGroupAddon} from "reactstrap";
 
 const SliderStyle = {
     width: '85%',
