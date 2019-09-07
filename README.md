@@ -70,3 +70,9 @@ Editing should javascript should lead to live updates of the UI at `localhost:30
 The UI will also be available at `localhost:8080` or whatever port you have set `server.port` to.
 But this will not update automatically when making changes.
   
+
+#### Current release process
+ - mvn clean release:prepare
+ - mvn clean release:perform
+ - Manual upload jar, release draft
+ - Push docker images
