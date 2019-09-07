@@ -15,6 +15,7 @@ public class KafkaConsumerConfig extends KafkaConfig{
     private String groupId;
     private String enableAutoCommit;
     private String autoOffsetReset;
+    private String maxPollRecords;
 
     public String getGroupId() {
         return groupId;
@@ -40,6 +41,14 @@ public class KafkaConsumerConfig extends KafkaConfig{
         this.autoOffsetReset = autoOffsetReset;
     }
 
+    public String getMaxPollRecords() {
+        return maxPollRecords;
+    }
+
+    public void setMaxPollRecords(String maxPollRecords) {
+        this.maxPollRecords = maxPollRecords;
+    }
+
     public Properties createStringConfig(Optional<String> bootstrapServers){
         Properties props = baseConfig(bootstrapServers);
         props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
@@ -51,6 +60,7 @@ public class KafkaConsumerConfig extends KafkaConfig{
         Properties properties = super.createConfig(bootstrapServers);
         properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
 
         return properties;
     }

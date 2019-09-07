@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
 import static java.util.Collections.singletonList;
@@ -26,7 +27,7 @@ public class BrokerLogInformation extends AbstractKafkaTask<Integer, BrokerLogIn
     protected CompletableFuture<BrokerLogInfoList> delegateExecute() {
         DescribeLogDirsResult result = resource.describeLogDirs(singletonList(input));
 
-        return FutureUtils.toCompletable(result.values().get(input))
+        return FutureUtils.toCompletable(result.values().get(input), 30, TimeUnit.SECONDS)
                 .thenApply(data -> ImmutableBrokerLogInfoList.builder()
                         .addAllBrokerLogInfo(handle(data))
                         .build());

@@ -70,6 +70,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
                 }
                 running = shouldContinueRunning(pollEmptyCount, tracker.getEndOffsets(), toCommit);
             }
+            this.resource.unsubscribe();
 
             return ImmutableConsumerResponse.<String, String>builder()
                     .messages(queue.stream()
@@ -104,7 +105,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
     }
 
     private void commitAsync(Map<TopicPartition, OffsetAndMetadata> toCommit) {
-        if (!toCommit.isEmpty()) {
+        if (resource.isCommittingConsumer() && !toCommit.isEmpty()) {
             resource.commitAsync(toCommit, this::logCommit);
         }
     }

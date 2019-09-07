@@ -3,22 +3,25 @@ package com.github.domwood.kiwi.utilities;
 import com.github.domwood.kiwi.exceptions.KiwiFutureException;
 import com.github.domwood.kiwi.kafka.task.KiwiTaskExecutor;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.sql.Time;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 public class FutureUtils {
     private FutureUtils(){}
 
-    public static <T> CompletableFuture<T> toCompletable(Future<T> future){
+    public static <T> CompletableFuture<T> toCompletable(Future<T> future, long timeout, TimeUnit unit){
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return future.get();
-            } catch (InterruptedException | ExecutionException e) {
+                return future.get(timeout, unit);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 throw new KiwiFutureException(e);
             }
         }, KiwiTaskExecutor.getInstance());
+    }
+
+    public static <T> CompletableFuture<T> toCompletable(Future<T> future){
+        return toCompletable(future, 10, TimeUnit.MINUTES);
     }
 
     public static <T> CompletableFuture<T> failedFuture(Throwable ex){

@@ -11,6 +11,7 @@ import org.apache.kafka.clients.admin.DescribeClusterResult;
 import org.apache.kafka.common.Node;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.domwood.kiwi.utilities.StreamUtils.extract;
 
@@ -24,7 +25,7 @@ public class BrokerInformation extends AbstractKafkaTask<Void, BrokerInfoList, K
     protected CompletableFuture<BrokerInfoList> delegateExecute() {
         DescribeClusterResult clusterResult = resource.describeCluster();
 
-        return FutureUtils.toCompletable(clusterResult.nodes())
+        return FutureUtils.toCompletable(clusterResult.nodes(), 30, TimeUnit.SECONDS)
                 .thenApply(nodes -> ImmutableBrokerInfoList.builder()
                         .addAllBrokerInfo(extract(nodes, this::fromNode))
                         .build());

@@ -147,7 +147,7 @@ class MessageReader extends Component {
                     <ConsumerSlider id={'slider'}
                                     consumerPosition={this.state.startingPosition}
                                     onUpdateConsumerPosition={this.onUpdateConsumerPosition}
-                                    disabled={this.state.consuming}
+                                    isConsuming={this.state.consuming}
                     />
 
                     <div className={"Gap"}></div>

@@ -5,8 +5,9 @@ import {Input, InputGroup, InputGroupAddon} from "reactstrap";
 
 const SliderStyle = {
     width: '85%',
-    padding: '16px 0px',
-    marginRight: '15px'
+    padding: '11px 0px',
+    marginRight: '15px',
+    backgroundColor: 'rgba(111, 220, 137, 0.0)'
 };
 
 class ConsumerSlider extends Component {
@@ -27,7 +28,9 @@ class ConsumerSlider extends Component {
         const { value, dragging, index, ...restProps } = props;
         return (
             <div>
-                <Handle id="handle" value={value} {...restProps} />
+                <Handle id="handle"
+                        value={value}
+                        {...restProps} />
             </div>
 
         );
@@ -47,6 +50,21 @@ class ConsumerSlider extends Component {
                         handle={this.handle}
                         onChange={this.onUpdateConsumerPosition}
                         value={this.props.consumerPosition}
+                        disabled={this.props.isConsuming}
+                        railStyle={{
+                            'height': '16px'
+                        }}
+                        trackStyle={{
+                            'height': '16px',
+                            'backgroundColor': '#6fdc89',
+                        }}
+                        handleStyle={{
+                            'height': '24px',
+                            'width': '24px',
+                            'borderColor': '#28a745',
+                            'borderRadius': '0.2rem',
+                            'backgroundColor': '#28a745'
+                        }}
                     />
                     <Input
                         min={0}
@@ -67,7 +85,8 @@ class ConsumerSlider extends Component {
 ConsumerSlider.propTypes = {
     id: PropTypes.string.isRequired,
     onUpdateConsumerPosition: PropTypes.func.isRequired,
-    consumerPosition: PropTypes.number.isRequired
+    consumerPosition: PropTypes.number.isRequired,
+    isConsuming: PropTypes.bool.isRequired
 };
 
 export default ConsumerSlider;

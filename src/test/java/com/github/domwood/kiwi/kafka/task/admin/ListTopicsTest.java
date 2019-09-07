@@ -25,6 +25,8 @@ import java.util.concurrent.TimeoutException;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,12 +44,12 @@ public class ListTopicsTest {
     List<TopicListing> topicListings = new ArrayList<>();
 
     @BeforeEach
-    public void beforeEach() throws ExecutionException, InterruptedException {
+    public void beforeEach() {
         topicListings.clear();
 
         when(resource.listTopics()).thenReturn(result);
         when(result.listings()).thenReturn(future);
-        when(future.get()).thenReturn(topicListings);
+
     }
 
     private void addTopic(String... topics){
@@ -65,6 +67,7 @@ public class ListTopicsTest {
     @DisplayName("Returns a list of topics")
     @Test
     public void testListTopics() throws InterruptedException, ExecutionException, TimeoutException {
+        when(future.get(anyLong(), any(TimeUnit.class))).thenReturn(topicListings);
 
         addTopic("test1", "test2");
 
@@ -81,7 +84,7 @@ public class ListTopicsTest {
     @Test
     public void testListTopicsFailure() throws InterruptedException, ExecutionException, TimeoutException {
 
-        when(future.get()).thenThrow(new KafkaException("Failed to get topic list"));
+        when(future.get(anyLong(), any(TimeUnit.class))).thenThrow(new KafkaException("Failed to get topic list"));
 
         ListTopics listTopics = new ListTopics(resource, null);
 
@@ -96,6 +99,7 @@ public class ListTopicsTest {
     @DisplayName("Returned list is ordered alphabetically")
     @Test
     public void ordersAlphabetically() throws InterruptedException, ExecutionException, TimeoutException {
+        when(future.get(anyLong(), any(TimeUnit.class))).thenReturn(topicListings);
 
         addTopic(
                 "canada",

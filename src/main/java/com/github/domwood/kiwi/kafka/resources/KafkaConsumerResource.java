@@ -8,16 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
 
 public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaConsumer<K, V>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Properties properties;
 
     public KafkaConsumerResource(Properties config) {
         super(config);
@@ -25,7 +23,7 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
 
     @Override
     protected KafkaConsumer<K, V> createClient(Properties props) {
-        Properties properties =  new Properties();
+        this.properties = new Properties();
         properties.putAll(props);
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, Thread.currentThread().getName());
         properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, Thread.currentThread().getName());
@@ -49,6 +47,12 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
         catch (Exception e){
             throw new KafkaResourceClientCloseException("Failed to cleanly close WebSocketService, due to "+e.getMessage(), e);
         }
+    }
+
+    public boolean isCommittingConsumer(){
+        return Optional.ofNullable(this.properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG))
+                .orElse("true")
+                .equals("true");
     }
 
     public void subscribe(List<String> topics){
@@ -85,4 +89,14 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
         this.getClient().commitAsync(offsets, callback);
     }
 
+    public void unsubscribe(){
+        try{
+            this.getClient().unsubscribe();
+            logger.info("Unsubscribing client from topics");
+        }
+        catch (Exception e){
+            logger.warn("Failed to unsubscribe client", e);
+        }
+
+    }
 }

@@ -10,7 +10,6 @@ import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.kafka.utils.KafkaConsumerTracker;
-import com.github.domwood.kiwi.kafka.utils.KafkaOffsetPositionCalculator;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -20,12 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static com.github.domwood.kiwi.kafka.utils.KafkaOffsetPositionCalculator.getStartingPositions;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Collections.emptyList;
@@ -37,6 +34,9 @@ public class ContinuousConsumeMessages
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Integer BATCH_SIZE = 100;
+    private static final Integer MAX_MESSAGES = 500;
+    private static final Integer MAX_MESSAGE_BYTES = 500 * 2000 * 16;
+
     private final AtomicBoolean closed;
     private final AtomicBoolean paused;
 
@@ -102,23 +102,28 @@ public class ContinuousConsumeMessages
 
                         Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
                         Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
+                        int totalBatchSize = 0;
                         while (recordIterator.hasNext() && !this.isClosed()) {
                             ConsumerRecord<String, String> record = recordIterator.next();
                             tracker.incrementRecordCount();
+                            totalBatchSize += record.value().length() * 16;
 
                             if (filter.test(record)) {
                                 messages.add(asConsumedRecord(record));
                                 toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                             }
 
-                            if (messages.size() >= BATCH_SIZE) {
-                                forwardAndCommit(resource, messages, toCommit, tracker.position(resource));
+                            if (totalBatchSize >= MAX_MESSAGE_BYTES || messages.size() >= MAX_MESSAGES) {
+                                forwardAndMaybeCommit(resource, messages, toCommit, tracker.position(resource));
+                                totalBatchSize = 0;
                             }
                         }
-                        forwardAndCommit(resource, messages, toCommit, tracker.position(resource));
+                        forwardAndMaybeCommit(resource, messages, toCommit, tracker.position(resource));
                     }
                 }
             }
+
+            this.resource.unsubscribe();
         }
         catch (Exception e){
             logger.error("Error occurred during continuous kafka consuming", e);
@@ -147,17 +152,19 @@ public class ContinuousConsumeMessages
                 .build();
     }
 
-    private void forwardAndCommit(KafkaConsumerResource<String, String> resource,
-                                  List<ConsumedMessage<String, String>> messages,
-                                  Map<TopicPartition, OffsetAndMetadata> toCommit,
-                                  ConsumerPosition position){
+    private void forwardAndMaybeCommit(KafkaConsumerResource<String, String> resource,
+                                       List<ConsumedMessage<String, String>> messages,
+                                       Map<TopicPartition, OffsetAndMetadata> toCommit,
+                                       ConsumerPosition position){
         //Blocking Call
         logger.info("Message batch size {} forwarding to consumers", messages.size());
 
         if(!this.isClosed()){
             forward(messages, position);
 
-            resource.commitAsync(toCommit, this::logCommit);
+            if(resource.isCommittingConsumer()){
+                resource.commitAsync(toCommit, this::logCommit);
+            }
 
             messages.clear();
             toCommit.clear();
