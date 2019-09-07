@@ -72,7 +72,7 @@ But this will not update automatically when making changes.
   
 
 #### Current release process
- - mvn clean release:prepare
- - mvn clean release:perform
+ - `mvn clean release:prepare`
+ - `mvn clean release:perform`
  - Manual upload jar, release draft
  - Push docker images
