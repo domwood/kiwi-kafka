@@ -55,6 +55,9 @@ Dependencies:
  
 Build:
  - Run `mvn clean install`
+
+Run: 
+ - Run `mvn spring-boot:run`
  - or Jar runnable via `java -jar -DKAFKA_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
   
 #### Development - Getting Started
@@ -62,7 +65,7 @@ Build:
 There are various ways this can be started locally, this is my preferred method:
 
  - Run `./run-docker.sh`
- - Start KiwiApplication in your ide or via above method
+ - Start KiwiApplication or via `mvn spring-boot:run`
  - Run `./run-node-server.sh`
  - Go to `localhost:3000` to see UI
  
@@ -75,4 +78,4 @@ But this will not update automatically when making changes.
  - `mvn clean release:prepare`
  - `mvn clean release:perform`
  - Manual upload jar, release draft
- - Push docker images
+ - Docker image is pushed in the perform step, but I also potentially retag as latest and push that
