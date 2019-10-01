@@ -23,10 +23,17 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
 
     @Override
     protected KafkaConsumer<K, V> createClient(Properties props) {
+        //TODO improve passing these values
+        String groupIdPrefix = props.getProperty("groupIdPrefix", "");
+        String groupIdSuffix = props.getProperty("groupIdSuffix", "");
+        String groupId = String.format("%s%s%s", groupIdPrefix, Thread.currentThread().getName(), groupIdSuffix);
+        props.remove("groupIdPrefix");
+        props.remove("groupIdSuffix");
+
         this.properties = new Properties();
         properties.putAll(props);
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, Thread.currentThread().getName());
-        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, Thread.currentThread().getName());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, groupId);
         return new KafkaConsumer<>(properties);
     }
 

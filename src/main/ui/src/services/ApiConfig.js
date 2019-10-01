@@ -10,6 +10,7 @@ console.log(`Local address as : ${baseUrl}`)
 export default {
     webSocket: `${baseWebSocket}`,
     version: `${baseRestApi}/version`,
+    profiles: `${baseRestApi}/profiles`,
     brokers: `${baseRestApi}/brokers`,
     logs: `${baseRestApi}/logs`,
     listTopics: `${baseRestApi}/listTopics`,

@@ -9,6 +9,7 @@ import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.domwood.kiwi.api.rest.utils.RestUtils.*;
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 
+@Profile("read-consumer")
 @CrossOrigin("*")
 @RestController
 @RequestMapping(API_ENDPOINT)

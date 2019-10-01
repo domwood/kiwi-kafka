@@ -36,7 +36,7 @@ import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AdminControllerTest {
+public class AdminReadControllerTest {
 
     @LocalServerPort
     private int port;
@@ -48,7 +48,7 @@ public class AdminControllerTest {
     private KafkaTaskProvider kafkaTaskProvider;
 
     @Autowired
-    private AdminController controller;
+    private AdminReadController controller;
 
     @Autowired
     private ObjectMapper objectMapper;
