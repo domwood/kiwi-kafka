@@ -51,7 +51,7 @@ class CreateTopic extends Component {
 
     setAddTopicPartition = (count) => {
         this.setState({
-            partitionCount: count
+            partitions: count
         })
     };
 
