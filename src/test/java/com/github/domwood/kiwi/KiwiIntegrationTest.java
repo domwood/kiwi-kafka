@@ -2,10 +2,7 @@ package com.github.domwood.kiwi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.domwood.kiwi.data.error.ApiError;
-import com.github.domwood.kiwi.data.input.ConsumerRequest;
-import com.github.domwood.kiwi.data.input.CreateTopicRequest;
-import com.github.domwood.kiwi.data.input.ImmutableCloseTaskRequest;
-import com.github.domwood.kiwi.data.input.ProducerRequest;
+import com.github.domwood.kiwi.data.input.*;
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.testutils.TestKafkaServer;
 import com.github.domwood.kiwi.testutils.TestWebSocketClient;
@@ -25,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -147,6 +145,42 @@ public class KiwiIntegrationTest {
         assertEquals(testHeaders, message.headers());
     }
 
+    @DisplayName("Test correctly produce and consume a message from kafka for null values")
+    @SuppressWarnings("unchecked")
+    @Test
+    public void readWriteTestNullValuesTest(){
+        String readWriteTestTopic = "readWriteNullValuesTest";
+
+        createTopicAndAwait(readWriteTestTopic);
+
+        ProducerRequest produce =
+                ImmutableProducerRequest.builder().from(buildProducerRequest(readWriteTestTopic))
+                        .payload(Optional.empty())
+                .build();
+
+        ResponseEntity<ProducerResponse> producerResponse =
+                testRestTemplate.postForEntity("http://localhost:"+serverPort+"/api/produce", asJsonPayload(produce), ProducerResponse.class);
+
+        assertTrue(producerResponse.getStatusCode().is2xxSuccessful());
+        assertEquals(readWriteTestTopic, producerResponse.getBody().topic());
+
+        ConsumerRequest consumerRequest = buildConsumerRequest(readWriteTestTopic);
+
+        ResponseEntity<ConsumerResponse> consumerResponse = awaitAndReturn(
+                () -> testRestTemplate.postForEntity("http://localhost:"+serverPort+"/api/consume", asJsonPayload(consumerRequest), ConsumerResponse.class),
+                (response) -> response.getStatusCode().is2xxSuccessful() && response.getBody().messages().size() > 0);
+
+        assertEquals(HttpStatus.OK, consumerResponse.getStatusCode());
+        assertNotNull(consumerResponse.getBody());
+        assertEquals(1, consumerResponse.getBody().messages().size());
+
+        ConsumedMessage<String, String> message = (ConsumedMessage<String, String>) consumerResponse.getBody().messages().get(0);
+
+        assertEquals(testKey, message.key());
+        assertEquals(null, message.message());
+        assertEquals(testHeaders, message.headers());
+    }
+
     @DisplayName("Test Broker Information Returned")
     @Test
     public void brokerInfoTest(){
@@ -196,6 +230,59 @@ public class KiwiIntegrationTest {
                         .from(buildConsumedMessage())
                         .timestamp(observed.messages().get(0).timestamp())//Can't really guarantee these values
                         .offset(0)
+                        .build())
+                .position(buildConsumerPosition())
+                .build();
+
+        assertEquals(expected, observed);
+
+        String close = mapper.writeValueAsString(ImmutableCloseTaskRequest.builder().closeSession(true).build());
+        testWebSocketClient.send(close);
+
+        await().atMost(10, TimeUnit.SECONDS).until(() -> !testWebSocketClient.isOpen());
+    }
+
+    @DisplayName("Test Websocket connection can forward data consumed from kafka with null values")
+    @Test
+    public void testWebSocketEndpointHandlesNullValues() throws IOException {
+        String testWebSocketTopic = "testWebSocketTopicNullValues";
+
+        createTopicAndAwait(testWebSocketTopic);
+
+        ProducerRequest produce =
+                ImmutableProducerRequest.builder().from(buildProducerRequest(testWebSocketTopic))
+                        .payload(Optional.empty())
+                        .build();
+
+        ResponseEntity<ProducerResponse> producerResponse =
+                testRestTemplate.postForEntity("http://localhost:"+serverPort+"/api/produce", asJsonPayload(produce), ProducerResponse.class);
+
+        assertTrue(producerResponse.getStatusCode().is2xxSuccessful());
+        assertEquals(testWebSocketTopic, producerResponse.getBody().topic());
+
+        TestWebSocketClient testWebSocketClient = new TestWebSocketClient();
+        testWebSocketClient.connect( "ws://localhost:"+serverPort+"/ws");
+
+        await().atMost(10, TimeUnit.SECONDS).until(testWebSocketClient::isOpen);
+
+        String message = this.mapper.writeValueAsString(buildConsumerRequest(testWebSocketTopic));
+        testWebSocketClient.send(message);
+
+        await().atMost(10, TimeUnit.SECONDS).until(() -> testWebSocketClient.getReceived().size() > 1);
+
+        ConsumerResponse<String, String> initialPosition = mapper.readValue(testWebSocketClient.getReceived().poll().getPayload(), ConsumerResponse.class);
+
+        assertEquals(0, initialPosition.messages().size());
+        assertEquals(0, initialPosition.position().get().totalRecords());
+
+        ConsumerResponse<String, String> observed = mapper.readValue(testWebSocketClient.getReceived().poll().getPayload(), ConsumerResponse.class);
+
+        ConsumerResponse expected = ImmutableConsumerResponse.<String, String>builder()
+                .addMessage(ImmutableConsumedMessage.<String, String>builder()
+                        .from(buildConsumedMessage())
+                        .timestamp(observed.messages().get(0).timestamp())//Can't really guarantee these values
+                        .offset(0)
+                        .message(null)
                         .build())
                 .position(buildConsumerPosition())
                 .build();

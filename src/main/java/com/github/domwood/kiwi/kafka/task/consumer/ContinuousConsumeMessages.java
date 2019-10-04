@@ -106,11 +106,12 @@ public class ContinuousConsumeMessages
                         while (recordIterator.hasNext() && !this.isClosed()) {
                             ConsumerRecord<String, String> record = recordIterator.next();
                             tracker.incrementRecordCount();
-                            totalBatchSize += record.value().length() * 16;
+
 
                             if (filter.test(record)) {
                                 messages.add(asConsumedRecord(record));
                                 toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
+                                totalBatchSize += Optional.ofNullable(record.value()).orElse("").length() * 16;
                             }
 
                             if (totalBatchSize >= MAX_MESSAGE_BYTES || messages.size() >= MAX_MESSAGES) {
