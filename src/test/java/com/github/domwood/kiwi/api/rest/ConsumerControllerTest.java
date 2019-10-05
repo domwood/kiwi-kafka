@@ -69,7 +69,7 @@ public class ConsumerControllerTest {
     @Test
     public void testConsumerRequest() throws JsonProcessingException{
         when(basicConsumeMessages.execute())
-                .thenReturn(CompletableFuture.completedFuture(buildConsumerResponse()));
+                .thenReturn(CompletableFuture.completedFuture(buildConsumerResponse().build()));
 
         assertEquals(consumerResponseAsString(), testPostToUrl(this.restTemplate, this.url, consumerRequestAsString()));
 
@@ -96,11 +96,11 @@ public class ConsumerControllerTest {
     }
 
     private String consumerRequestAsString() throws JsonProcessingException {
-        return this.objectMapper.writeValueAsString(buildConsumerRequest());
+        return this.objectMapper.writeValueAsString(buildConsumerRequest().build());
     }
 
     private String consumerResponseAsString() throws JsonProcessingException {
-        return this.objectMapper.writeValueAsString(buildConsumerResponse());
+        return this.objectMapper.writeValueAsString(buildConsumerResponse().build());
     }
 
 }

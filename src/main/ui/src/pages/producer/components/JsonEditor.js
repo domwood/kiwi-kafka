@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {FormGroup, Input, Label} from "reactstrap";
+import {FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Label} from "reactstrap";
 import PropTypes from 'prop-types';
 import {toast} from "react-toastify/index";
 
@@ -10,17 +10,27 @@ class JsonEditor extends Component {
         this.state = {
             id : props.id,
             name : props.name,
-            local: ""
+            local: "",
+            nullMessage: false
         };
     }
 
     error = (msg) => toast.error(msg);
 
     updateState = (event) => {
-        let newValue = event.target.value;
+        let local = event.target.value;
+        let toSend = this.state.nullMessage ? null: local
         this.setState({
-            local: newValue
-        }, () => this.props.updateMessage(newValue));
+            local: event.target.value
+        }, () => this.props.updateMessage(toSend));
+    };
+
+    toggleNullMessage = () => {
+        this.setState({
+            nullMessage:!this.state.nullMessage
+        }, () => this.props.updateMessage(this.state.nullMessage ? null : this.state.local));
+
+
     };
 
     format = (messagedata, pretty) => {
@@ -43,18 +53,35 @@ class JsonEditor extends Component {
     render() {
         return (
             <FormGroup>
-                <Label for="exampleText">Input:</Label>
-                <Input type="textarea"
-                       name={this.state.name}
-                       id={this.state.id}
-                       bsSize="large"
-                       rows={15}
-                       height="200px"
-                       onChange={this.updateState}
-                       value={this.state.local}
-                />
-                {/*<Label for="exampleFile">Send Message From File:</Label>
-                <Input type="file" name="file" id="exampleFile" />*/}
+                <Label>Input:</Label>
+                <InputGroup>
+                    <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                            <Input addon type="checkbox"
+                                   aria-label="Send value of null"
+                                   name="nullRecordCheckbox"
+                                   id="nullRecordCheckbox"
+                                   value={this.state.nullMessage}
+                                   onChange={this.toggleNullMessage}
+                            />
+                        </InputGroupText>
+                    </InputGroupAddon>
+                    <Input placeholder={"Send Null Message Payload"} disabled></Input>
+                </InputGroup>
+                <div className={"Gap"}/>
+                {
+                    this.state.nullMessage ? null :
+                        <Input type="textarea"
+                               name={this.state.name}
+                               id={this.state.id}
+                               bsSize="large"
+                               rows={15}
+                               height="200px"
+                               onChange={this.updateState}
+                               value={this.state.local}
+                        />
+                }
+
             </FormGroup>
         )
     }

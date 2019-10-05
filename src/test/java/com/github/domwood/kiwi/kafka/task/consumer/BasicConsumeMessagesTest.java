@@ -79,7 +79,7 @@ public class BasicConsumeMessagesTest {
     public void testConsumeMessages() throws InterruptedException, ExecutionException, TimeoutException {
         setupMock(2, 3, 1);
 
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, 100));
+        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, 100).build());
 
         ConsumerResponse<String, String> consumerResponse =
                 basicConsumeMessages.execute().get(20, TimeUnit.SECONDS);
@@ -96,7 +96,7 @@ public class BasicConsumeMessagesTest {
         setupMock(2, 3, 1);
 
         ConsumerRequest request = ImmutableConsumerRequest.builder()
-                .from(buildConsumerRequest(testTopic, 2))
+                .from(buildConsumerRequest(testTopic, 2).build())
                 .filters(asList(ImmutableMessageFilter
                         .builder()
                         .filter(String.format(KEY_VALUE, 1))
@@ -127,7 +127,7 @@ public class BasicConsumeMessagesTest {
         when(consumerResource.poll(any(Duration.class)))
                 .thenThrow(new KafkaException("Failed to do kafka thing"));
 
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest());
+        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest().build());
 
         CompletableFuture<ConsumerResponse<String, String>> future = basicConsumeMessages.execute();
 

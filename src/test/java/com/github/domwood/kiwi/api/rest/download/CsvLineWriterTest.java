@@ -19,10 +19,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteKey() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testKey;
@@ -32,10 +32,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteValue() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", VALUE);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", VALUE).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testPayload;
@@ -45,10 +45,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteHeaders() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", HEADERS);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", HEADERS).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = mapper.writeValueAsString(testHeaders);
@@ -59,10 +59,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteOffset() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", OFFSET);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", OFFSET).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testOffset.toString();
@@ -72,10 +72,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWritePartition() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", PARTITION);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", PARTITION).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testPartition.toString();
@@ -85,10 +85,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteTimeStamp() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", TIMESTAMP);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", TIMESTAMP).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testTimestamp.toString();
@@ -98,10 +98,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteAll() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", ConsumerRequestColumns.values());
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", ConsumerRequestColumns.values()).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 
@@ -114,10 +114,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteAllCustomDelimiter() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, "||", ConsumerRequestColumns.values());
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, "||", ConsumerRequestColumns.values()).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 
@@ -130,10 +130,10 @@ public class CsvLineWriterTest {
 
     @Test
     public void testCsvWriteDefaultDelimiter() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, null, ConsumerRequestColumns.values());
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, null, ConsumerRequestColumns.values()).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 

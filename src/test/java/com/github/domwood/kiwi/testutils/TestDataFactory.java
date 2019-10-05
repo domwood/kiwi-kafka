@@ -32,145 +32,136 @@ public class TestDataFactory {
                 "segment.ms", "18000000");
     public static final String testClientId = "kiwiTestClient";
 
-    public static CreateTopicRequest createTopicRequest(String name){
+    public static ImmutableCreateTopicRequest.Builder createTopicRequest(String name){
         return ImmutableCreateTopicRequest
                 .builder()
                 .replicationFactor(replicationFactor)
                 .partitions(partitionCount)
                 .name(name)
-                .configuration(topicConfiguration)
-                .build();
+                .configuration(topicConfiguration);
     }
 
-    public static ProducerRequest buildProducerRequest(){
+    public static ImmutableProducerRequest.Builder buildProducerRequest(){
         return buildProducerRequest(testTopic);
     }
 
-    public static ProducerRequest buildProducerRequest(String topic){
+    public static ImmutableProducerRequest.Builder buildProducerRequest(String topic){
         return ImmutableProducerRequest.builder()
                 .topic(topic)
                 .key(testKey)
                 .payload(testPayload)
-                .headers(testHeaders)
-                .build();
+                .headers(testHeaders);
     }
 
-    public static ConsumerRequest buildConsumerRequest(){
+    public static ImmutableConsumerRequest.Builder buildConsumerRequest(){
         return buildConsumerRequest(testTopic);
     }
 
-    public static ConsumerRequest buildConsumerRequest(String topic){
+    public static ImmutableConsumerRequest.Builder buildConsumerRequest(String topic){
         return buildConsumerRequest(topic, 1);
     }
 
-    public static ConsumerRequest buildConsumerRequest(String topic, int limit){
+    public static ImmutableConsumerRequest.Builder buildConsumerRequest(String topic, int limit){
         return ImmutableConsumerRequest.builder()
                 .topics(singletonList(topic))
-                .limit(limit)
-                .build();
+                .limit(limit);
     }
 
-    public static ConsumerToFileRequest buildConsumerToFileRequest(ConsumerRequestFileType type, String delimiter, ConsumerRequestColumns... columns){
+    public static ImmutableConsumerToFileRequest.Builder buildConsumerToFileRequest(ConsumerRequestFileType type, String delimiter, ConsumerRequestColumns... columns){
         return ImmutableConsumerToFileRequest.builder()
                 .topics(singletonList(testTopic))
                 .limit(-1)
                 .fileType(type)
                 .addColumns(columns)
-                .columnDelimiter(Optional.ofNullable(delimiter))
-                .build();
+                .columnDelimiter(Optional.ofNullable(delimiter));
     }
 
-    public static TopicInfo buildTopicInfo(String topicName){
+    public static ImmutableTopicInfo.Builder buildTopicInfo(String topicName){
         return ImmutableTopicInfo.builder()
                 .partitionCount(partitionCount)
                 .replicaCount(replicationFactor)
                 .topic(topicName)
                 .configuration(topicConfiguration)
-                .partitions(IntStream.range(0, partitionCount).boxed().map(TestDataFactory::buildPartitionInfo).collect(toList()))
-                .build();
+                .partitions(IntStream.range(0, partitionCount).boxed().map((i) -> TestDataFactory.buildPartitionInfo(i).build()).collect(toList()));
     }
 
-    public static PartitionInfo buildPartitionInfo(Integer index){
+    public static ImmutablePartitionInfo.Builder buildPartitionInfo(Integer index){
         return ImmutablePartitionInfo.builder()
                 .leader(TestKafkaServer.testBrokerId)
                 .replicas(singletonList(TestKafkaServer.testBrokerId))
                 .isrs(singletonList(TestKafkaServer.testBrokerId))
                 .partition(index)
-                .replicationFactor(replicationFactor)
-                .build();
+                .replicationFactor(replicationFactor);
     }
 
     public static BrokerInfoList buildBrokerInfoList(){
         return ImmutableBrokerInfoList.builder()
-                .addBrokerInfo(ImmutableBrokerInfo.builder()
-                        .nodeName(String.valueOf(TestKafkaServer.testBrokerId))
-                        .nodeNumber(TestKafkaServer.testBrokerId)
-                        .host(TestKafkaServer.kafkaHost)
-                        .port(TestKafkaServer.kafkaPort)
-                        .nodeRack(null)
+                .addBrokerInfo(buildBrokerInfo()
                         .build())
                 .build();
     }
 
-    public static ConsumerResponse<String, String> buildConsumerResponse(){
-        return ImmutableConsumerResponse.<String, String>builder()
-                .messages(asList(buildConsumedMessage()))
-                .build();
+    private static ImmutableBrokerInfo.Builder buildBrokerInfo(){
+        return ImmutableBrokerInfo.builder()
+                .nodeName(String.valueOf(TestKafkaServer.testBrokerId))
+                .nodeNumber(TestKafkaServer.testBrokerId)
+                .host(TestKafkaServer.kafkaHost)
+                .port(TestKafkaServer.kafkaPort)
+                .nodeRack(null);
     }
 
-    public static ConsumedMessage<String, String> buildConsumedMessage(){
+    public static ImmutableConsumerResponse.Builder<String, String> buildConsumerResponse(){
+        return ImmutableConsumerResponse.<String, String>builder()
+                .messages(asList(buildConsumedMessage().build()));
+    }
+
+    public static ImmutableConsumedMessage.Builder<String, String> buildConsumedMessage(){
         return ImmutableConsumedMessage.<String, String>builder()
                 .key(testKey)
                 .headers(testHeaders)
                 .message(testPayload)
                 .offset(testOffset)
                 .partition(testPartition)
-                .timestamp(testTimestamp)
-                .build();
+                .timestamp(testTimestamp);
     }
 
-    public static ConsumerPosition buildConsumerPosition(){
+    public static ImmutableConsumerPosition.Builder buildConsumerPosition(){
         return ImmutableConsumerPosition.builder()
                 .startValue(0L)
                 .endValue(1L)
                 .consumerPosition(1L)
                 .percentage(100)
-                .totalRecords(1)
-                .build();
+                .totalRecords(1);
     }
 
-    public static ProducerResponse buildProducerResponse() {
+    public static ImmutableProducerResponse.Builder buildProducerResponse() {
         return ImmutableProducerResponse.builder()
                 .offset(testOffset)
                 .partition(testPartition)
-                .topic(testTopic)
-                .build();
+                .topic(testTopic);
     }
 
-    public static ConsumerGroupTopicWithOffsetDetails buildGroupTopicWithOffsetDetails(){
+    public static ImmutableConsumerGroupTopicWithOffsetDetails.Builder buildGroupTopicWithOffsetDetails(){
         return ImmutableConsumerGroupTopicWithOffsetDetails.builder()
-                .putOffset(testTopic, ImmutableList.of(buildTopicGroupAssignmentWithOffset()))
-                .build();
+                .putOffset(testTopic, ImmutableList.of(buildTopicGroupAssignmentWithOffset().build()));
     }
 
-    public static TopicGroupAssignmentWithOffset buildTopicGroupAssignmentWithOffset(){
+    public static ImmutableTopicGroupAssignmentWithOffset.Builder buildTopicGroupAssignmentWithOffset(){
         return ImmutableTopicGroupAssignmentWithOffset.builder()
                 .clientId(testClientId)
                 .groupId(testClientId)
-                .offset(buildPartitionOffset())
+                .offset(buildPartitionOffset().build())
                 .partition(testPartition)
                 .topic(testTopic)
                 .coordinator("0")
-                .groupState("UNKNOWN")
-                .build();
+                .groupState("UNKNOWN");
     }
 
-    public static PartitionOffset buildPartitionOffset(){
+    public static ImmutablePartitionOffset.Builder buildPartitionOffset(){
         return ImmutablePartitionOffset.builder()
                 .groupOffset(testOffset)
                 .partitionOffset(testOffset)
-                .lag(0L)
-                .build();
+                .lag(0L);
     }
 
     public static TopicPartition topicPartition0 = new TopicPartition("test", 0);

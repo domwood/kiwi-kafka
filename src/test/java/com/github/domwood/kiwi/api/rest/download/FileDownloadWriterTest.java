@@ -31,7 +31,7 @@ public class FileDownloadWriterTest {
 
     @Test
     public void basicFileCSVDownloadTest() {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY).build();
 
         FileDownloadWriter writer = writer(request);
 
@@ -45,7 +45,7 @@ public class FileDownloadWriterTest {
 
     @Test
     public void basicFileJsonDownloadTest() {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", KEY);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", KEY).build();
 
         FileDownloadWriter writer = writer(request);
 
@@ -59,7 +59,7 @@ public class FileDownloadWriterTest {
 
     @Test
     public void testCloseWhenEmpty() {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY).build();
 
         FileDownloadWriter writer = writer(request);
 
@@ -78,11 +78,11 @@ public class FileDownloadWriterTest {
 
     @Test
     public void testCloseWhenNoPositionSent() {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY).build();
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = buildConsumerResponse();
+        ConsumerResponse<String, String> response = buildConsumerResponse().build();
 
         writer.accept(response);
 
@@ -105,7 +105,7 @@ public class FileDownloadWriterTest {
 
     private ConsumerResponse<String, String> consumerResponse(Integer percentage, Long endValue, Long position){
         return ImmutableConsumerResponse.<String, String>builder()
-                .from(buildConsumerResponse())
+                .from(buildConsumerResponse().build())
                 .position(ImmutableConsumerPosition.builder()
                         .percentage(percentage)
                         .endValue(endValue)

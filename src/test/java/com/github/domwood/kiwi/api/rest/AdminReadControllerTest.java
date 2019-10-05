@@ -100,7 +100,7 @@ public class AdminReadControllerTest {
     @Test
     public void testConsumerGroupRequiringUrlEncoding(){
         ConsumerGroupDetailsWithOffset offset = mock(ConsumerGroupDetailsWithOffset.class);
-        when(offset.execute()).thenReturn(CompletableFuture.completedFuture(buildGroupTopicWithOffsetDetails()));
+        when(offset.execute()).thenReturn(CompletableFuture.completedFuture(buildGroupTopicWithOffsetDetails().build()));
         when(kafkaTaskProvider.consumerGroupOffsetInformation(eq("kiwi/task/"), eq(Optional.empty())))
                 .thenReturn(offset);
 

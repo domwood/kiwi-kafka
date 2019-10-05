@@ -9,9 +9,7 @@ import com.github.domwood.kiwi.data.output.ConsumedMessage;
 import org.junit.jupiter.api.Test;
 
 import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.*;
-import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.TIMESTAMP;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
-import static com.github.domwood.kiwi.testutils.TestDataFactory.testPayload;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonLineWriterTest {
@@ -20,10 +18,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWriteKey() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", KEY);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", KEY).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = "{\"Key\":\""+testKey+"\"}";
@@ -33,10 +31,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWriteValue() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", VALUE);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", VALUE).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = "{\"Value\":\"{\\\"key\\\":\\\"value\\\"}\"}";
@@ -46,10 +44,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWriteHeaders() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", HEADERS);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", HEADERS).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String headers = mapper.writeValueAsString(testHeaders);
@@ -61,10 +59,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWriteOffset() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", OFFSET);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", OFFSET).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = "{\"Offset\":"+testOffset+"}";
@@ -74,10 +72,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWritePartition() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", PARTITION);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", PARTITION).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = "{\"Partition\":"+testPartition+"}";
@@ -87,10 +85,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWriteTimeStamp() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", TIMESTAMP);
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", TIMESTAMP).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = "{\"Timestamp\":"+testTimestamp+"}";
@@ -100,10 +98,10 @@ public class JsonLineWriterTest {
 
     @Test
     public void testJsonWriteAll() throws JsonProcessingException {
-        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", ConsumerRequestColumns.values());
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", ConsumerRequestColumns.values()).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage();
+        ConsumedMessage<String, String> message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 

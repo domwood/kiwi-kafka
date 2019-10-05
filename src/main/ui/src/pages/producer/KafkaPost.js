@@ -28,7 +28,7 @@ class KafkaPost extends Component {
             targetTopic: "",
             kafkaKey: "",
             kafkaHeaders: {},
-            message: "",
+            message: null,
             currentKafkaHeaderKey: "",
             currentKafkaHeaderValue: "",
             alerts: [],
@@ -172,7 +172,6 @@ class KafkaPost extends Component {
 
                     </FormGroup>
                     <JsonEditor updateMessage={this.updateMessage} id="kafkaPost" name="kafkaPost"/>
-
                     <div>
                         {this.state.produceResponse}
                     </div>

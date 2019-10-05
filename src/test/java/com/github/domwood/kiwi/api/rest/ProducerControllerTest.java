@@ -70,7 +70,7 @@ public class ProducerControllerTest {
     @Test
     public void testProduceRequest() throws JsonProcessingException, JSONException {
         when(produceSingleMessage.execute())
-                .thenReturn(CompletableFuture.completedFuture(buildProducerResponse()));
+                .thenReturn(CompletableFuture.completedFuture(buildProducerResponse().build()));
 
         assertEquals(producerResponseAsString(), testPostToUrl(this.restTemplate, this.url, producerRequestAsString()));
 
@@ -97,11 +97,11 @@ public class ProducerControllerTest {
     }
 
     private String producerRequestAsString() throws JsonProcessingException {
-        return this.objectMapper.writeValueAsString(buildProducerRequest());
+        return this.objectMapper.writeValueAsString(buildProducerRequest().build());
     }
 
     private String producerResponseAsString() throws JsonProcessingException {
-        return this.objectMapper.writeValueAsString(buildProducerResponse());
+        return this.objectMapper.writeValueAsString(buildProducerResponse().build());
     }
 
 }

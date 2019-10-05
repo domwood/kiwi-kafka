@@ -36,11 +36,11 @@ public class ProduceSingleMessageTest {
 
         when(producerResource.send(any(ProducerRecord.class))).thenReturn(CompletableFuture.completedFuture(recordMetadata()));
 
-        ProduceSingleMessage produceSingleMessage = new ProduceSingleMessage(producerResource, buildProducerRequest());
+        ProduceSingleMessage produceSingleMessage = new ProduceSingleMessage(producerResource, buildProducerRequest().build());
 
         ProducerResponse observed = produceSingleMessage.execute().get(1, TimeUnit.SECONDS);
 
-        ProducerResponse expected = buildProducerResponse();
+        ProducerResponse expected = buildProducerResponse().build();
         assertEquals(expected, observed);
     }
 
@@ -49,7 +49,7 @@ public class ProduceSingleMessageTest {
     public void failureProduceTest(){
         when(producerResource.send(any(ProducerRecord.class))).thenThrow(new KafkaException("Producer Error of some sort"));
 
-        ProduceSingleMessage produceSingleMessage = new ProduceSingleMessage(producerResource, buildProducerRequest());
+        ProduceSingleMessage produceSingleMessage = new ProduceSingleMessage(producerResource, buildProducerRequest().build());
 
         CompletableFuture<ProducerResponse> future = produceSingleMessage.execute();
 
