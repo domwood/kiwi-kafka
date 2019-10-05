@@ -5,8 +5,6 @@ const baseUrl = local? process.env.REACT_APP_LOCAL_SPRING_API : `${window.locati
 const baseRestApi = baseUrl + "/api";
 const baseWebSocket = baseWs + "/ws";
 
-console.log(`Local address as : ${baseUrl}`)
-
 export default {
     webSocket: `${baseWebSocket}`,
     version: `${baseRestApi}/version`,

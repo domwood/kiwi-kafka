@@ -23,7 +23,7 @@ class MessageReader extends Component {
         }
     }
 
-    componentWillMount() {
+    componentDidMount() {
         WebSocketService.connect(() => false);
     }
 
@@ -71,7 +71,6 @@ class MessageReader extends Component {
                 consumerPosition: position.consumerPosition ||0,
                 skippedPosition: position.skippedPercentage || 0
             });
-            console.log(this.state);
         }
     };
 
@@ -87,7 +86,6 @@ class MessageReader extends Component {
     };
 
     startConsumer = () => {
-        console.log("Socket started")
         if(!this.props.targetTopic){
             toast.error("Consumer cannot be started, no topic specified");
             return;
