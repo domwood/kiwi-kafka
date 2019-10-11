@@ -46,12 +46,12 @@ beforeEach(() => {
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<KafkaTopics />, div);
+    ReactDOM.render(<KafkaTopics profiles={[]}/>, div);
     ReactDOM.unmountComponentAtNode(div);
 });
 
 it('renders via enzyme', () => {
-    const wrapper = mount(<KafkaTopics />);
+    const wrapper = mount(<KafkaTopics profiles={[]}/>);
     const title = <h1>Kafka Topics</h1>
     expect(wrapper.contains(title)).toEqual(true);
 });
@@ -63,7 +63,7 @@ it('check kafka topics loaded on start', async () => {
         cb(topicList);
     });
 
-    const wrapper = mount(<KafkaTopics />);
+    const wrapper = mount(<KafkaTopics profiles={[]}/>);
 
     await waitForState(wrapper, state => state.topicList && state.topicList.length > 0);
 

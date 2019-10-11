@@ -12,6 +12,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import ProfileDisabledModal from "../../common/ProfileDisabledModal";
 
 class CreateTopic extends Component {
     constructor(props) {
@@ -21,7 +22,8 @@ class CreateTopic extends Component {
             topicName: "exampleTopic",
             createTopicConfig: [],
             replicationFactor: 3,
-            partitions: 10
+            partitions: 10,
+            modal: false
         }
     }
 
@@ -35,6 +37,12 @@ class CreateTopic extends Component {
 
     onClose = () => {
         this.props.onClose();
+    };
+
+    closeModal = () => {
+        this.setState({
+            modal: false
+        })
     };
 
     toggleConfigKeyDropDown = () => {
@@ -97,17 +105,25 @@ class CreateTopic extends Component {
     };
 
     createTopic = () => {
-        let topic = {
-            name: this.state.topicName,
-            partitions: this.state.partitions,
-            replicationFactor: this.state.replicationFactor,
-            configuration: this.state.topicConfig || {}
-        };
-        ApiService.createTopic(topic, () => {
-            toast.info("Successfully created topic " + topic.name);
-            this.onClose();
-            this.props.onCreate();
-        },  (error) => toast.error(`Failed to create topic: ${error.message}`))
+        let profiles = (this.props.profiles || []);
+        if(profiles.length === 0 || profiles.indexOf("admin-write") > -1){
+            let topic = {
+                name: this.state.topicName,
+                partitions: this.state.partitions,
+                replicationFactor: this.state.replicationFactor,
+                configuration: this.state.topicConfig || {}
+            };
+            ApiService.createTopic(topic, () => {
+                toast.info("Successfully created topic " + topic.name);
+                this.onClose();
+                this.props.onCreate();
+            },  (error) => toast.error(`Failed to create topic: ${error.message}`))
+        }
+        else{
+            this.setState({
+                modal: true
+            });
+        }
     };
 
     render() {
@@ -231,6 +247,13 @@ class CreateTopic extends Component {
 
                 </ListGroup>
 
+                <ProfileDisabledModal
+                    profiles={this.props.profiles}
+                    onClose={this.closeModal}
+                    profileName={"write-admin"}
+                    isActive={this.state.modal}
+                />
+
             </div>
         )
     }
@@ -239,7 +262,7 @@ class CreateTopic extends Component {
 
 CreateTopic.propTypes = {
     onClose: PropTypes.func.isRequired,
-
+    profiles: PropTypes.array.isRequired
 };
 
 

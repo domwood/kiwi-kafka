@@ -3,20 +3,29 @@ import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import ProfileDisabledModal from "../../common/ProfileDisabledModal";
 
 class DeleteTopic extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            profileModal: false
         }
     }
 
+    isDeleteEnabled = () => {
+        console.log(this.props.profiles)
+        let profiles = this.props.profiles||[];
+        return profiles.length === 0 || profiles.indexOf("write-admin") > -1;
+    };
 
     open = () => {
-        this.setState({
-            modal: true
-        })
+        if(this.isDeleteEnabled){
+            this.setState({
+                modal: true
+            })
+        }
     };
 
     close = () => {
@@ -26,12 +35,25 @@ class DeleteTopic extends Component {
     };
 
     deleteTopic = () => {
-        ApiService.deleteTopic(this.props.topic, () =>{
-            toast.success("Topic Deletion Successful");
+        if(this.isDeleteEnabled){
+            ApiService.deleteTopic(this.props.topic, () =>{
+                toast.success("Topic Deletion Successful");
+                this.setState({
+                    modal: false
+                }, this.props.onComplete)
+            }, (err) => toast.error(`Failed to delete topic ${err.message}`))
+        }
+        else{
             this.setState({
-                modal: false
-            }, this.props.onComplete)
-        }, (err) => toast.error(`Failed to delete topic ${err.message}`))
+                profileModal: true
+            });
+        }
+    };
+
+    closeDisabledModal = () => {
+        this.setState({
+            profileModal: false
+        })
     };
 
     render() {
@@ -57,6 +79,13 @@ class DeleteTopic extends Component {
                     </ModalFooter>
                 </Modal>
 
+                <ProfileDisabledModal
+                    profiles={this.props.profiles}
+                    onClose={this.closeDisabledModal}
+                    profileName={"write-admin"}
+                    isActive={this.state.profileModal}
+                />
+
             </div>
         )
     }
@@ -64,7 +93,8 @@ class DeleteTopic extends Component {
 
 DeleteTopic.propTypes = {
     topic: PropTypes.string.isRequired,
-    onComplete: PropTypes.func.isRequired
+    onComplete: PropTypes.func.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 

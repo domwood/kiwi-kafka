@@ -12,6 +12,7 @@ import {MdRefresh} from "react-icons/md";
 import CreateTopic from "./components/CreateTopic";
 import TopicView from "./components/TopicView";
 import SearchableViewList from "../common/SearchableViewList";
+import PropTypes from "prop-types";
 
 class KafkaTopics extends Component {
 
@@ -78,15 +79,20 @@ class KafkaTopics extends Component {
 
                 <div className={"Gap"}/>
 
-                {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)} onCreate={this.reloadTopics}/> : ''}
+                {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)} onCreate={this.reloadTopics} profiles={this.props.profiles}/> : ''}
 
                 <div className={"Gap"}/>
 
                 <SearchableViewList elementList={this.state.topicList}
-                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic} onDeletion={this.reloadTopics}/> } />
+                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic} onDeletion={this.reloadTopics} profiles={this.props.profiles}/> } />
             </Container>
         );
     }
 }
+
+KafkaTopics.propTypes = {
+    profiles: PropTypes.array.isRequired
+};
+
 
 export default KafkaTopics;

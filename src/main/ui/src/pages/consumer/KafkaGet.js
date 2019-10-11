@@ -123,7 +123,8 @@ class KafkaGet extends Component {
 }
 
 KafkaGet.propTypes = {
-    isDownload: PropTypes.bool.isRequired
+    isDownload: PropTypes.bool.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 export default KafkaGet;

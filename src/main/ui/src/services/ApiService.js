@@ -29,6 +29,16 @@ export const getVersion = (cb, eb) => {
         .catch(errorhandler);
 };
 
+export const getProfiles = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.profiles)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result))
+        .catch(errorhandler);
+};
+
 export const getTopics = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 

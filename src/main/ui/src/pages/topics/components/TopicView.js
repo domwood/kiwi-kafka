@@ -73,7 +73,7 @@ class TopicView extends Component {
                             <ListGroupItem>
                                 <ButtonGroup>
                                     <Button color="primary" onClick={() => this.toggleDetails(true)}>Refresh <MdRefresh/></Button>
-                                    <DeleteTopic topic={this.props.topic} onComplete={this.props.onDeletion} />
+                                    <DeleteTopic topic={this.props.topic} onComplete={this.props.onDeletion} profiles={this.props.profiles} />
                                 </ButtonGroup>
                             </ListGroupItem>
                             <ListGroupItem>
@@ -120,6 +120,7 @@ class TopicView extends Component {
 
 TopicView.propTypes = {
     topic: PropTypes.string.isRequired,
+    profiles: PropTypes.array
 };
 
 export default TopicView ;
