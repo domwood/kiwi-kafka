@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
 import {MdWarning} from "react-icons/md";
@@ -9,18 +9,38 @@ class DeleteConsumerGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            profileModal: false
         }
     }
+
+    isDeleteDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
+    };
+
     open = () => {
-        this.setState({
-            modal: true
-        })
+        if(this.isDeleteEnabled()){
+            this.setState({
+                modal: true
+            })
+        }
+        else{
+            this.setState({
+                profileModal: true
+            });
+        }
     };
 
     close = () => {
         this.setState({
             modal: false
+        })
+    };
+
+    closeToolTip = () => {
+        this.setState({
+            disabledToolTip: !this.state.disabledToolTip
         })
     };
 
@@ -36,7 +56,11 @@ class DeleteConsumerGroup extends Component {
     render() {
         return (
             <span>
-                <Button color="danger" onClick={() => this.open()}>Delete Consumer Group <MdWarning /></Button>
+                <Button id={"deleteGroupId"+this.props.groupId} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled}>Delete Consumer Group <MdWarning /></Button>
+
+                <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"deleteGroupId"+this.props.groupId} toggle={this.closeToolTip}>
+                    {this.isDeleteDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Delete the consumer group (confirmation dialog will open)'}
+                </Tooltip>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Consumer Group</ModalHeader>
@@ -63,7 +87,8 @@ class DeleteConsumerGroup extends Component {
 
 DeleteConsumerGroup.propTypes = {
     groupId: PropTypes.string.isRequired,
-    onComplete: PropTypes.func.isRequired
+    onComplete: PropTypes.func.isRequired,
+    profiles: PropTypes.array
 };
 
 

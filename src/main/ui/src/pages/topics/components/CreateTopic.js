@@ -1,18 +1,23 @@
 import {
     Button,
-    ButtonGroup, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
+    ButtonGroup,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
     Input,
     InputGroup,
     InputGroupAddon,
     InputGroupText,
     ListGroup,
-    ListGroupItem, Table
+    ListGroupItem,
+    Table,
+    Tooltip
 } from "reactstrap";
-import React, { Component } from "react";
+import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
-import ProfileDisabledModal from "../../common/ProfileDisabledModal";
 
 class CreateTopic extends Component {
     constructor(props) {
@@ -27,6 +32,11 @@ class CreateTopic extends Component {
         }
     }
 
+    isCreateDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
+    };
+
     componentDidMount(){
         ApiService.getCreateTopicConfig(config =>{
             this.setState({
@@ -39,9 +49,9 @@ class CreateTopic extends Component {
         this.props.onClose();
     };
 
-    closeModal = () => {
+    closeToolTip = () => {
         this.setState({
-            modal: false
+            disabledToolTip: !this.state.disabledToolTip
         })
     };
 
@@ -237,22 +247,18 @@ class CreateTopic extends Component {
                         <ButtonGroup>
                             {
                                 this.state.topicName && !(this.state.configKey || this.state.configValue) ?
-                                    <Button color="success" onClick={this.createTopic}>Create</Button> :
-                                    <Button color="secondary" disabled>Create</Button>
+                                    <Button id="CreateTopic" color="success" onClick={this.createTopic} disabled={this.isCreateDisabled}>Create</Button> :
+                                    <Button id="CreateTopic" color="secondary" disabled>Create</Button>
                             }
+                            <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"CreateTopic"} toggle={this.closeToolTip}>
+                                {this.isCreateDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Create a new topic in kafka with this name'}
+                            </Tooltip>
 
                             <Button onClick={this.onClose}>Cancel</Button>
                         </ButtonGroup>
                     </ListGroupItem>
 
                 </ListGroup>
-
-                <ProfileDisabledModal
-                    profiles={this.props.profiles}
-                    onClose={this.closeModal}
-                    profileName={"write-admin"}
-                    isActive={this.state.modal}
-                />
 
             </div>
         )

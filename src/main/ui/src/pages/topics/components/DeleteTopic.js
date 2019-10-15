@@ -1,31 +1,28 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
-import ProfileDisabledModal from "../../common/ProfileDisabledModal";
 
 class DeleteTopic extends Component {
     constructor(props) {
         super(props);
         this.state = {
             modal: false,
-            profileModal: false
+            profileModal: false,
+            disabledToolTip: false
         }
     }
 
-    isDeleteEnabled = () => {
-        console.log(this.props.profiles)
+    isDeleteDisabled = () => {
         let profiles = this.props.profiles||[];
-        return profiles.length === 0 || profiles.indexOf("write-admin") > -1;
+        return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
     };
 
     open = () => {
-        if(this.isDeleteEnabled){
-            this.setState({
-                modal: true
-            })
-        }
+        this.setState({
+            modal: true
+        });
     };
 
     close = () => {
@@ -35,31 +32,28 @@ class DeleteTopic extends Component {
     };
 
     deleteTopic = () => {
-        if(this.isDeleteEnabled){
-            ApiService.deleteTopic(this.props.topic, () =>{
-                toast.success("Topic Deletion Successful");
-                this.setState({
-                    modal: false
-                }, this.props.onComplete)
-            }, (err) => toast.error(`Failed to delete topic ${err.message}`))
-        }
-        else{
+        ApiService.deleteTopic(this.props.topic, () =>{
+            toast.success("Topic Deletion Successful");
             this.setState({
-                profileModal: true
-            });
-        }
+                modal: false
+            }, this.props.onComplete)
+        }, (err) => toast.error(`Failed to delete topic ${err.message}`))
     };
 
-    closeDisabledModal = () => {
+    closeToolTip = () => {
         this.setState({
-            profileModal: false
+            disabledToolTip: !this.state.disabledToolTip
         })
     };
 
     render() {
         return (
             <div>
-                <Button color="danger" onClick={() => this.open()}>Delete Topic</Button>
+                <Button id={"DeleteTopic"+this.props.topic} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled}>Delete Topic</Button>
+
+                <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"DeleteTopic"+this.props.topic} toggle={this.closeToolTip}>
+                    {this.isDeleteDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Delete the topic (confirmation dialog will open)'}
+                </Tooltip>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Kafka Topic</ModalHeader>
@@ -78,13 +72,6 @@ class DeleteTopic extends Component {
                         <Button color="success" onClick={this.close}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
-
-                <ProfileDisabledModal
-                    profiles={this.props.profiles}
-                    onClose={this.closeDisabledModal}
-                    profileName={"write-admin"}
-                    isActive={this.state.profileModal}
-                />
 
             </div>
         )

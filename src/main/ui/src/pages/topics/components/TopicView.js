@@ -103,7 +103,7 @@ class TopicView extends Component {
                                         <PartitionView topic={this.props.topic} partitions={this.state.topicData.partitions} />
                                         :
                                         this.state.viewName === 'configuration' ?
-                                            <ConfigurationView topic={this.props.topic} configuration={this.state.topicData.configuration} />
+                                            <ConfigurationView topic={this.props.topic} configuration={this.state.topicData.configuration} profiles={this.props.profiles} />
                                             :
                                             <ConsumerView topic={this.props.topic} />
                                 }

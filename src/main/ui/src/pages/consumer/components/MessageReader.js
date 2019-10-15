@@ -71,7 +71,6 @@ class MessageReader extends Component {
                 consumerPosition: position.consumerPosition ||0,
                 skippedPosition: position.skippedPercentage || 0
             });
-            console.log(this.state);
         }
     };
 
