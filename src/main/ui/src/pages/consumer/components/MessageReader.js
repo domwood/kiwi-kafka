@@ -86,7 +86,6 @@ class MessageReader extends Component {
     };
 
     startConsumer = () => {
-        console.log("Socket started")
         if(!this.props.targetTopic){
             toast.error("Consumer cannot be started, no topic specified");
             return;

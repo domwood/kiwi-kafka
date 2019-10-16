@@ -48,7 +48,6 @@ WebSocketService.send = (data) => {
 
 WebSocketService.connect = (cb) => {
     if(WebSocketService.socket.readyState > 1){
-        console.log("Opening new websocket")
 
         WebSocketService.socket = WebSocketFactory();
         WebSocketService.socket.onopen = () => {

@@ -30,7 +30,7 @@ class ConsumerGroupView extends Component {
                 <ListGroupItem key={this.props.groupId + "_parent"} id={this.props.groupId}>
                     <Button color={this.state.toggle ? "success" : "secondary"} size="sm" onClick={() => this.toggle()} block>{this.props.groupId}</Button>
 
-                    {this.state.toggle ? <ConsumerGroupDetailsView groupId={this.props.groupId} onDeletion={this.onDelete}/> : ''}
+                    {this.state.toggle ? <ConsumerGroupDetailsView groupId={this.props.groupId} onDeletion={this.onDelete} profiles={this.props.profiles}/> : ''}
                 </ListGroupItem>
             </div>
         )
@@ -39,7 +39,8 @@ class ConsumerGroupView extends Component {
 
 ConsumerGroupView.propTypes = {
     groupId: PropTypes.string.isRequired,
-    onDeletion: PropTypes.func.isRequired
+    onDeletion: PropTypes.func.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 

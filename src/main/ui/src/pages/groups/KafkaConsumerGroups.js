@@ -23,25 +23,34 @@ class KafkaConsumerGroups extends Component {
     }
 
     componentDidMount() {
+        this.mounted = true;
         this.loadConsumerGroups();
     }
+
+    componentWillUnmount(){
+        this.mounted = false;
+    };
 
     loadConsumerGroups = () => {
         this.setState({
             loading: true
         }, () => {
             ApiService.getConsumerGroups((groups) => {
-                this.setState({
-                    groupList:  groups || [],
-                    loading:false
-                }, () => {
-                    toast.info("Refreshed consumer group list from server");
-                });
+                if(this.mounted){
+                    this.setState({
+                        groupList:  groups || [],
+                        loading:false
+                    }, () => {
+                        toast.info("Refreshed consumer group list from server");
+                    });
+                }
             }, () => {
-                this.setState({
-                    loading: false
-                });
-                toast.error("Could not retrieve consumer group list from server")
+                if(this.mounted){
+                    this.setState({
+                        loading: false
+                    });
+                    toast.error("Could not retrieve consumer group list from server")
+                }
             });
         });
     };
@@ -64,7 +73,7 @@ class KafkaConsumerGroups extends Component {
                 <div className={"Gap"}/>
 
                 <SearchableViewList elementList={this.state.groupList}
-                                    elementViewProvider={(group) => <ConsumerGroupView key={`${group}_search`} groupId={group} onDeletion={this.loadConsumerGroups} /> } />
+                                    elementViewProvider={(group) => <ConsumerGroupView key={`${group}_search`} groupId={group} onDeletion={this.loadConsumerGroups} profiles={this.props.profiles}/> } />
             </Container>
         );
     }

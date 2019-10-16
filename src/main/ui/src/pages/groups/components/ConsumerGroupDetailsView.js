@@ -57,7 +57,7 @@ class ConsumerGroupDetailsView extends Component {
                     <Button color="primary" onClick={this.loadConsumerDetails}>Refresh <MdRefresh/></Button>
                     {/*<Button color="warning" disabled>Reset to Latest</Button>*/}
                     {/*<Button color="warning" disabled>Reset to Earliest</Button>*/}
-                    <DeleteConsumerGroup onComplete={this.props.onDeletion} groupId={this.props.groupId}/>
+                    <DeleteConsumerGroup onComplete={this.props.onDeletion} groupId={this.props.groupId} profiles={this.props.profiles}/>
                 </ButtonGroup>
 
 
@@ -119,7 +119,8 @@ class ConsumerGroupDetailsView extends Component {
 ConsumerGroupDetailsView.propTypes = {
     groupId: PropTypes.string.isRequired,
     topics: PropTypes.array,
-    onDeletion: PropTypes.func.isRequired
+    onDeletion: PropTypes.func.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 

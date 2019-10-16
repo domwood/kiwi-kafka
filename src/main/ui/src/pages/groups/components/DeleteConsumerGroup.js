@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
 import {MdWarning} from "react-icons/md";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class DeleteConsumerGroup extends Component {
     constructor(props) {
@@ -38,12 +39,6 @@ class DeleteConsumerGroup extends Component {
         })
     };
 
-    closeToolTip = () => {
-        this.setState({
-            disabledToolTip: !this.state.disabledToolTip
-        })
-    };
-
     deleteConsumerGroup = () => {
         ApiService.deleteConsumerGroup(this.props.groupId, () => {
             toast.info(`Deleted consumer group ${this.props.groupId}`);
@@ -56,11 +51,13 @@ class DeleteConsumerGroup extends Component {
     render() {
         return (
             <span>
-                <Button id={"deleteGroupId"+this.props.groupId} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled}>Delete Consumer Group <MdWarning /></Button>
+                <Button id={"deleteGroupId"+this.props.groupId} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled()}>Delete Consumer Group <MdWarning /></Button>
 
-                <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"deleteGroupId"+this.props.groupId} toggle={this.closeToolTip}>
-                    {this.isDeleteDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Delete the consumer group (confirmation dialog will open)'}
-                </Tooltip>
+
+                <ProfileToggleToolTip profiles={this.props.profiles}
+                                      target={"deleteGroupId"+this.props.groupId}
+                                      targetProfile={"admin-write"}
+                                      alternative={"Delete consumer group (confirm dialog will open)"}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Consumer Group</ModalHeader>

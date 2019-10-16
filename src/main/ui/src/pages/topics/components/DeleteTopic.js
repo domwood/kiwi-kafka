@@ -1,8 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class DeleteTopic extends Component {
     constructor(props) {
@@ -40,20 +41,15 @@ class DeleteTopic extends Component {
         }, (err) => toast.error(`Failed to delete topic ${err.message}`))
     };
 
-    closeToolTip = () => {
-        this.setState({
-            disabledToolTip: !this.state.disabledToolTip
-        })
-    };
-
     render() {
         return (
             <div>
-                <Button id={"DeleteTopic"+this.props.topic} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled}>Delete Topic</Button>
+                <Button id={"DeleteTopic"+this.props.topic} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled()}>Delete Topic</Button>
 
-                <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"DeleteTopic"+this.props.topic} toggle={this.closeToolTip}>
-                    {this.isDeleteDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Delete the topic (confirmation dialog will open)'}
-                </Tooltip>
+                <ProfileToggleToolTip profiles={this.props.profiles}
+                                      target={"DeleteTopic"+this.props.topic}
+                                      targetProfile={"admin-write"}
+                                      alternative={"Delete topic (confirm dialog will open)"}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Kafka Topic</ModalHeader>
