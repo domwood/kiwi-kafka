@@ -11,13 +11,13 @@ import {
     InputGroupText,
     ListGroup,
     ListGroupItem,
-    Table,
-    Tooltip
+    Table
 } from "reactstrap";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class CreateTopic extends Component {
     constructor(props) {
@@ -28,7 +28,8 @@ class CreateTopic extends Component {
             createTopicConfig: [],
             replicationFactor: 3,
             partitions: 10,
-            modal: false
+            configKey: "",
+            configValue: ""
         }
     }
 
@@ -49,11 +50,6 @@ class CreateTopic extends Component {
         this.props.onClose();
     };
 
-    closeToolTip = () => {
-        this.setState({
-            disabledToolTip: !this.state.disabledToolTip
-        })
-    };
 
     toggleConfigKeyDropDown = () => {
         this.setState({
@@ -115,25 +111,17 @@ class CreateTopic extends Component {
     };
 
     createTopic = () => {
-        let profiles = (this.props.profiles || []);
-        if(profiles.length === 0 || profiles.indexOf("admin-write") > -1){
-            let topic = {
-                name: this.state.topicName,
-                partitions: this.state.partitions,
-                replicationFactor: this.state.replicationFactor,
-                configuration: this.state.topicConfig || {}
-            };
-            ApiService.createTopic(topic, () => {
-                toast.info("Successfully created topic " + topic.name);
-                this.onClose();
-                this.props.onCreate();
-            },  (error) => toast.error(`Failed to create topic: ${error.message}`))
-        }
-        else{
-            this.setState({
-                modal: true
-            });
-        }
+        let topic = {
+            name: this.state.topicName,
+            partitions: this.state.partitions,
+            replicationFactor: this.state.replicationFactor,
+            configuration: this.state.topicConfig || {}
+        };
+        ApiService.createTopic(topic, () => {
+            toast.info("Successfully created topic " + topic.name);
+            this.onClose();
+            this.props.onCreate();
+        },  (error) => toast.error(`Failed to create topic: ${error.message}`))
     };
 
     render() {
@@ -247,12 +235,13 @@ class CreateTopic extends Component {
                         <ButtonGroup>
                             {
                                 this.state.topicName && !(this.state.configKey || this.state.configValue) ?
-                                    <Button id="CreateTopic" color="success" onClick={this.createTopic} disabled={this.isCreateDisabled}>Create</Button> :
+                                    <Button id="CreateTopic" color="success" onClick={this.createTopic} disabled={this.isCreateDisabled()}>Create</Button> :
                                     <Button id="CreateTopic" color="secondary" disabled>Create</Button>
                             }
-                            <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"CreateTopic"} toggle={this.closeToolTip}>
-                                {this.isCreateDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Create a new topic in kafka with this name'}
-                            </Tooltip>
+                            <ProfileToggleToolTip profiles={this.props.profiles}
+                                                  id={`${this.props.groupId}_create`}
+                                                  targetProfile={"write-admin"}
+                            />
 
                             <Button onClick={this.onClose}>Cancel</Button>
                         </ButtonGroup>

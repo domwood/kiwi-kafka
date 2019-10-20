@@ -4,6 +4,7 @@ import ColumnFilterButtons from "./ColumnFilterButtons";
 import {Button, ButtonGroup, Input, Label, ListGroup, ListGroupItem} from "reactstrap";
 import {toast} from "react-toastify";
 import * as ApiService from "../../../services/ApiService";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class FileDownloader extends Component {
 
@@ -26,6 +27,11 @@ class FileDownloader extends Component {
             ]
         }
     }
+
+    isConsumerDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("read-consumer") === -1;
+    };
 
     toggleField = (field) => {
         this.setState({
@@ -142,11 +148,18 @@ class FileDownloader extends Component {
 
                 <div className={"Gap"} />
 
+
                 <Button onClick={this.postForDownload}
                         color={"success"}
                         id="consumeToFile"
-                        disabled={!this.props.targetTopic || this.props.targetTopic.length === 0}
+                        disabled={(!this.props.targetTopic || this.props.targetTopic.length === 0) || this.isConsumerDisabled()}
                         block>Download</Button>
+                <ProfileToggleToolTip profiles={this.props.profiles}
+                                      targetProfile={"read-consumer"}
+                                      id={`${this.props.topic}_fd`}
+                                      style={{"float":"right", "marginRight":"-20px", "marginTop":"-31px"}}
+                />
+
             </div>
         )
     }
@@ -156,7 +169,8 @@ FileDownloader.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     filters: PropTypes.array.isRequired,
-    targetTopic: PropTypes.string.isRequired
+    targetTopic: PropTypes.string.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 export default FileDownloader;

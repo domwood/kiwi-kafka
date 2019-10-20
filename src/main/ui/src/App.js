@@ -36,17 +36,26 @@ class App extends Component {
     }
 
     componentDidMount(){
+        this.mounted = true;
         ApiService.getVersion((version) => {
-            this.setState({
-                version: version
-            })
+            if(this.mounted){
+                this.setState({
+                    version: version
+                })
+            }
         }, () => toast.error("No connection to server"));
 
         ApiService.getProfiles((profiles) => {
-            this.setState({
-                profiles: profiles
-            })
+            if(this.mounted){
+                this.setState({
+                    profiles: profiles
+                })
+            }
         }, () => toast.error("No connection to server"));
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
     }
 
     toggle() {

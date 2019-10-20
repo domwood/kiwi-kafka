@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  pointer-events: all;
 }
 
 .App-logo {
@@ -81,4 +82,10 @@
   padding-left: 0rem;
   padding-right: 0rem;
   border: none
+}
+
+.ButtonOverlayDiv{
+  position:absolute;top:0px;left:0px;
+  z-index:10;
+  display:none;
 }

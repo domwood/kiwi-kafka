@@ -44,12 +44,16 @@ class DeleteTopic extends Component {
     render() {
         return (
             <div>
-                <Button id={"DeleteTopic"+this.props.topic} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled()}>Delete Topic</Button>
-
+                <Button
+                    id={"DeleteTopic"+this.props.topic}
+                    color="danger"
+                    onClick={() => this.open()}
+                    disabled={this.isDeleteDisabled()}>Delete Topic
+                </Button>
                 <ProfileToggleToolTip profiles={this.props.profiles}
-                                      target={"DeleteTopic"+this.props.topic}
-                                      targetProfile={"admin-write"}
-                                      alternative={"Delete topic (confirm dialog will open)"}/>
+                                      id={`${this.props.topic}_pop`}
+                                      targetProfile={"write-admin"}
+                />
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Kafka Topic</ModalHeader>

@@ -16,11 +16,18 @@ class KafkaHome extends Component {
     }
 
     componentDidMount(){
+        this.mounted = true;
         ApiService.getBrokers((brokers) => {
-            this.setState({
-                brokers:brokers
-            });
+            if(this.mounted){
+                this.setState({
+                    brokers:brokers
+                });
+            }
         }, () => toast.error("Could not retrieve broker list from server"));
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
     }
 
     logFiles = (id) => {

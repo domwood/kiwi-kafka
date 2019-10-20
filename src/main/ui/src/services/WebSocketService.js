@@ -31,22 +31,22 @@ const websocketDataHandler = (message, messageHandler, errorHandler, ack) => {
     ack();
 };
 
-WebSocketService.send = (data) => {
+WebSocketService.send = (data, eb) => {
     if(data) {
         WebSocketService.pending.push((sock) => sock.send(JSON.stringify(data)));
     }
     if(WebSocketService.socket.readyState === 0) {
-        setTimeout(() => WebSocketService.send(data), 50);
+        setTimeout(() => WebSocketService.send(data, eb), 50);
     }
     else if(WebSocketService.socket.readyState === 1){
         while(WebSocketService.pending.length > 0 && WebSocketService.socket.readyState === 1) WebSocketService.pending.pop()(WebSocketService.socket);
     }
     else{
-        WebSocketService.connect(() => WebSocketService.send(data));
+        WebSocketService.connect(() => WebSocketService.send(data), eb);
     }
 };
 
-WebSocketService.connect = (cb) => {
+WebSocketService.connect = (cb, eb) => {
     if(WebSocketService.socket.readyState > 1){
 
         WebSocketService.socket = WebSocketFactory();
@@ -57,6 +57,9 @@ WebSocketService.connect = (cb) => {
         WebSocketService.socket.onclose = () => {
             WebSocketService.open = false;
         };
+        WebSocketService.socket.onerror = (err) => {
+            if(eb)eb(err);
+        }
     }
     cb();
 };
@@ -75,14 +78,14 @@ WebSocketService.consume = (topics, filters, startPosition, messageHandler, erro
         limit: -1,
         filters: filters || [],
         consumerStartPosition : startPosition < 0.1 ? null : {topicPercentage: startPosition}
-    });
+    }, errorHandler);
 };
 
 WebSocketService.disconnect = () => {
 
     WebSocketService.send({
         requestType: ".CloseTaskRequest"
-    });
+    }, () => {});
     if(WebSocketService.socket.readyState > 2){
         WebSocketService.open = true;
         WebSocketService.socket.close();

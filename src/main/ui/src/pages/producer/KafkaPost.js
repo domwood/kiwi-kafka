@@ -8,16 +8,16 @@ import {
     Container,
     InputGroup,
     InputGroupAddon,
-    Table, Tooltip
+    Table
 } from 'reactstrap';
 import JsonEditor from "./components/JsonEditor"
 import TopicInput from "../common/TopicInput";
-
 import uuid from "uuid/v4";
 import * as ApiService from "../../services/ApiService";
 import {toast} from "react-toastify";
 import "../../App.css";
 import PropTypes from "prop-types";
+import ProfileToggleToolTip from "../common/ProfileToggleToolTip";
 
 class KafkaPost extends Component {
 
@@ -41,12 +41,6 @@ class KafkaPost extends Component {
     isPostDisabled = () => {
         let profiles = this.props.profiles||[];
         return profiles.length !== 0 && profiles.indexOf("write-producer") === -1;
-    };
-
-    closeToolTip = () => {
-        this.setState({
-            disabledToolTip: !this.state.disabledToolTip
-        })
     };
 
     setRandomKafkaKey = () => {
@@ -190,13 +184,13 @@ class KafkaPost extends Component {
                     </div>
 
                     <div className="mt-lg-1"></div>
-
                     <Button id="PostButton" onClick={this.submit}
                             disabled={!!(this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue) || this.isPostDisabled()}>Send!</Button>
 
-                    <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"PostButton"} toggle={this.closeToolTip}>
-                        {this.isPostDisabled() ? '[Disabled] To enable restart kiwi with producer-write profile' : 'Post message to the kafka topic'}
-                    </Tooltip>
+                    <ProfileToggleToolTip profiles={this.props.profiles}
+                                          id={`${this.props.topic}_produce`}
+                                          targetProfile={"write-producer"}
+                    />
 
                     <div className="mt-lg-1"></div>
                 </Form>

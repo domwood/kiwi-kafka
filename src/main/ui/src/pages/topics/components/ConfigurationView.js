@@ -1,8 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Input, InputGroup, InputGroupAddon, Table, Tooltip} from "reactstrap";
+import {Button, Input, InputGroup, InputGroupAddon, Table} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class ConfigurationView extends Component {
     constructor(props) {
@@ -19,12 +20,6 @@ class ConfigurationView extends Component {
     isEditDisabled = () => {
         let profiles = this.props.profiles||[];
         return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
-    };
-
-    closeToolTip = () => {
-        this.setState({
-            disabledToolTip: !this.state.disabledToolTip
-        })
     };
 
     editConfig = (key, value) => {
@@ -72,7 +67,7 @@ class ConfigurationView extends Component {
                     </thead>
                     <tbody>
                     {
-                        Object.keys(this.state.configuration).map(key => {
+                        Object.keys(this.state.configuration).map((key, index) => {
                             return (
                                 <tr key={`${this.props.topic}_${key}`}>
                                     <td>{key}</td>
@@ -80,7 +75,19 @@ class ConfigurationView extends Component {
                                     <td>
                                         {
                                             this.state.editKey !== key ?
-                                                <Button id={"Edit"+this.props.topic} color="secondary" onClick={() => this.editConfig(key)} disabled={!!this.state.editKey || this.isEditDisabled()}>Edit</Button> :
+                                                <div>
+                                                    <Button
+                                                        id={"Edit"+this.props.topic}
+                                                        color="secondary"
+                                                        onClick={() => this.editConfig(key)}
+                                                        disabled={!!this.state.editKey || this.isEditDisabled()}>Edit
+                                                    </Button>
+                                                    <ProfileToggleToolTip id={`${this.props.topic}_${index}_pop`}
+                                                                          profiles={this.props.profiles}
+                                                                          targetProfile={"write-admin"}
+                                                    />
+                                                </div>
+                                                 :
                                                 <div>
                                                     <InputGroup>
                                                         <Input type="text" defaultValue={this.state.configuration[key]} onChange={event => this.onEditUpdate(event.target.value)}/>
@@ -94,11 +101,6 @@ class ConfigurationView extends Component {
                                                     </InputGroup>
                                                 </div>
                                         }
-
-                                        <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"Edit"+this.props.topic} toggle={this.closeToolTip}>
-                                            {this.isEditDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Edit this configuration value'}
-                                        </Tooltip>
-
                                     </td>
                                 </tr>
                             )

@@ -10,8 +10,7 @@ class DeleteConsumerGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false,
-            profileModal: false
+            modal: false
         }
     }
 
@@ -21,16 +20,9 @@ class DeleteConsumerGroup extends Component {
     };
 
     open = () => {
-        if(this.isDeleteEnabled()){
-            this.setState({
-                modal: true
-            })
-        }
-        else{
-            this.setState({
-                profileModal: true
-            });
-        }
+        this.setState({
+            modal: true
+        });
     };
 
     close = () => {
@@ -51,13 +43,16 @@ class DeleteConsumerGroup extends Component {
     render() {
         return (
             <span>
-                <Button id={"deleteGroupId"+this.props.groupId} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled()}>Delete Consumer Group <MdWarning /></Button>
-
-
+                <Button
+                    id={"deleteGroupId"+this.props.groupId}
+                    color="danger"
+                    onClick={() => this.open()}
+                    disabled={this.isDeleteDisabled()}>Delete Consumer Group <MdWarning />
+                </Button>
                 <ProfileToggleToolTip profiles={this.props.profiles}
-                                      target={"deleteGroupId"+this.props.groupId}
-                                      targetProfile={"admin-write"}
-                                      alternative={"Delete consumer group (confirm dialog will open)"}/>
+                                      id={`${this.props.groupId}_pop`}
+                                      targetProfile={"write-admin"}
+                />
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Consumer Group</ModalHeader>

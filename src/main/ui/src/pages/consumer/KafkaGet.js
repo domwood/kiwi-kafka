@@ -106,6 +106,7 @@ class KafkaGet extends Component {
                                     isReversed={true}
                                     updateMessages={this.setMessages}
                                     messages={this.state.messages}
+                                    profiles={this.props.profiles}
                                 />
 
                                 <MessageTable name={"messageTable"}
@@ -118,6 +119,7 @@ class KafkaGet extends Component {
                                                 name={'FileDownloader'}
                                                 filters={this.state.filters}
                                                 targetTopic={this.state.targetTopic}
+                                                profiles={this.props.profiles}
                                 />
                             </div>
                     }

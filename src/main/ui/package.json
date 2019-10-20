@@ -38,13 +38,13 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@testing-library/jest-dom": "^4.1.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-async-helpers": "^0.9.1",
     "eslint": "^6.3.0",
     "eslint-plugin-react": "^7.12.4",
     "jest": "24.8.0",
-    "@testing-library/jest-dom": "^4.1.0",
     "jest-enzyme": "^7.1.1"
   }
 }

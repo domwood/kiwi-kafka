@@ -4,6 +4,7 @@ import {Button, Progress} from "reactstrap";
 import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
 import ConsumerSlider from "./ConsumerSlider";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class MessageReader extends Component {
 
@@ -24,28 +25,37 @@ class MessageReader extends Component {
     }
 
     componentDidMount() {
-        WebSocketService.connect(() => false);
+        this.mounted = true;
     }
 
     componentWillUnmount() {
-        WebSocketService.disconnect();
+        if(!this.isConsumerDisabled()) WebSocketService.disconnect();
+
+        this.mounted = false;
     }
 
+    isConsumerDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.indexOf("read-consumer") === -1 || profiles.length === 0;
+    };
+
     clearCounts = (cb, consuming) => {
-        this.setState({
-            consuming: consuming || false,
-            consumeCount:0,
-            totalRecords: 0,
-            position:0,
-            startValue: 0,
-            endValue: 0,
-            consumerPosition: 0,
-            skippedPosition:0
-        },cb)
+        if(this.mounted){
+            this.setState({
+                consuming: consuming || false,
+                consumeCount:0,
+                totalRecords: 0,
+                position:0,
+                startValue: 0,
+                endValue: 0,
+                consumerPosition: 0,
+                skippedPosition:0
+            },cb)
+        }
     };
 
     onWebSocketMessage = (response) => {
-        if(this.state.consuming){
+        if(this.state.consuming && this.mounted){
             let messages;
             if(this.props.isReversed){
                 messages = response.messages
@@ -75,14 +85,18 @@ class MessageReader extends Component {
     };
 
     onWebsocketError = (error) => {
-        toast.error(`Failed to retrieve data from server ${error.message}`)
-        this.clearCounts();
-        WebSocketService.disconnect();
+        if(this.mounted){
+            toast.error(`Failed to retrieve data from server ${error.message}`)
+            this.clearCounts();
+            WebSocketService.disconnect();
+        }
     };
 
     onWebSocketClose = () => {
-        this.clearCounts();
-        toast.warn("Consumer connection closed");
+        if(this.mounted) {
+            this.clearCounts();
+            toast.warn("Consumer connection closed");
+        }
     };
 
     startConsumer = () => {
@@ -104,7 +118,7 @@ class MessageReader extends Component {
                     this.onWebSocketClose
                 );
             }, true);
-        });
+        }, (err) => toast.error("Failed to connect to server: " + err.message));
     };
 
     stopConsumer = () => {
@@ -123,11 +137,18 @@ class MessageReader extends Component {
                 {
                     !this.state.consuming ?
                         <div>
+
                             <Button onClick={this.startConsumer}
                                     color={"success"}
                                     id="consumeViaWebSocketButton"
-                                    disabled={!this.props.targetTopic || this.props.targetTopic.length === 0}
+                                    disabled={(!this.props.targetTopic || this.props.targetTopic.length === 0) || this.isConsumerDisabled()}
                                     block>Read</Button>
+                            <ProfileToggleToolTip profiles={this.props.profiles}
+                                                  id={`${this.props.topic}_consume`}
+                                                  targetProfile={"read-consumer"}
+                                                  placement={"top"}
+                                                  style={{"float":"right", "marginRight":"-20px", "marginTop":"-31px"}}
+                            />
 
                             {this.state.consumeCount > 0 ? <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span> :null}
                         </div>
@@ -178,7 +199,8 @@ MessageReader.propTypes = {
     messageFromEnd: PropTypes.bool.isRequired,
     isReversed: PropTypes.bool.isRequired,
     updateMessages: PropTypes.func.isRequired,
-    messages: PropTypes.array.isRequired
+    messages: PropTypes.array.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 export default MessageReader;
