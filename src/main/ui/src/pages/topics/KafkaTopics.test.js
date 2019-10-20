@@ -4,6 +4,7 @@ import KafkaTopics from './KafkaTopics';
 import * as ApiService from "../../services/ApiService";
 import {mount} from "enzyme/build";
 import { waitForState } from 'enzyme-async-helpers';
+import KafkaGet from "../consumer/KafkaGet";
 
 jest.mock("../../services/ApiService");
 
@@ -46,12 +47,12 @@ beforeEach(() => {
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<KafkaTopics profiles={[]}/>, div);
+    ReactDOM.render(<KafkaTopics profiles={['write-admin', 'read-admin']}/>, div);
     ReactDOM.unmountComponentAtNode(div);
 });
 
 it('renders via enzyme', () => {
-    const wrapper = mount(<KafkaTopics profiles={[]}/>);
+    const wrapper = mount(<KafkaTopics profiles={['write-admin', 'read-admin']}/>);
     const title = <h1>Kafka Topics</h1>
     expect(wrapper.contains(title)).toEqual(true);
 });
@@ -63,7 +64,7 @@ it('check kafka topics loaded on start', async () => {
         cb(topicList);
     });
 
-    const wrapper = mount(<KafkaTopics profiles={[]}/>);
+    const wrapper = mount(<KafkaTopics profiles={['write-admin', 'read-admin']}/>);
 
     await waitForState(wrapper, state => state.topicList && state.topicList.length > 0);
 

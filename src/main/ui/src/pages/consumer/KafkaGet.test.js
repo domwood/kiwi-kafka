@@ -85,7 +85,7 @@ it('check kafka messages from websocket', async () => {
         cb(topicList);
     });
 
-    const wrapper = mount(<KafkaGet isDownload={false} profiles={[]}/>);
+    const wrapper = mount(<KafkaGet isDownload={false} profiles={['read-consumer']}/>);
     
     wrapper.find('.rbt-input-main').at(0)
          .simulate('change', { target: { value: 'testDataTopic' } })
