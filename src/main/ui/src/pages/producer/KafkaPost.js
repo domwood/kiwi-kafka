@@ -8,7 +8,7 @@ import {
     Container,
     InputGroup,
     InputGroupAddon,
-    Table
+    Table, Tooltip
 } from 'reactstrap';
 import JsonEditor from "./components/JsonEditor"
 import TopicInput from "../common/TopicInput";
@@ -17,6 +17,7 @@ import uuid from "uuid/v4";
 import * as ApiService from "../../services/ApiService";
 import {toast} from "react-toastify";
 import "../../App.css";
+import PropTypes from "prop-types";
 
 class KafkaPost extends Component {
 
@@ -32,9 +33,21 @@ class KafkaPost extends Component {
             currentKafkaHeaderKey: "",
             currentKafkaHeaderValue: "",
             alerts: [],
-            produceResponse: ""
+            produceResponse: "",
+            disabledToolTip: false
         };
     }
+
+    isPostDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("write-producer") === -1;
+    };
+
+    closeToolTip = () => {
+        this.setState({
+            disabledToolTip: !this.state.disabledToolTip
+        })
+    };
 
     setRandomKafkaKey = () => {
         this.setState({
@@ -178,7 +191,12 @@ class KafkaPost extends Component {
 
                     <div className="mt-lg-1"></div>
 
-                    <Button onClick={this.submit} disabled={!!(this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue)}>Send!</Button>
+                    <Button id="PostButton" onClick={this.submit}
+                            disabled={!!(this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue) || this.isPostDisabled()}>Send!</Button>
+
+                    <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"PostButton"} toggle={this.closeToolTip}>
+                        {this.isPostDisabled() ? '[Disabled] To enable restart kiwi with producer-write profile' : 'Post message to the kafka topic'}
+                    </Tooltip>
 
                     <div className="mt-lg-1"></div>
                 </Form>
@@ -187,5 +205,9 @@ class KafkaPost extends Component {
         );
     }
 }
+
+KafkaPost.propTypes = {
+    profiles: PropTypes.array.isRequired
+};
 
 export default KafkaPost;

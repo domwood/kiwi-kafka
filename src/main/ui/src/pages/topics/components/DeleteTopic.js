@@ -3,20 +3,27 @@ import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class DeleteTopic extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            profileModal: false,
+            disabledToolTip: false
         }
     }
 
+    isDeleteDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
+    };
 
     open = () => {
         this.setState({
             modal: true
-        })
+        });
     };
 
     close = () => {
@@ -37,7 +44,12 @@ class DeleteTopic extends Component {
     render() {
         return (
             <div>
-                <Button color="danger" onClick={() => this.open()}>Delete Topic</Button>
+                <Button id={"DeleteTopic"+this.props.topic} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled()}>Delete Topic</Button>
+
+                <ProfileToggleToolTip profiles={this.props.profiles}
+                                      target={"DeleteTopic"+this.props.topic}
+                                      targetProfile={"admin-write"}
+                                      alternative={"Delete topic (confirm dialog will open)"}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Kafka Topic</ModalHeader>
@@ -64,7 +76,8 @@ class DeleteTopic extends Component {
 
 DeleteTopic.propTypes = {
     topic: PropTypes.string.isRequired,
-    onComplete: PropTypes.func.isRequired
+    onComplete: PropTypes.func.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 

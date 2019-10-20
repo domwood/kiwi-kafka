@@ -29,7 +29,8 @@ class App extends Component {
         this.toggle = this.toggle.bind(this);
         this.state = {
             isOpen: false,
-            version: ''
+            version: '',
+            profiles: []
         };
 
     }
@@ -39,7 +40,13 @@ class App extends Component {
             this.setState({
                 version: version
             })
-        }, () => toast.error("No connection to server"))
+        }, () => toast.error("No connection to server"));
+
+        ApiService.getProfiles((profiles) => {
+            this.setState({
+                profiles: profiles
+            })
+        }, () => toast.error("No connection to server"));
     }
 
     toggle() {
@@ -111,12 +118,12 @@ class App extends Component {
                             </Collapse>
                         </Navbar>
                         <Switch>
-                            <Route exact path="/" component={KafkaHome} />
-                            <Route path="/topics" component={KafkaTopics} />
-                            <Route path="/groups" component={KafkaConsumerGroups} />
-                            <Route path="/post" component={KafkaPost} />
-                            <Route path="/get" component={props => <KafkaGet {...props} isDownload={false} />} />
-                            <Route path="/download" component={props => <KafkaGet {...props} isDownload={true} />} />
+                            <Route exact path="/" component={props => <KafkaHome {...props} profiles={this.state.profiles}/>} />
+                            <Route path="/topics" component={props => <KafkaTopics {...props} profiles={this.state.profiles}/> } />
+                            <Route path="/groups" component={props => <KafkaConsumerGroups {...props} profiles={this.state.profiles}/>} />
+                            <Route path="/post" component={props => <KafkaPost {...props} profiles={this.state.profiles}/> } />
+                            <Route path="/get" component={props => <KafkaGet {...props} isDownload={false} profiles={this.state.profiles}/>} />
+                            <Route path="/download" component={props => <KafkaGet {...props} isDownload={true} profiles={this.state.profiles}/>} />
                             <Route redirectTo="/"/>
                         </Switch>
                     </div>

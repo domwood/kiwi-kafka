@@ -4,18 +4,33 @@ import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
 import {MdWarning} from "react-icons/md";
+import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 
 class DeleteConsumerGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            profileModal: false
         }
     }
+
+    isDeleteDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
+    };
+
     open = () => {
-        this.setState({
-            modal: true
-        })
+        if(this.isDeleteEnabled()){
+            this.setState({
+                modal: true
+            })
+        }
+        else{
+            this.setState({
+                profileModal: true
+            });
+        }
     };
 
     close = () => {
@@ -36,7 +51,13 @@ class DeleteConsumerGroup extends Component {
     render() {
         return (
             <span>
-                <Button color="danger" onClick={() => this.open()}>Delete Consumer Group <MdWarning /></Button>
+                <Button id={"deleteGroupId"+this.props.groupId} color="danger" onClick={() => this.open()} disabled={this.isDeleteDisabled()}>Delete Consumer Group <MdWarning /></Button>
+
+
+                <ProfileToggleToolTip profiles={this.props.profiles}
+                                      target={"deleteGroupId"+this.props.groupId}
+                                      targetProfile={"admin-write"}
+                                      alternative={"Delete consumer group (confirm dialog will open)"}/>
 
                 <Modal isOpen={this.state.modal} toggle={this.close} >
                     <ModalHeader toggle={this.close}>Delete Consumer Group</ModalHeader>
@@ -63,7 +84,8 @@ class DeleteConsumerGroup extends Component {
 
 DeleteConsumerGroup.propTypes = {
     groupId: PropTypes.string.isRequired,
-    onComplete: PropTypes.func.isRequired
+    onComplete: PropTypes.func.isRequired,
+    profiles: PropTypes.array
 };
 
 

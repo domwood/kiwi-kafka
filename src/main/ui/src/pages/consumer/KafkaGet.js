@@ -34,6 +34,14 @@ class KafkaGet extends Component {
         };
     }
 
+    componentDidMount() {
+        this.mounted = true;
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
+    }
+
     toggleActiveTab = (tabId) => {
         this.setState({
             activeTab: tabId
@@ -55,9 +63,11 @@ class KafkaGet extends Component {
     };
 
     setMessages = (msgs) => {
-        this.setState({
-            messages: msgs
-        })
+        if(this.mounted){
+            this.setState({
+                messages: msgs
+            });
+        }
     };
 
     render() {
@@ -123,7 +133,8 @@ class KafkaGet extends Component {
 }
 
 KafkaGet.propTypes = {
-    isDownload: PropTypes.bool.isRequired
+    isDownload: PropTypes.bool.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 export default KafkaGet;

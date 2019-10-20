@@ -1,14 +1,20 @@
 import {
     Button,
-    ButtonGroup, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
+    ButtonGroup,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
     Input,
     InputGroup,
     InputGroupAddon,
     InputGroupText,
     ListGroup,
-    ListGroupItem, Table
+    ListGroupItem,
+    Table,
+    Tooltip
 } from "reactstrap";
-import React, { Component } from "react";
+import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
@@ -21,9 +27,15 @@ class CreateTopic extends Component {
             topicName: "exampleTopic",
             createTopicConfig: [],
             replicationFactor: 3,
-            partitions: 10
+            partitions: 10,
+            modal: false
         }
     }
+
+    isCreateDisabled = () => {
+        let profiles = this.props.profiles||[];
+        return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
+    };
 
     componentDidMount(){
         ApiService.getCreateTopicConfig(config =>{
@@ -35,6 +47,12 @@ class CreateTopic extends Component {
 
     onClose = () => {
         this.props.onClose();
+    };
+
+    closeToolTip = () => {
+        this.setState({
+            disabledToolTip: !this.state.disabledToolTip
+        })
     };
 
     toggleConfigKeyDropDown = () => {
@@ -97,17 +115,25 @@ class CreateTopic extends Component {
     };
 
     createTopic = () => {
-        let topic = {
-            name: this.state.topicName,
-            partitions: this.state.partitions,
-            replicationFactor: this.state.replicationFactor,
-            configuration: this.state.topicConfig || {}
-        };
-        ApiService.createTopic(topic, () => {
-            toast.info("Successfully created topic " + topic.name);
-            this.onClose();
-            this.props.onCreate();
-        },  (error) => toast.error(`Failed to create topic: ${error.message}`))
+        let profiles = (this.props.profiles || []);
+        if(profiles.length === 0 || profiles.indexOf("admin-write") > -1){
+            let topic = {
+                name: this.state.topicName,
+                partitions: this.state.partitions,
+                replicationFactor: this.state.replicationFactor,
+                configuration: this.state.topicConfig || {}
+            };
+            ApiService.createTopic(topic, () => {
+                toast.info("Successfully created topic " + topic.name);
+                this.onClose();
+                this.props.onCreate();
+            },  (error) => toast.error(`Failed to create topic: ${error.message}`))
+        }
+        else{
+            this.setState({
+                modal: true
+            });
+        }
     };
 
     render() {
@@ -221,9 +247,12 @@ class CreateTopic extends Component {
                         <ButtonGroup>
                             {
                                 this.state.topicName && !(this.state.configKey || this.state.configValue) ?
-                                    <Button color="success" onClick={this.createTopic}>Create</Button> :
-                                    <Button color="secondary" disabled>Create</Button>
+                                    <Button id="CreateTopic" color="success" onClick={this.createTopic} disabled={this.isCreateDisabled}>Create</Button> :
+                                    <Button id="CreateTopic" color="secondary" disabled>Create</Button>
                             }
+                            <Tooltip placement="right" isOpen={this.state.disabledToolTip} target={"CreateTopic"} toggle={this.closeToolTip}>
+                                {this.isCreateDisabled() ? '[Disabled] To enable restart kiwi with admin-write profile' : 'Create a new topic in kafka with this name'}
+                            </Tooltip>
 
                             <Button onClick={this.onClose}>Cancel</Button>
                         </ButtonGroup>
@@ -239,7 +268,7 @@ class CreateTopic extends Component {
 
 CreateTopic.propTypes = {
     onClose: PropTypes.func.isRequired,
-
+    profiles: PropTypes.array.isRequired
 };
 
 

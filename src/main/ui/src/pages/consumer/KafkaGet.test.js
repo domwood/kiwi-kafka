@@ -62,12 +62,12 @@ beforeEach(() => {
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<KafkaGet isDownload={false}/>, div);
+    ReactDOM.render(<KafkaGet isDownload={false} profiles={[]}/>, div);
     ReactDOM.unmountComponentAtNode(div);
 });
 
 it('renders via enzyme', () => {
-    const wrapper = mount(<KafkaGet isDownload={false}/>);
+    const wrapper = mount(<KafkaGet isDownload={false} profiles={[]}/>);
     const title = <h1>Get Data From Kafka</h1>
     expect(wrapper.contains(title)).toEqual(true);
 });
@@ -85,7 +85,7 @@ it('check kafka messages from websocket', async () => {
         cb(topicList);
     });
 
-    const wrapper = mount(<KafkaGet isDownload={false}/>);
+    const wrapper = mount(<KafkaGet isDownload={false} profiles={[]}/>);
     
     wrapper.find('.rbt-input-main').at(0)
          .simulate('change', { target: { value: 'testDataTopic' } })

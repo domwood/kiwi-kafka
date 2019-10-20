@@ -73,7 +73,7 @@ class TopicView extends Component {
                             <ListGroupItem>
                                 <ButtonGroup>
                                     <Button color="primary" onClick={() => this.toggleDetails(true)}>Refresh <MdRefresh/></Button>
-                                    <DeleteTopic topic={this.props.topic} onComplete={this.props.onDeletion} />
+                                    <DeleteTopic topic={this.props.topic} onComplete={this.props.onDeletion} profiles={this.props.profiles} />
                                 </ButtonGroup>
                             </ListGroupItem>
                             <ListGroupItem>
@@ -103,7 +103,7 @@ class TopicView extends Component {
                                         <PartitionView topic={this.props.topic} partitions={this.state.topicData.partitions} />
                                         :
                                         this.state.viewName === 'configuration' ?
-                                            <ConfigurationView topic={this.props.topic} configuration={this.state.topicData.configuration} />
+                                            <ConfigurationView topic={this.props.topic} configuration={this.state.topicData.configuration} profiles={this.props.profiles} />
                                             :
                                             <ConsumerView topic={this.props.topic} />
                                 }
@@ -120,6 +120,7 @@ class TopicView extends Component {
 
 TopicView.propTypes = {
     topic: PropTypes.string.isRequired,
+    profiles: PropTypes.array
 };
 
 export default TopicView ;
