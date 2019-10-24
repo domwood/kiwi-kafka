@@ -74,7 +74,6 @@ class KafkaGet extends Component {
         return (
             <Container className={"WideBoi"}>
                 <div className="mt-lg-4"/>
-                <h4>{this.props.isDownload ? <Badge color="info" pill>Experimental</Badge> : null}</h4>
                 <h1>{this.props.isDownload ? 'Download Data From Kafka' : 'Get Data From Kafka'}</h1>
                 <div className="mt-lg-4"/>
                 <Form>

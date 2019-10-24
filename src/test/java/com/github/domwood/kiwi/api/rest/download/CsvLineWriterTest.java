@@ -143,4 +143,19 @@ public class CsvLineWriterTest {
 
         assertEquals(expected, observed);
     }
+
+    @Test
+    public void testCsvWriteValueEscapehNewlines() throws JsonProcessingException {
+        ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", VALUE).build();
+        CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
+
+        ConsumedMessage<String, String> message = buildConsumedMessage()
+                .message(testPayload + "\n\nHelloWorld")
+                .build();
+
+        String observed = lineWriter.writeLine(message);
+        String expected = testPayload+"\\n\\nHelloWorld";
+
+        assertEquals(expected, observed);
+    }
 }
