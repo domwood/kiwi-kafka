@@ -65,15 +65,20 @@ public class CsvLineWriter implements FileLineWriter {
     private void writeValue(ConsumedMessage<String, String> message, StringBuilder writer){
         if(columns.contains(ConsumerRequestColumns.VALUE)){
             if(writer.length() > 0) writer.append(delimiter);
-            writer.append(message.message());
+            writer.append(escapeNewLines(message.message()));
         }
     }
 
     private void writeHeaders(ConsumedMessage<String, String> message, StringBuilder writer) throws JsonProcessingException {
         if(columns.contains(ConsumerRequestColumns.HEADERS)){
             if(writer.length() > 0) writer.append(delimiter);
-            writer.append(mapper.writeValueAsString(message.headers()));
+            writer.append(escapeNewLines(mapper.writeValueAsString(message.headers())));
         }
+    }
+
+    private String escapeNewLines(String input){
+        if(input == null) return null;
+        return input.replaceAll("\n", "\\\\n");
     }
 
 }
