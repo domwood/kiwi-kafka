@@ -10,8 +10,8 @@ class ConsumerGroupTopicDetailsView extends Component {
                 <td>{this.props.assignment.consumerId}</td>
                 <td>{this.props.assignment.groupState || 'INACTIVE'}</td>
                 <td>{this.props.assignment.offset.partitionOffset}</td>
-                <td>{this.props.assignment.offset.groupOffset}</td>
-                <td>{this.props.assignment.offset.lag}</td>
+                <td>{this.props.assignment.offset.groupOffset > 0 ? this.props.assignment.offset.groupOffset : 'No Commit'}</td>
+                <td>{this.props.assignment.offset.groupOffset > 0 ? this.props.assignment.offset.lag : 'No Commit'}</td>
                 <td>{this.props.assignment.coordinator}</td>
             </tr>
         )

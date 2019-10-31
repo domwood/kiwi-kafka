@@ -49,7 +49,7 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
         }
         try{
             this.getClient().close();
-            logger.info("Kafka consumer closed");
+            logger.info("Kafka consumer closed for groupId: " + this.getGroupId());
         }
         catch (Exception e){
             throw new KafkaResourceClientCloseException("Failed to cleanly close WebSocketService, due to "+e.getMessage(), e);
@@ -105,5 +105,9 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
             logger.warn("Failed to unsubscribe client", e);
         }
 
+    }
+
+    public String getGroupId(){
+        return this.properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG);
     }
 }

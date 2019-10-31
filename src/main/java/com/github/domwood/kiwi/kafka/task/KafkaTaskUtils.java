@@ -2,8 +2,10 @@ package com.github.domwood.kiwi.kafka.task;
 
 import com.github.domwood.kiwi.data.input.ConsumerStartPosition;
 import com.github.domwood.kiwi.exceptions.ConsumerAssignmentTimeoutException;
+import com.github.domwood.kiwi.exceptions.KiwiConsumerSubscriptionException;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.utils.KafkaConsumerTracker;
+import com.github.domwood.kiwi.utilities.FutureUtils;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -14,6 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.github.domwood.kiwi.kafka.utils.KafkaOffsetPositionCalculator.getStartingPositions;
 import static java.time.temporal.ChronoUnit.MILLIS;
@@ -29,6 +35,7 @@ public class KafkaTaskUtils {
     public static KafkaConsumerTracker subscribeAndSeek(KafkaConsumerResource<?, ?> resource,
                                                         List<String> topics,
                                                         Optional<ConsumerStartPosition> startPostition) {
+
         resource.subscribe(topics);
 
         logger.info("Consumer awaiting assignment for {} ...", topics);
@@ -42,7 +49,7 @@ public class KafkaTaskUtils {
         }
 
         if (pollCount > MAX_POLL_COUNT && topicPartitionSet.isEmpty()) {
-            throw new ConsumerAssignmentTimeoutException("Timed out awaiting an assignment for topics " + topics);
+            throw new ConsumerAssignmentTimeoutException("Timed out awaiting an assignment for topics " + topics + " for " + resource.getGroupId());
         }
 
         logger.info("Consumer attained assignment {} for {}. Seeking to beginning ...", topicPartitionSet, topics);

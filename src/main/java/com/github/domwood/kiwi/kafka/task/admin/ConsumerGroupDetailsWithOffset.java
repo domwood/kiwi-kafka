@@ -18,13 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.domwood.kiwi.kafka.task.KafkaTaskUtils.formatCoordinator;
 import static com.github.domwood.kiwi.utilities.FutureUtils.toCompletable;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 
 
 public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, ConsumerGroupTopicWithOffsetDetails, KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String, String>>> {
@@ -40,24 +38,22 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
         CompletableFuture<Map<TopicPartition, OffsetAndMetadata>> groupAssignment =
                 toCompletable(resource.getLeft().listConsumerGroupOffsets(input).partitionsToOffsetAndMetadata());
 
-        CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> groupAssignmentAndOffset = groupAssignment
-                .thenCompose(assignment -> withOffsets(resource.getRight(), assignment));
+        CompletableFuture<ConsumerGroupDescription> description = toCompletable(resource.getLeft().describeConsumerGroups(asList(input))
+                .describedGroups()
+                .get(input));
 
-        CompletableFuture<ConsumerGroupDescription> description =
-                toCompletable(resource.getLeft().describeConsumerGroups(asList(input))
-                        .describedGroups()
-                        .get(input));
-
-        return groupAssignmentAndOffset
+        return description
+                .thenCombine(groupAssignment, Pair::of)
+                .thenCompose(ab -> withOffsets(resource.getRight(), ab.getRight(), ab.getLeft()))
                 .thenCombine(description, this::toOffsetDetails)
                 .whenComplete((group, error) -> {
-                    if(error != null){
+                    if (error != null) {
                         logger.error("Task completed with error", error);
                     }
                 });
     }
 
-    private ConsumerGroupTopicWithOffsetDetails toOffsetDetails(Map<TopicPartition, Pair<OffsetAndMetadata, Long>> partitionOffsetData,
+    private ConsumerGroupTopicWithOffsetDetails toOffsetDetails(Map<TopicPartition, Pair<Long, Long>> partitionOffsetData,
                                                                 ConsumerGroupDescription description) {
         Map<String, List<TopicGroupAssignmentWithOffset>> data = asByTopicAndByPartition(partitionOffsetData, description);
         return ImmutableConsumerGroupTopicWithOffsetDetails.builder()
@@ -65,20 +61,23 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
                 .build();
     }
 
-    private Map<String, List<TopicGroupAssignmentWithOffset>> asByTopicAndByPartition(Map<TopicPartition, Pair<OffsetAndMetadata, Long>> partitionOffsetData,
-                                                                                                    ConsumerGroupDescription description) {
-        return StreamUtils.extract(partitionOffsetData, this::asOffset)
-                .stream()
-                .map(offsetData -> asTopicGroupWithOffset(offsetData, description))
+    private Map<String, List<TopicGroupAssignmentWithOffset>> asByTopicAndByPartition(Map<TopicPartition, Pair<Long, Long>> partitionOffsetData,
+                                                                                      ConsumerGroupDescription description) {
+        return description.members().stream()
+                .flatMap(member -> member.assignment().topicPartitions()
+                        .stream()
+                        .map(topicPartition -> Pair.of(member, topicPartition)))
+                .map(tp -> asTopicGroupWithOffset(asOffset(tp.getRight(), Optional.ofNullable(partitionOffsetData.get(tp.getRight()))), description, tp.getKey()))
                 .collect(Collectors.groupingBy(TopicGroupAssignmentWithOffset::topic));
     }
 
     private TopicGroupAssignmentWithOffset asTopicGroupWithOffset(Pair<TopicPartition, PartitionOffset> offset,
-                                                                  ConsumerGroupDescription description){
+                                                                  ConsumerGroupDescription description,
+                                                                  MemberDescription member) {
         return ImmutableTopicGroupAssignmentWithOffset.builder()
                 .groupId(description.groupId())
-                .consumerId(getConsumerId(description, offset.getLeft()))
-                .clientId(getClientId(description, offset.getLeft()))
+                .consumerId(member.consumerId())
+                .clientId(member.clientId())
                 .coordinator(formatCoordinator(description.coordinator()))
                 .groupState(description.state().name())
                 .topic(offset.getLeft().topic())
@@ -87,21 +86,28 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
                 .build();
     }
 
-    private Pair<TopicPartition, PartitionOffset> asOffset(TopicPartition topicPartition, Pair<OffsetAndMetadata, Long> offsetAndMetadata) {
+    private Pair<TopicPartition, PartitionOffset> asOffset(TopicPartition topicPartition,
+                                                           Optional<Pair<Long, Long>> offsetAndMetadata) {
+        Long groupOffset = offsetAndMetadata.map(Pair::getKey).orElse(-1L);
+        Long partitionOffset = offsetAndMetadata.map(Pair::getRight).orElse(-1L);
+
         return Pair.of(topicPartition, ImmutablePartitionOffset.builder()
-                .groupOffset(offsetAndMetadata.getKey().offset())
-                .partitionOffset(offsetAndMetadata.getRight())
-                .lag(offsetAndMetadata.getRight() - offsetAndMetadata.getLeft().offset())
+                .groupOffset(groupOffset)
+                .partitionOffset(partitionOffset)
+                .lag(groupOffset > 0 ? partitionOffset - groupOffset : -1L)
                 .build());
     }
 
     //Appears to be how the ConsumerGroupCommand.scala finds the offset/lag
-    private CompletableFuture<Map<TopicPartition, Pair<OffsetAndMetadata, Long>>> withOffsets(KafkaConsumerResource<?, ?> resource, Map<TopicPartition, OffsetAndMetadata> offsetData) {
+    private CompletableFuture<Map<TopicPartition, Pair<Long, Long>>> withOffsets(KafkaConsumerResource<?, ?> resource,
+                                                                                 Map<TopicPartition, OffsetAndMetadata> offsetData,
+                                                                                 ConsumerGroupDescription description) {
         return FutureUtils.supplyAsync(() -> {
-            List<String> topics = offsetData.keySet().stream()
+            List<String> topics = description.members().stream()
+                    .flatMap(s -> s.assignment().topicPartitions().stream())
                     .map(TopicPartition::topic)
                     .distinct()
-                    .collect(toList());
+                    .collect(Collectors.toList());
 
             if (topics.isEmpty()) return Collections.emptyMap();
 
@@ -111,27 +117,14 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
         });
     }
 
-    private Map<TopicPartition, Pair<OffsetAndMetadata, Long>> mapToOffset(Map<TopicPartition, OffsetAndMetadata> group, Map<TopicPartition, Long> offsets) {
-        return group.entrySet().stream()
-                .map(groupEntry -> new AbstractMap.SimpleEntry<>(groupEntry.getKey(), Pair.of(groupEntry.getValue(), offsets.getOrDefault(groupEntry.getKey(), 0L))))
+    private Map<TopicPartition, Pair<Long, Long>> mapToOffset(Map<TopicPartition, OffsetAndMetadata> group,
+                                                              Map<TopicPartition, Long> offsets) {
+        return offsets.entrySet().stream()
+                .map(tp -> new AbstractMap.SimpleEntry<>(tp.getKey(), Pair.of(metadataToLong(tp.getKey(), group), tp.getValue())))
                 .collect(StreamUtils.mapCollector());
     }
 
-    private String getConsumerId(ConsumerGroupDescription description, TopicPartition topicPartition){
-        return getFromConsumerDescription(description, topicPartition, MemberDescription::consumerId);
-    }
-
-    private String getClientId(ConsumerGroupDescription description, TopicPartition topicPartition){
-        return getFromConsumerDescription(description, topicPartition, MemberDescription::clientId);
-    }
-
-    private String getFromConsumerDescription(ConsumerGroupDescription description,
-                                              TopicPartition topicPartition,
-                                              Function<MemberDescription, String> extractor){
-        return description.members().stream()
-                .filter(m -> m.assignment().topicPartitions().contains(topicPartition))
-                .map(extractor)
-                .findFirst()
-                .orElse(null);
+    private Long metadataToLong(TopicPartition tp, Map<TopicPartition, OffsetAndMetadata> offsets) {
+        return Optional.ofNullable(offsets.get(tp)).map(OffsetAndMetadata::offset).orElse(-1L);
     }
 }

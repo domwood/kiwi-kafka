@@ -9,7 +9,7 @@ import java.util.Properties;
 public abstract class AbstractKafkaResource<CLIENT> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private CLIENT client;
+    protected CLIENT client;
     protected final Properties config;
 
     public AbstractKafkaResource(Properties props){
@@ -18,14 +18,11 @@ public abstract class AbstractKafkaResource<CLIENT> {
 
     public void discard(){
         try{
-            if(this.client != null){
-                closeClient();
-            }
+            closeClient();
         }
         catch (Exception e){
             logger.error("Attempted to close and admin WebSocketService resource but failed ", e);
         }
-        this.client = null;
     }
 
     protected abstract CLIENT createClient(Properties props);

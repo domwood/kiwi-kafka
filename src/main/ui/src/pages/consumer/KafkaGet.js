@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {
-    Badge,
     Container,
     Form,
     FormGroup

@@ -24,8 +24,27 @@ public class KafkaResourcePair<R1 extends AbstractKafkaResource, R2 extends Abst
 
     @Override
     protected void closeClient() throws KafkaResourceClientCloseException {
-        this.client1.closeClient();
-        this.client2.closeClient();
+        Exception error = null;
+        try{
+            this.client1.closeClient();
+        }
+        catch (Exception e){
+            error = e;
+        }
+        try{
+            this.client2.closeClient();
+        }
+        catch (Exception e){
+            error = e;
+        }
+        if(error != null){
+            if(error instanceof KafkaResourceClientCloseException){
+                throw (KafkaResourceClientCloseException)error;
+            }
+            else{
+                throw new KafkaResourceClientCloseException(error.getMessage(), error);
+            }
+        }
     }
 
     public R2 getRight(){
