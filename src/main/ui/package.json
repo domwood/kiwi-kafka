@@ -46,5 +46,8 @@
     "eslint-plugin-react": "^7.12.4",
     "jest": "24.8.0",
     "jest-enzyme": "^7.1.1"
+  },
+  "resolutions": {
+    "serialize-javascript": "^2.1.1"
   }
 }
