@@ -1,0 +1,80 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+  kafka1:
+    image: wurstmeister/kafka
+    container_name: kafka1
+    links:
+      - zookeeper
+    ports:
+      - 9092:9092
+    depends_on:
+      - zookeeper
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_LISTENERS: SSL://_{HOSTNAME_COMMAND}:9092
+      KAFKA_LISTENERS: SSL://:9092
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      SSL_KEYSTORE_LOCATION: /var/private/ssl/kafka.server.keystore.jks
+      SSL_TRUSTSTORE_LOCATION: /var/private/ssl/kafka.server.truststore.jks
+      SSL_KEYSTORE_PASSWORD: secret
+      SSL_KEY_PASSWORD: secret
+      SSL_TRUSTSTORE_PASSWORD: secret
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/var/private/ssl/
+  kafka2:
+    image: wurstmeister/kafka
+    container_name: kafka2
+    links:
+      - zookeeper
+    depends_on:
+      - zookeeper
+      - kafka1
+    ports:
+      - 9093:9092
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_LISTENERS: SSL://_{HOSTNAME_COMMAND}:9093
+      KAFKA_LISTENERS: SSL://:9092
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      SSL_KEYSTORE_LOCATION: /var/private/ssl/kafka.server.keystore.jks
+      SSL_TRUSTSTORE_LOCATION: /var/private/ssl/kafka.server.truststore.jks
+      SSL_KEYSTORE_PASSWORD: secret
+      SSL_KEY_PASSWORD: secret
+      SSL_TRUSTSTORE_PASSWORD: secret
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/var/private/ssl/
+  kafka3:
+    image: wurstmeister/kafka
+    container_name: kafka3
+    links:
+      - zookeeper
+    depends_on:
+      - zookeeper
+      - kafka1
+      - kafka2
+    ports:
+      - 9094:9092
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_LISTENERS: SSL://_{HOSTNAME_COMMAND}:9094
+      KAFKA_LISTENERS: SSL://:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 2
+      KAFKA_CREATE_TOPICS: "Topic1:10:3,Topic2:20:1:compact"
+      SSL_KEYSTORE_LOCATION: /var/private/ssl/kafka.server.keystore.jks
+      SSL_TRUSTSTORE_LOCATION: /var/private/ssl/kafka.server.truststore.jks
+      SSL_KEYSTORE_PASSWORD: secret
+      SSL_KEY_PASSWORD: secret
+      SSL_TRUSTSTORE_PASSWORD: secret
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/var/private/ssl/
