@@ -39,6 +39,16 @@ export const getProfiles = (cb, eb) => {
         .catch(errorhandler);
 };
 
+export const getKafkaConfiguration = (cb, eb) => {
+    let errorhandler = (error) => (eb||errorHandler)(error);
+
+    fetch(api.kafkaConfig)
+        .then(statusHandler)
+        .then(res => res.json())
+        .then(result => cb(result))
+        .catch(errorhandler);
+};
+
 export const getTopics = (cb, eb) => {
     let errorhandler = (error) => (eb||errorHandler)(error);
 

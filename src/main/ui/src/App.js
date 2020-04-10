@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import {
     Collapse,
     Navbar,
-    NavbarToggler,
     NavbarBrand,
     Nav,
     NavItem,
@@ -21,18 +20,18 @@ import KafkaConsumerGroups from "./pages/groups/KafkaConsumerGroups";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import * as ApiService from "./services/ApiService";
+import ClusterChooser from "./pages/common/ClusterChooser";
 
 class App extends Component {
     constructor(props) {
         super(props);
 
-        this.toggle = this.toggle.bind(this);
         this.state = {
             isOpen: false,
             version: '',
-            profiles: []
+            profiles: [],
+            clusterDropDownOpen: false
         };
-
     }
 
     componentDidMount(){
@@ -52,16 +51,11 @@ class App extends Component {
                 })
             }
         }, () => toast.error("No connection to server"));
+
     }
 
     componentWillUnmount() {
         this.mounted = false;
-    }
-
-    toggle() {
-        this.setState({
-            isOpen: !this.state.isOpen
-        });
     }
 
     render() {
@@ -85,8 +79,7 @@ class App extends Component {
                             <NavbarBrand>
                                 <img src={logo} height="40" width="40" alt="Kiwi - Kafka Interactive Web Interface" />
                             </NavbarBrand>
-                            <NavbarToggler onClick={this.toggle} />
-                            <Collapse isOpen={this.state.isOpen} navbar>
+                            <Collapse navbar>
                                 <Nav className="ml-0" navbar>
                                     <NavItem>
                                         <NavLink tag={Link} to="/" replace={true} >Kafka Brokers</NavLink>
@@ -108,6 +101,9 @@ class App extends Component {
                                     </NavItem>
                                 </Nav>
                                 <Nav className="ml-auto" navbar>
+                                    <div style={{padding:0.1 +'rem'}}>
+                                        <ClusterChooser/>
+                                    </div>
                                     <NavItem>
                                         <div style={{padding:0.5 +'rem'}}>
                                             Version: {this.state.version}

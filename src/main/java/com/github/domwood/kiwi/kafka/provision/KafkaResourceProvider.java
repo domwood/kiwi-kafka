@@ -1,53 +1,40 @@
 package com.github.domwood.kiwi.kafka.provision;
 
-import com.github.domwood.kiwi.kafka.configs.KafkaAdminConfig;
-import com.github.domwood.kiwi.kafka.configs.KafkaConsumerConfig;
-import com.github.domwood.kiwi.kafka.configs.KafkaProducerConfig;
+import com.github.domwood.kiwi.kafka.configs.KafkaConfigManager;
 import com.github.domwood.kiwi.kafka.resources.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.Properties;
 
 @Component
 public class KafkaResourceProvider {
 
-    private final KafkaAdminConfig adminConfig;
-    private final KafkaConsumerConfig consumerConfig;
-    private final KafkaProducerConfig producerConfig;
+    private final KafkaConfigManager configManager;
 
-    @Autowired
-    public KafkaResourceProvider(KafkaAdminConfig adminConfig,
-                                 KafkaConsumerConfig consumerConfig,
-                                 KafkaProducerConfig producerConfig){
-        this.adminConfig = adminConfig;
-        this.consumerConfig = consumerConfig;
-        this.producerConfig = producerConfig;
+    public KafkaResourceProvider(KafkaConfigManager configManager) {
+        this.configManager = configManager;
     }
 
-    public KafkaConsumerResource<String, String> kafkaStringConsumerResource(Optional<String> bootStrapServers){
-        return new KafkaConsumerResource<>(consumerConfig.createStringConfig(bootStrapServers));
+    public KafkaConsumerResource<String, String> kafkaStringConsumerResource(Optional<String> clusterName) {
+        return new KafkaConsumerResource<>(configManager.generateConsumerConfig(clusterName));
     }
 
-    public KafkaProducerResource<String, String> kafkaStringProducerResource(Optional<String> bootStrapServers){
-        return new KafkaProducerResource<>(producerConfig.createStringConfig(bootStrapServers));
+    public KafkaProducerResource<String, String> kafkaStringProducerResource(Optional<String> clusterName) {
+        return new KafkaProducerResource<>(configManager.generateProducerConfig(clusterName));
     }
 
-    public KafkaAdminResource kafkaAdminResource(Optional<String> bootStrapServers){
-        Properties props = adminConfig.createConfig(bootStrapServers);
-        return new KafkaAdminResource(props);
+    public KafkaAdminResource kafkaAdminResource(Optional<String> clusterName) {
+        return new KafkaAdminResource(configManager.generateAdminConfig(clusterName));
     }
 
-    public KafkaTopicConfigResource kafkaTopicConfigResource(){
+    public KafkaTopicConfigResource kafkaTopicConfigResource() {
         return new KafkaTopicConfigResource(null);
     }
 
-    public KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String,String>> kafkaAdminAndConsumer(Optional<String> bootStrapServers){
-        KafkaAdminResource admin = this.kafkaAdminResource(bootStrapServers);
-        KafkaConsumerResource<String, String> consumer = kafkaStringConsumerResource(bootStrapServers);
+    public KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String, String>> kafkaAdminAndConsumer(Optional<String> clusterName) {
+        KafkaAdminResource admin = this.kafkaAdminResource(clusterName);
+        KafkaConsumerResource<String, String> consumer = kafkaStringConsumerResource(clusterName);
         return new KafkaResourcePair<>(admin, consumer);
     }
-
 
 }
