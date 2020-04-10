@@ -1,4 +1,5 @@
 import WebSocketFactory from "./WebSocketFactory";
+import SessionStore from "./SessionStore";
 
 
 //TODO WIP POC
@@ -73,6 +74,7 @@ WebSocketService.consume = (topics, filters, startPosition, messageHandler, erro
     };
 
     WebSocketService.send({
+        clusterName: SessionStore.getActiveCluster(),
         requestType: ".ConsumerRequest",
         topics: topics,
         limit: -1,
@@ -84,6 +86,7 @@ WebSocketService.consume = (topics, filters, startPosition, messageHandler, erro
 WebSocketService.disconnect = () => {
 
     WebSocketService.send({
+        clusterName: SessionStore.getActiveCluster(),
         requestType: ".CloseTaskRequest"
     }, () => {});
     if(WebSocketService.socket.readyState > 2){

@@ -2,6 +2,8 @@ package com.github.domwood.kiwi.kafka.provision;
 
 import com.github.domwood.kiwi.kafka.configs.KafkaConfigManager;
 import com.github.domwood.kiwi.kafka.resources.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

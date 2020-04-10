@@ -4,6 +4,7 @@ import "../../App.css";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
 import * as ApiService from "../../services/ApiService";
 import {toast} from "react-toastify";
+import SessionStore from "../../services/SessionStore";
 
 class ClusterChooser extends Component {
 
@@ -11,7 +12,8 @@ class ClusterChooser extends Component {
         super(props);
 
         this.state = {
-            clusterDropDownOpen: false
+            clusterDropDownOpen: false,
+            clusters: []
         };
 
     }
@@ -19,12 +21,21 @@ class ClusterChooser extends Component {
         this.mounted = true;
 
         ApiService.getKafkaConfiguration((kafkaConfig) => {
+            let activeCluster = Object.keys(kafkaConfig || {"none":null})[0];
+            if(kafkaConfig[SessionStore.getActiveCluster()]){
+                activeCluster = SessionStore.getActiveCluster();
+            }
+            else{
+                SessionStore.setActiveCluster(activeCluster);
+            }
             if(this.mounted){
                 this.setState({
                     kafkaConfig: kafkaConfig,
-                    activeCluster: Object.keys(kafkaConfig || {"none":null})[0]
+                    clusters: Object.keys(kafkaConfig),
+                    activeCluster: activeCluster
                 })
             }
+
         }, () => toast.error("No connection to server"));
     }
 
@@ -37,19 +48,20 @@ class ClusterChooser extends Component {
     setActiveCluster = (cluster) => {
         this.setState({
             activeCluster: cluster
-        });
+        }, () => SessionStore.setActiveCluster(cluster));
     };
 
     render() {
         return (
-            <div style={{padding:0.25 +'rem'}}>
-                <Dropdown size="sm" isOpen={this.state.clusterDropDownOpen} toggle={this.toggleCluster} onClick={() => {}}>
-                    <DropdownToggle caret>
+            <div>
+                <Dropdown nav inNavbar size="sm" isOpen={this.state.clusterDropDownOpen} toggle={this.toggleCluster}>
+                    <DropdownToggle nav caret>
                         Active Cluster: {this.state.activeCluster}
                     </DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem onClick={() => this.setActiveCluster("default")}>default</DropdownItem>
-                        <DropdownItem onClick={() => this.setActiveCluster("Other Cluster")}>Other Cluster</DropdownItem>
+                        {
+                            this.state.clusters.map((cluster) => (<DropdownItem key={cluster} onClick={() => this.setActiveCluster(cluster)}>{cluster}</DropdownItem>))
+                        }
                     </DropdownMenu>
                 </Dropdown>
             </div>

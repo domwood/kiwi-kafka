@@ -56,7 +56,7 @@ class TopicView extends Component {
     render() {
         return (
             <ListGroupItem key={this.props.topic + "_parent"} id={this.props.topic}>
-                <Button color={this.state.toggle ? "success" : "secondary"} size="sm" onClick={() => this.toggleDetails()} block>{this.props.topic}</Button>
+                <Button color={this.state.toggle ? "success" : "info"} size="sm" onClick={() => this.toggleDetails()} block>{this.props.topic}</Button>
                 {this.state.loading ? <Spinner color="secondary"/> : ''}
                 {
                     this.state.toggle ?

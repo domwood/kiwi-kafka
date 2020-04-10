@@ -101,11 +101,11 @@ class App extends Component {
                                     </NavItem>
                                 </Nav>
                                 <Nav className="ml-auto" navbar>
-                                    <div style={{padding:0.1 +'rem'}}>
+                                    <div style={{padding:'3px'}}>
                                         <ClusterChooser/>
                                     </div>
                                     <NavItem>
-                                        <div style={{padding:0.5 +'rem'}}>
+                                        <div style={{padding:'11px'}}>
                                             Version: {this.state.version}
                                         </div>
                                     </NavItem>

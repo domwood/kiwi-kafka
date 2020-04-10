@@ -19,6 +19,7 @@
     "react-toastify": "5.5.0",
     "react-transition-group": "^2.5.3",
     "reactstrap": "8.4.1",
+    "universal-cookie": "^4.0.3",
     "uuid": "^3.3.2"
   },
   "scripts": {
