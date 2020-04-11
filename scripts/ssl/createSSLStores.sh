@@ -33,3 +33,17 @@ openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days
 keytool -keystore kafka.server.keystore.jks -alias CARoot -import -file ca-cert -storepass secret -noprompt
 keytool -keystore kafka.server.keystore.jks -alias localhost -import -file cert-signed -storepass secret -noprompt
 
+#Step 4 (2-Way SSL)
+keytool -keystore kafka.client.keystore.jks \
+  -alias localhost \
+  -validity 365 \
+  -genkey \
+  -dname "CN=localhost, OU=Private, O=Private, L=Leeds, S=Leeds, C=UK" \
+  -storepass secret \
+  -keyalg RSA \
+  -storetype pkcs12
+
+keytool -keystore kafka.client.keystore.jks -alias localhost -certreq -file cert-file -storepass secret -noprompt
+openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out client-signed -days 365 -CAcreateserial -passin pass:secret
+keytool -keystore kafka.client.keystore.jks -alias CARoot -import -file ca-cert -storepass secret -noprompt
+keytool -keystore kafka.client.keystore.jks -alias localhost -import -file client-signed -storepass secret -noprompt

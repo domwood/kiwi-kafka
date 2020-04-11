@@ -21,7 +21,7 @@ class ClusterChooser extends Component {
         this.mounted = true;
 
         ApiService.getKafkaConfiguration((kafkaConfig) => {
-            let activeCluster = Object.keys(kafkaConfig || {"none":null})[0];
+            let activeCluster = Object.keys(kafkaConfig || {"default":null})[0];
             if(kafkaConfig[SessionStore.getActiveCluster()]){
                 activeCluster = SessionStore.getActiveCluster();
             }

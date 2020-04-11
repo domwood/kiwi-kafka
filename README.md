@@ -1,7 +1,8 @@
 # KIWI - Kafka Interactive Web Interface 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Status-WIP-yellow.svg)]()
+[![Status](https://img.shields.io/badge/Stable-0.5.0-green.svg)]()
+[![Status](https://img.shields.io/badge/Latest-0.6.0-yellow.svg)]()
 
 A Kafka Web Interface, written to help my professional day to day role working with kafka, but provided here in the event anyone else may benefit from using it.
 
@@ -13,9 +14,7 @@ A Kafka Web Interface, written to help my professional day to day role working w
 
 #### What this tool is
  - Project is a springboot app using reactjs frontend.
- - Project has been development against kafka >2.0.0. Whilst I intend to look at backwards compatibility with older kafka versions. 
- It have not looked into it yet.
-  
+ - Project has been development against kafka >2.0.0. 
   
 ## Overview
 
@@ -79,3 +78,43 @@ But this will not update automatically when making changes.
  - `mvn clean release:perform`
  - Manual upload jar, release draft
  - Docker image is pushed in the perform step, but I also potentially retag as latest and push that
+ 
+## Configuration
+
+#### Configuring Multiple Kafka clusters
+ - The `docker-compose-multi-cluster.yml` is an example basic configuration for multiple kafka clusters
+
+ - Properties can apply to all kafka client configuration:
+```
+    kafka.base.client.bootstrapServers = localhost:9092
+```
+ - Properties can apply to all consumer/producer/admin configuration:
+```
+ kafka.base.producer.acks = 0
+ kafka.base.consumer.maxPollRecords = 0
+```
+ - Properties can apply to the consumer/producer/admin configuration for one cluster, where the variable following `clusters` can be selected from a dropdown on the web client to switch between different kafka clusters 
+```
+  kafka.clusters.default.producer.acks = 0
+  kafka.clusters.backup.maxPollRecords = 0
+```
+ 
+ - Note: Kafka properties are the final component of the configuration and should be added without dots or hyphens eg the below converts to `key.serializer=org.apache.kafka.common.serialization.StringSerializer` in the producer config
+```
+kafka.base.producer.keySerializer=org.apache.kafka.common.serialization.StringSerializer
+```
+
+#### Configuring SSL Kafka clusters
+
+ - Example SSL configuration:
+ 
+```
+kafka.clusters.secure.client.bootstrapServers=localhost:9024,localhost:9025,localhost:9026
+kafka.clusters.secure.client.securityProtocol=SSL
+kafka.clusters.secure.client.sslTruststoreLocation=scripts/ssl/kafka.client.truststore.jks
+kafka.clusters.secure.client.sslTruststorePassword=secret
+kafka.clusters.secure.client.sslKeystoreLocation=scripts/ssl/kafka.client.truststore.jks
+kafka.clusters.secure.client.sslKeystorePassword=secret
+kafka.clusters.secure.client.sslEndpointIdentificationAlgorithm=none
+```
+ - See the docker-compose.yml in the scrips/ssl folder for an example of configuring kiwi to use ssl.

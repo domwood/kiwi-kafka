@@ -1,25 +1,25 @@
 version: '2'
 services:
-  zookeeper_ssl:
+  zookeeper-ssl:
     image: wurstmeister/zookeeper
-    container_name: zookeeper_ssl
+    container_name: zookeeper-ssl
     ports:
       - 2182:2181
-  kafka1_ssl:
+  kafka1-ssl:
     image: wurstmeister/kafka
-    container_name: kafka1_ssl
+    container_name: kafka1-ssl
     links:
-      - zookeeper_ssl
+      - zookeeper-ssl
     ports:
       - 9024:9093
     depends_on:
-      - zookeeper_ssl
+      - zookeeper-ssl
     environment:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1_ssl:9092,SSL://_{HOSTNAME_COMMAND}:9024
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1-ssl:9092,SSL://_{HOSTNAME_COMMAND}:9024
       KAFKA_LISTENERS: PLAINTEXT://:9092,SSL://:9093
       KAFKA_SECURITY_INTER_BROKER_PROTOCOL: PLAINTEXT
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper_ssl:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-ssl:2181
       KAFKA_BROKER_ID: 0
       KAFKA_SSL_KEYSTORE_LOCATION: /var/private/ssl/kafka.server.keystore.jks
       KAFKA_SSL_TRUSTSTORE_LOCATION: /var/private/ssl/kafka.server.truststore.jks
@@ -28,28 +28,28 @@ services:
       KAFKA_SSL_TRUSTSTORE_PASSWORD: secret
       KAFKA_SSL_KEYSTORE_TYPE: JKS
       KAFKA_SSL_TRUSTSTORE_TYPE: JKS
-      KAFKA_SSL_CLIENT_AUTH: none
+      KAFKA_SSL_CLIENT_AUTH: required
       KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: none
 #      KAFKA_JMX_OPTS: "-Djavax.net.debug=all"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/var/private/ssl/
-  kafka2_ssl:
+  kafka2-ssl:
     image: wurstmeister/kafka
-    container_name: kafka2_ssl
+    container_name: kafka2-ssl
     links:
-      - zookeeper_ssl
+      - zookeeper-ssl
     depends_on:
-      - zookeeper_ssl
-      - kafka1_ssl
+      - zookeeper-ssl
+      - kafka1-ssl
     ports:
       - 9025:9093
     environment:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2_ssl:9092,SSL://_{HOSTNAME_COMMAND}:9025
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2-ssl:9092,SSL://_{HOSTNAME_COMMAND}:9025
       KAFKA_LISTENERS: PLAINTEXT://:9092,SSL://:9093
       KAFKA_SECURITY_INTER_BROKER_PROTOCOL: PLAINTEXT
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper_ssl:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-ssl:2181
       KAFKA_BROKER_ID: 1
       KAFKA_SSL_KEYSTORE_LOCATION: /var/private/ssl/kafka.server.keystore.jks
       KAFKA_SSL_TRUSTSTORE_LOCATION: /var/private/ssl/kafka.server.truststore.jks
@@ -58,29 +58,29 @@ services:
       KAFKA_SSL_TRUSTSTORE_PASSWORD: secret
       KAFKA_SSL_KEYSTORE_TYPE: JKS
       KAFKA_SSL_TRUSTSTORE_TYPE: JKS
-      KAFKA_SSL_CLIENT_AUTH: none
+      KAFKA_SSL_CLIENT_AUTH: required
       KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: none
 #      KAFKA_JMX_OPTS: "-Djavax.net.debug=all"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/var/private/ssl/
-  kafka3_ssl:
+  kafka3-ssl:
     image: wurstmeister/kafka
-    container_name: kafka3_ssl
+    container_name: kafka3-ssl
     links:
-      - zookeeper_ssl
+      - zookeeper-ssl
     depends_on:
-      - zookeeper_ssl
-      - kafka1_ssl
-      - kafka2_ssl
+      - zookeeper-ssl
+      - kafka1-ssl
+      - kafka2-ssl
     ports:
       - 9026:9093
     environment:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3_ssl:9092,SSL://_{HOSTNAME_COMMAND}:9026
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3-ssl:9092,SSL://_{HOSTNAME_COMMAND}:9026
       KAFKA_LISTENERS: PLAINTEXT://:9092,SSL://:9093
       KAFKA_SECURITY_INTER_BROKER_PROTOCOL: PLAINTEXT
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper_ssl:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-ssl:2181
       KAFKA_BROKER_ID: 2
       KAFKA_CREATE_TOPICS: "TopicSSL1:10:3,TopicSSL2:20:1:compact"
       KAFKA_SSL_KEYSTORE_LOCATION: /var/private/ssl/kafka.server.keystore.jks
@@ -90,29 +90,35 @@ services:
       KAFKA_SSL_TRUSTSTORE_PASSWORD: secret
       KAFKA_SSL_KEYSTORE_TYPE: JKS
       KAFKA_SSL_TRUSTSTORE_TYPE: JKS
-      KAFKA_SSL_CLIENT_AUTH: none
+      KAFKA_SSL_CLIENT_AUTH: required
       KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: none
 #      KAFKA_JMX_OPTS: "-Djavax.net.debug=all"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/var/private/ssl/
-#  kiwi:
-#    image: dmwood/kiwi:latest
-#    container_name: kiwi
-#    ports:
-#      - 8090:8080
-#    links:
-#      - zookeeper_ssl
-#      - kafka1_ssl
-#      - kafka2_ssl
-#      - kafka3_ssl
-#    depends_on:
-#      - zookeeper_ssl
-#      - kafka1_ssl
-#      - kafka2_ssl
-#      - kafka3_ssl
-#    environment:
-#      KAFKA_BOOTSTRAPSERVERS: kafka1_ssl:9092,kafka2_ssl:9092,kafka3_ssl:9092
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - ./:/var/private/ssl/
+  kiwi:
+    image: dmwood/kiwi:latest
+    container_name: kiwi
+    ports:
+      - 8090:8080
+    links:
+      - zookeeper-ssl
+      - kafka1-ssl
+      - kafka2-ssl
+      - kafka3-ssl
+    depends_on:
+      - zookeeper-ssl
+      - kafka1-ssl
+      - kafka2-ssl
+      - kafka3-ssl
+    environment:
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_BOOTSTRAPSERVERS: kafka1-ssl:9093,kafka2-ssl:9093,kafka3-ssl:9093
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_SECURITYPROTOCOL: SSL
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_SSLTRUSTSTORELOCATION: /var/private/ssl/kafka.client.truststore.jks
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_SSLTRUSTSTOREPASSWORD: secret
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_SSLKEYSTORELOCATION: /var/private/ssl/kafka.client.keystore.jks
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_SSLKEYSTOREPASSWORD: secret
+      KAFKA_CLUSTERS_DEFAULT_CLIENT_SSLENDPOINTIDENTIFICATIONALGORITHM: none
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/var/private/ssl/
