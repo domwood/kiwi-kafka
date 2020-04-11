@@ -1,3 +1,5 @@
 *.jks
-ca-cert
+ca-cert*
+cert-*
+ca-key
 .rand

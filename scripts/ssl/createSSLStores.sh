@@ -10,9 +10,14 @@ rm cert-* > /dev/null 2>&1
 
 #Step 1
 
-keytool -keystore kafka.server.keystore.jks -alias localhost -validity 365 -genkey \
+keytool -keystore kafka.server.keystore.jks \
+  -alias localhost \
+  -validity 365 \
+  -genkey \
   -dname "CN=localhost, OU=Private, O=Private, L=Leeds, S=Leeds, C=UK" \
-  -storepass secret
+  -storepass secret \
+  -keyalg RSA \
+  -storetype pkcs12
 
 #Step 2
 openssl req -new -x509 -keyout ca-key -out ca-cert -days 365 -passout pass:secret \
@@ -27,3 +32,4 @@ openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days
 
 keytool -keystore kafka.server.keystore.jks -alias CARoot -import -file ca-cert -storepass secret -noprompt
 keytool -keystore kafka.server.keystore.jks -alias localhost -import -file cert-signed -storepass secret -noprompt
+
