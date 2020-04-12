@@ -59,7 +59,7 @@ public class TestKafkaServer implements BeforeAllCallback, AfterAllCallback {
         kafkaServer = new KafkaServerStartable(serverConfig);
         kafkaServer.startup();
 
-        System.setProperty("kafka.bootstrapServers", formatAddress(kafkaHost, kafkaPort));
+        System.setProperty("kafka.base.client.bootstrapServers", formatAddress(kafkaHost, kafkaPort));
     }
 
     @Override

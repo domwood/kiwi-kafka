@@ -41,7 +41,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
  - Download jar from releases page
  
-`java -jar -DKAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
+`java -jar -Dkafka.base.client.bootstrapServers=localhost:9092 target/kiwi-$version.jar`
  
 #### Build & Run Jar
 
@@ -52,10 +52,9 @@ Dependencies:
  
 Build:
  - Run `mvn clean install`
-
 Run: 
- - Run `mvn spring-boot:run`
- - or Jar runnable via `java -jar -DKAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
+ - Run `mvn -Dkafka.base.client.bootstrapServers=localhost:9092 spring-boot:run` (You will need to have run the web build step before for the website to be hosted)
+ - or Jar runnable via `java -jar -Dkafka.base.client.bootstrapServers=localhost:9092 target/kiwi-$version.jar`
   
 #### Development - Getting Started
 

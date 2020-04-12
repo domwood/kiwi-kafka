@@ -30,6 +30,9 @@ public class KafkaConfigManager {
 
     private final Map<String, Map<String, Map<String, String>>> mutableClusterCopy = new HashMap<>();
 
+    //Backwards compatability from =< 0.5.0 version of kiwi
+    @Deprecated
+    private String bootstrapServers;
 
     private final Map<String, String> configMaps = new HashMap<>();
 
@@ -49,6 +52,12 @@ public class KafkaConfigManager {
         if(this.mutableClusterCopy.isEmpty()){
             this.mutableClusterCopy.put(defaultCluster, new HashMap<>());
         }
+        if(bootstrapServers != null && !bootstrapServers.isEmpty()){
+            logger.warn("Using a deprecated configuration parameter use 'kafka.base.client.bootstrapServers' or configure a cluster configuration");
+            Map<String, String> baseClient = this.base.getOrDefault("client", new HashMap<>());
+            baseClient.put("bootstrapServers", bootstrapServers);
+            this.base.put("client", baseClient);
+        }
     }
 
     public Map<String, Map<String, Map<String, String>>> getClusters() {
@@ -59,6 +68,13 @@ public class KafkaConfigManager {
         return base;
     }
 
+    public void setBootstrapServers(String bootstrapServers) {
+        this.bootstrapServers = bootstrapServers;
+    }
+
+    public String getBootstrapServers() {
+        return bootstrapServers;
+    }
 
     public Set<String> getClusterList() {
         Set<String> clusterNames = mutableClusterCopy.keySet();
