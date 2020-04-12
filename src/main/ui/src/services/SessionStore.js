@@ -6,7 +6,7 @@ const SessionStore = {
     setActiveCluster: (newCluster) => {
         let previousCluster = cookies.get("activeCluster");
         cookies.set("activeCluster", newCluster);
-        if(previousCluster !== null && previousCluster !== newCluster){
+        if(previousCluster && newCluster && previousCluster !== newCluster){
             window.location.reload();
         }
     },

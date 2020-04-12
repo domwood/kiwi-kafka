@@ -46,10 +46,10 @@ export const getProfiles = (cb, eb) => {
         .catch(errorHandler);
 };
 
-export const getKafkaConfiguration = (cb, eb) => {
+export const getKafkaClusterList = (cb, eb) => {
     let errorHandler = (error) => (eb || errorHandler)(error);
 
-    fetch(api.kafkaConfig)
+    fetch(api.kafkaClusterList)
         .then(statusHandler)
         .then(res => res.json())
         .then(result => cb(result))

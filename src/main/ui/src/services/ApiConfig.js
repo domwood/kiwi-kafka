@@ -10,6 +10,7 @@ export default {
     version: `${baseRestApi}/version`,
     profiles: `${baseRestApi}/profiles`,
     kafkaConfig: `${baseRestApi}/kafkaConfig`,
+    kafkaClusterList: `${baseRestApi}/kafkaClusterList`,
     brokers: `${baseRestApi}/brokers`,
     logs: `${baseRestApi}/logs`,
     listTopics: `${baseRestApi}/listTopics`,

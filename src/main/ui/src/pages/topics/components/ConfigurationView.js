@@ -78,7 +78,7 @@ class ConfigurationView extends Component {
                                                 <div>
                                                     <Button
                                                         id={"Edit"+this.props.topic}
-                                                        color="info"
+                                                        color="success"
                                                         onClick={() => this.editConfig(key)}
                                                         disabled={!!this.state.editKey || this.isEditDisabled()}>Edit
                                                     </Button>

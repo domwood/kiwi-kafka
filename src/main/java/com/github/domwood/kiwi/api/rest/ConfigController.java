@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
@@ -36,7 +37,13 @@ public class ConfigController {
     @GetMapping("/kafkaConfig")
     @ResponseBody
     public Map<String, Map<String, Map<String, String>>> getKafkaConfig(){
-        return this.configManager.getClusterConfiguration();
+        return this.configManager.getActiveClusterConfiguration();
+    }
+
+    @GetMapping("/kafkaClusterList")
+    @ResponseBody
+    public Set<String> getKafkaClusterList(){
+        return this.configManager.getClusterList();
     }
 
 }

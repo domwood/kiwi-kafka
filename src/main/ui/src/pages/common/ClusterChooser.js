@@ -20,18 +20,18 @@ class ClusterChooser extends Component {
     componentDidMount() {
         this.mounted = true;
 
-        ApiService.getKafkaConfiguration((kafkaConfig) => {
-            let activeCluster = Object.keys(kafkaConfig || {"default":null})[0];
-            if(kafkaConfig[SessionStore.getActiveCluster()]){
-                activeCluster = SessionStore.getActiveCluster();
+        ApiService.getKafkaClusterList((clusterList) => {
+            let activeCluster = clusterList[0];
+            let existingCluster = SessionStore.getActiveCluster();
+            if(clusterList.lastIndexOf(existingCluster) > -1){
+                activeCluster = existingCluster;
             }
             else{
                 SessionStore.setActiveCluster(activeCluster);
             }
             if(this.mounted){
                 this.setState({
-                    kafkaConfig: kafkaConfig,
-                    clusters: Object.keys(kafkaConfig),
+                    clusters: clusterList,
                     activeCluster: activeCluster
                 })
             }

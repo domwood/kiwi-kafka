@@ -234,7 +234,7 @@ class FilterConfigurer extends Component {
 
                     </ListGroup>
                     :
-                    <Button color="info" size="sm" block onClick={this.addFilter} width={'100%'}>Include Message Filter</Button>
+                    <Button color="secondary" size="sm" block onClick={this.addFilter} width={'100%'}>Include Message Filter</Button>
                 }
 
                 <div className="mt-lg-1"/>

@@ -1,5 +1,6 @@
 package com.github.domwood.kiwi.kafka.configs;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -45,6 +46,9 @@ public class KafkaConfigManager {
     @PostConstruct
     public void setMutableClusterCopy() {
         this.mutableClusterCopy.putAll(clusters);
+        if(this.mutableClusterCopy.isEmpty()){
+            this.mutableClusterCopy.put(defaultCluster, new HashMap<>());
+        }
     }
 
     public Map<String, Map<String, Map<String, String>>> getClusters() {
@@ -55,7 +59,14 @@ public class KafkaConfigManager {
         return base;
     }
 
-    public Map<String, Map<String, Map<String, String>>> getClusterConfiguration() {
+
+    public Set<String> getClusterList() {
+        Set<String> clusterNames = mutableClusterCopy.keySet();
+        return clusterNames.isEmpty() ? ImmutableSet.of(defaultCluster) : clusterNames;
+    }
+
+    public Map<String, Map<String, Map<String, String>>> getActiveClusterConfiguration() {
+        //TODO merge with base config values before returning
         return mutableClusterCopy;
     }
 
@@ -73,6 +84,11 @@ public class KafkaConfigManager {
 
     public void updateClusterConfiguration(String clusterName, Map<String, Map<String, String>> clusterConfig) {
         this.mutableClusterCopy.put(clusterName, clusterConfig);
+    }
+
+    public void resetConfig(){
+        this.mutableClusterCopy.clear();
+        this.mutableClusterCopy.putAll(clusters);
     }
 
     private Properties generateConfig(Optional<String> clusterName, String targetClientType) {

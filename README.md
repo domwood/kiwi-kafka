@@ -1,8 +1,7 @@
 # KIWI - Kafka Interactive Web Interface 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Stable-0.5.0-green.svg)]()
-[![Status](https://img.shields.io/badge/Latest-0.6.0-yellow.svg)]()
+[![Status](https://img.shields.io/badge/Latest-0.6.0-green.svg)]()
 
 A Kafka Web Interface, written to help my professional day to day role working with kafka, but provided here in the event anyone else may benefit from using it.
 
@@ -32,18 +31,17 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 ## Getting Started
 
 #### Running via Docker
-
-`docker run -p 8080:8080 -e KAFKA_BOOTSTRAPSERVERS=kafka.ip.preprod1.myorg.com:9092 dmwood/kiwi:latest`
+`docker run -p 8080:8080 -e KAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=kafka.ip.preprod1.myorg.com:9092 dmwood/kiwi:latest`
 
 - To connect to a locally running kafka you can do something like this:
 
-`docker run --network="host" -e KAFKA_BOOTSTRAPSERVERS=localhost:9092 dmwood/kiwi:latest`
+`docker run --network="host" -e KAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=localhost:9092 dmwood/kiwi:latest`
  
 #### Run jar
 
  - Download jar from releases page
  
-`java -jar -DKAFKA_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
+`java -jar -DKAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
  
 #### Build & Run Jar
 
@@ -57,7 +55,7 @@ Build:
 
 Run: 
  - Run `mvn spring-boot:run`
- - or Jar runnable via `java -jar -DKAFKA_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
+ - or Jar runnable via `java -jar -DKAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=localhost:9092 target/kiwi-$version.jar`
   
 #### Development - Getting Started
 
@@ -86,17 +84,17 @@ But this will not update automatically when making changes.
 
  - Properties can apply to all kafka client configuration:
 ```
-    kafka.base.client.bootstrapServers = localhost:9092
+kafka.base.client.bootstrapServers = localhost:9092
 ```
  - Properties can apply to all consumer/producer/admin configuration:
 ```
- kafka.base.producer.acks = 0
- kafka.base.consumer.maxPollRecords = 0
+kafka.base.producer.acks = 0
+kafka.base.consumer.maxPollRecords = 0
 ```
  - Properties can apply to the consumer/producer/admin configuration for one cluster, where the variable following `clusters` can be selected from a dropdown on the web client to switch between different kafka clusters 
 ```
-  kafka.clusters.default.producer.acks = 0
-  kafka.clusters.backup.maxPollRecords = 0
+kafka.clusters.default.producer.acks = 0
+kafka.clusters.backup.maxPollRecords = 0
 ```
  
  - Note: Kafka properties are the final component of the configuration and should be added without dots or hyphens eg the below converts to `key.serializer=org.apache.kafka.common.serialization.StringSerializer` in the producer config
