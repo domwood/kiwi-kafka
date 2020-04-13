@@ -35,36 +35,36 @@ public class AdminWriteController {
     @Async
     @PostMapping("/createTopic")
     @ResponseBody
-    public CompletableFuture<Void> createTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<Void> createTopic(@RequestParam(required = false) Optional<String> clusterName,
                                                @RequestBody CreateTopicRequest createTopicRequest) {
-        CreateTopic createTopic = this.taskProvider.createTopic(createTopicRequest, bootStrapServers);
+        CreateTopic createTopic = this.taskProvider.createTopic(createTopicRequest, clusterName);
         return createTopic.execute();
     }
 
     @Async
     @DeleteMapping("/deleteTopic/{topic}")
     @ResponseBody
-    public CompletableFuture<Void> deleteTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<Void> deleteTopic(@RequestParam(required = false) Optional<String> clusterName,
                                                @PathVariable String topic) {
-        DeleteTopic deleteTopic = this.taskProvider.deleteTopic(unEncodeParameter(topic), bootStrapServers);
+        DeleteTopic deleteTopic = this.taskProvider.deleteTopic(unEncodeParameter(topic), clusterName);
         return deleteTopic.execute();
     }
 
     @Async
     @DeleteMapping("/deleteConsumerGroup/{groupId}")
     @ResponseBody
-    public CompletableFuture<Void> deleteConsumerGroup(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<Void> deleteConsumerGroup(@RequestParam(required = false) Optional<String> clusterName,
                                                        @PathVariable String groupId) {
-        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup(unEncodeParameter(groupId), bootStrapServers);
+        DeleteConsumerGroup deleteConsumerGroup = this.taskProvider.deleteConsumerGroup(unEncodeParameter(groupId), clusterName);
         return deleteConsumerGroup.execute();
     }
 
     @Async
     @PostMapping("/updateTopicConfig")
     @ResponseBody
-    public CompletableFuture<Void> updateTopicConfig(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<Void> updateTopicConfig(@RequestParam(required = false) Optional<String> clusterName,
                                                      @RequestBody UpdateTopicConfig topicConfig) {
-        UpdateTopicConfiguration topicConfiguration = this.taskProvider.updateTopicConfiguration(topicConfig, bootStrapServers);
+        UpdateTopicConfiguration topicConfiguration = this.taskProvider.updateTopicConfiguration(topicConfig, clusterName);
         return topicConfiguration.execute();
     }
 

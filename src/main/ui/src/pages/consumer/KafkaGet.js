@@ -41,12 +41,6 @@ class KafkaGet extends Component {
         this.mounted = false;
     }
 
-    toggleActiveTab = (tabId) => {
-        this.setState({
-            activeTab: tabId
-        })
-    };
-
     setTargetTopic = (target) => {
         this.setState({targetTopic:target})
     };

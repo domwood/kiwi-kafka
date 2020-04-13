@@ -1,54 +1,43 @@
 version: '2'
 services:
-  zookeeper:
+  zookeeper1:
     image: wurstmeister/zookeeper
-    container_name: zookeeper
+    container_name: zookeeper1
     ports:
       - 2181:2181
   kafka1:
     image: wurstmeister/kafka
     container_name: kafka1
     links:
-      - zookeeper
+      - zookeeper1
     depends_on:
-      - zookeeper
+      - zookeeper1
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
       KAFKA_LISTENERS: PLAINTEXT://:9092
       KAFKA_BROKER_ID: 0
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181
+      KAFKA_CREATE_TOPICS: "TOPIC1:10:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  zookeeper2:
+      image: wurstmeister/zookeeper
+      container_name: zookeeper2
+      ports:
+        - 2182:2181
   kafka2:
     image: wurstmeister/kafka
     container_name: kafka2
     links:
-      - zookeeper
+      - zookeeper2
     depends_on:
-      - zookeeper
-      - kafka1
+      - zookeeper2
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
       KAFKA_LISTENERS: PLAINTEXT://:9092
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  kafka3:
-    image: wurstmeister/kafka
-    container_name: kafka3
-    links:
-      - zookeeper
-    depends_on:
-      - zookeeper
-      - kafka1
-      - kafka2
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:9092
-      KAFKA_LISTENERS: PLAINTEXT://:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_BROKER_ID: 2
-      KAFKA_CREATE_TOPICS: "Topic1:10:3,Topic2:20:1:compact"
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper2:2181
+      KAFKA_CREATE_TOPICS: "TOPIC1_DIFFERENT:10:1,TOPIC2_DIFFERENT:20:1:compact"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   kiwi:
@@ -57,17 +46,20 @@ services:
     ports:
       - 8090:8080
     links:
-      - zookeeper
+      - zookeeper1
+      - zookeeper2
       - kafka1
       - kafka2
-      - kafka3
     depends_on:
-      - zookeeper
+      - zookeeper1
+      - zookeeper2
       - kafka1
       - kafka2
-      - kafka3
     environment:
-      KAFKA_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+      KAFKA_BASE_PRODUCER_ACKS: all
+      KAFKA_CLUSTERS_CLUSTERONE_CLIENT_BOOTSTRAPSERVERS: kafka1:9092
+      KAFKA_CLUSTERS_CLUSTERTWO_CLIENT_BOOTSTRAPSERVERS: kafka2:9092
+      KAFKA_CLUSTERS_CLUSTERTWO_CONSUMER_MAXPOLLRECORDS: 600
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    
+

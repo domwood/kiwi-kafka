@@ -11,12 +11,12 @@ services:
     links:
       - zookeeper
     ports:
-      - 9092:9092
+      - 9094:9092
     depends_on:
       - zookeeper
     environment:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ADVERTISED_PORT: 9094
       KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
@@ -30,10 +30,10 @@ services:
       - zookeeper
       - kafka1
     ports:
-      - 9093:9092
+      - 9095:9092
     environment:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ADVERTISED_PORT: 9093
+      KAFKA_ADVERTISED_PORT: 9095
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
@@ -48,10 +48,10 @@ services:
       - kafka1
       - kafka2
     ports:
-      - 9094:9092
+      - 9096:9092
     environment:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ADVERTISED_PORT: 9094
+      KAFKA_ADVERTISED_PORT: 9096
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_BROKER_ID: 2
       KAFKA_CREATE_TOPICS: "Topic1:10:3,Topic2:20:1:compact"

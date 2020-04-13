@@ -13,9 +13,10 @@ import static java.util.stream.Collectors.toMap;
 
 public class KafkaUtils {
 
-    private KafkaUtils(){}
+    private KafkaUtils() {
+    }
 
-    public static Iterable<Header> toKafkaHeaders(Map<String, String> headers){
+    public static Iterable<Header> toKafkaHeaders(Map<String, String> headers) {
         return headers.entrySet()
                 .stream()
                 .map(KafkaHeader::new)
@@ -23,7 +24,7 @@ public class KafkaUtils {
     }
 
 
-    public static Map<String, Object> fromKafkaHeaders(Headers headers){
+    public static Map<String, Object> fromKafkaHeaders(Headers headers) {
         return Optional.ofNullable(headers)
                 .map(Headers::toArray)
                 .map(Arrays::asList)

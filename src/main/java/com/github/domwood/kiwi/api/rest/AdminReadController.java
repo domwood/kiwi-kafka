@@ -30,59 +30,59 @@ public class AdminReadController {
     @Async
     @GetMapping("/listTopics")
     @ResponseBody
-    public CompletableFuture<TopicList> listTopics(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        ListTopics listTopics = this.taskProvider.listTopics(bootStrapServers);
+    public CompletableFuture<TopicList> listTopics(@RequestParam(required = false) Optional<String> clusterName) {
+        ListTopics listTopics = this.taskProvider.listTopics(clusterName);
         return listTopics.execute();
     }
 
     @Async
     @GetMapping("/topicInfo/{topic}")
     @ResponseBody
-    public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<TopicInfo> topicInfo(@RequestParam(required = false) Optional<String> clusterName,
                                                   @PathVariable String topic) {
-        TopicInformation topicInformation = this.taskProvider.topicInfo(unEncodeParameter(topic), bootStrapServers);
+        TopicInformation topicInformation = this.taskProvider.topicInfo(unEncodeParameter(topic), clusterName);
         return topicInformation.execute();
     }
 
     @Async
     @GetMapping("/listConsumerGroups")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupList> consumerGroups(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        ConsumerGroupInformation consumerGroupInformation = this.taskProvider.consumerGroups(bootStrapServers);
+    public CompletableFuture<ConsumerGroupList> consumerGroups(@RequestParam(required = false) Optional<String> clusterName) {
+        ConsumerGroupInformation consumerGroupInformation = this.taskProvider.consumerGroups(clusterName);
         return consumerGroupInformation.execute();
     }
 
     @Async
     @GetMapping("/consumerGroupsForTopic/{topic}")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupList> consumerGroupsForTopic(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<ConsumerGroupList> consumerGroupsForTopic(@RequestParam(required = false) Optional<String> clusterName,
                                                                        @PathVariable String topic) {
-        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic(unEncodeParameter(topic), bootStrapServers);
+        ConsumerGroupListByTopic consumerGroupByTopic = this.taskProvider.consumerGroupListByTopic(unEncodeParameter(topic), clusterName);
         return consumerGroupByTopic.execute();
     }
 
     @Async
     @GetMapping("/listAllConsumerGroupDetails")
     @ResponseBody
-    public CompletableFuture<ConsumerGroups> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        AllConsumerGroupDetails consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation(bootStrapServers);
+    public CompletableFuture<ConsumerGroups> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> clusterName) {
+        AllConsumerGroupDetails consumerGroupInformation = this.taskProvider.consumerGroupTopicInformation(clusterName);
         return consumerGroupInformation.execute();
     }
 
     @Async
     @GetMapping("/listConsumerGroupDetailsWithOffsets/{groupId}")
     @ResponseBody
-    public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> bootStrapServers,
+    public CompletableFuture<ConsumerGroupTopicWithOffsetDetails> consumerGroupTopicDetails(@RequestParam(required = false) Optional<String> clusterName,
                                                                                             @PathVariable String groupId) {
-        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation(unEncodeParameter(groupId), bootStrapServers);
+        ConsumerGroupDetailsWithOffset consumerGroupInformation = this.taskProvider.consumerGroupOffsetInformation(unEncodeParameter(groupId), clusterName);
         return consumerGroupInformation.execute();
     }
 
     @Async
     @GetMapping("/brokers")
     @ResponseBody
-    public CompletableFuture<BrokerInfoList> brokers(@RequestParam(required = false) Optional<String> bootStrapServers) {
-        BrokerInformation brokerInformation = this.taskProvider.brokerInformation(bootStrapServers);
+    public CompletableFuture<BrokerInfoList> brokers(@RequestParam(required = false) Optional<String> clusterName) {
+        BrokerInformation brokerInformation = this.taskProvider.brokerInformation(clusterName);
         return brokerInformation.execute();
     }
 
@@ -90,8 +90,8 @@ public class AdminReadController {
     @GetMapping("/logs")
     @ResponseBody
     public CompletableFuture<BrokerLogInfoList> brokers(@RequestParam Integer brokerId,
-                                                        @RequestParam(required = false) Optional<String> bootStrapServers) {
-        BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation(brokerId, bootStrapServers);
+                                                        @RequestParam(required = false) Optional<String> clusterName) {
+        BrokerLogInformation brokerInformation = this.taskProvider.brokerLogInformation(brokerId, clusterName);
         return brokerInformation.execute();
     }
 

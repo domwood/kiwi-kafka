@@ -22,32 +22,32 @@ public class KafkaTaskProvider {
         this.resourceProvider = resourceProvider;
     }
 
-    private KafkaConsumerResource<String, String> consumer(Optional<String> bootstrapServers){
-        return this.resourceProvider.kafkaStringConsumerResource(bootstrapServers);
+    private KafkaConsumerResource<String, String> consumer(Optional<String> clusterName){
+        return this.resourceProvider.kafkaStringConsumerResource(clusterName);
     }
 
-    private KafkaProducerResource<String, String> producer(Optional<String> bootstrapServers){
-        return this.resourceProvider.kafkaStringProducerResource(bootstrapServers);
+    private KafkaProducerResource<String, String> producer(Optional<String> clusterName){
+        return this.resourceProvider.kafkaStringProducerResource(clusterName);
     }
 
-    private KafkaAdminResource admin(Optional<String> bootstrapServers){
-        return this.resourceProvider.kafkaAdminResource(bootstrapServers);
+    private KafkaAdminResource admin(Optional<String> clusterName){
+        return this.resourceProvider.kafkaAdminResource(clusterName);
     }
 
     private KafkaTopicConfigResource config(){
         return this.resourceProvider.kafkaTopicConfigResource();
     }
 
-    private KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String,String>> adminAndConsumer(Optional<String> bootStrapServers){
-        return this.resourceProvider.kafkaAdminAndConsumer(bootStrapServers);
+    private KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String,String>> adminAndConsumer(Optional<String> clusterName){
+        return this.resourceProvider.kafkaAdminAndConsumer(clusterName);
     }
 
     public BasicConsumeMessages basicConsumeMessages(ConsumerRequest input){
-        return new BasicConsumeMessages(consumer(input.bootStrapServers()), input);
+        return new BasicConsumeMessages(consumer(input.clusterName()), input);
     }
 
     public ProduceSingleMessage produceSingleMessage(ProducerRequest input){
-        return new ProduceSingleMessage(producer(input.bootStrapServers()), input);
+        return new ProduceSingleMessage(producer(input.clusterName()), input);
     }
 
     public ListTopics listTopics(Optional<String> bootstrapServers){
@@ -91,7 +91,7 @@ public class KafkaTaskProvider {
     }
 
     public ContinuousConsumeMessages continousConsumeMessages(AbstractConsumerRequest request) {
-        return new ContinuousConsumeMessages(consumer(request.bootStrapServers()), request);
+        return new ContinuousConsumeMessages(consumer(request.clusterName()), request);
     }
 
     public DeleteTopic deleteTopic(String topic, Optional<String> bootstrapServers) {

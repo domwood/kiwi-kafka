@@ -1,3 +1,6 @@
 *.jks
-ca-cert
+ca-cert*
+cert-*
+ca-key
+client-signed
 .rand
