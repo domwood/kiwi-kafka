@@ -39,7 +39,7 @@ public class KafkaAdminResource extends AbstractKafkaResource<AdminClient> {
     }
 
     public DescribeConfigsResult describeConfigs(Collection<ConfigResource> resources) {
-        return this.getClient().describeConfigs(resources);
+        return this.getClient().describeConfigs(resources, new DescribeConfigsOptions().includeDocumentation(true));
     }
 
     public DescribeTopicsResult describeTopics(Collection<String> topicNames) {

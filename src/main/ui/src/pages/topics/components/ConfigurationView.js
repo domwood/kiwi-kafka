@@ -18,13 +18,13 @@ class ConfigurationView extends Component {
     }
 
     isEditDisabled = () => {
-        let profiles = this.props.profiles||[];
+        let profiles = this.props.profiles || [];
         return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
     };
 
     editConfig = (key, value) => {
         this.setState({
-            editKey:key,
+            editKey: key,
             editValue: value
         })
     };
@@ -36,12 +36,19 @@ class ConfigurationView extends Component {
     };
 
     save = () => {
-        if(this.state.editValue){
-            let configUpdate = {[this.state.editKey]: this.state.editValue};
-            ApiService.updateTopicConfig(this.props.topic, configUpdate,
+        if (this.state.editValue) {
+            let currentNonDefaults = Object.keys(this.state.configuration)
+                .filter(key => !this.state.configuration[key].isDefault)
+                .reduce((base, key) => {
+                    base[key] = this.state.configuration[key].configValue;
+                    return base
+                }, {})
+            let update = Object.assign(currentNonDefaults, {[this.state.editKey]: this.state.editValue})
+            ApiService.updateTopicConfig(this.props.topic, update,
                 () => {
+                    let configUpdate = {[this.state.editKey]: {configValue: this.state.editValue, isDefault: false}}
                     this.setState({
-                        configuration:Object.assign(this.state.configuration, configUpdate),
+                        configuration: Object.assign(this.state.configuration, configUpdate),
                         editKey: '',
                         editValue: '',
 
@@ -60,24 +67,27 @@ class ConfigurationView extends Component {
                 <Table size="sm">
                     <thead>
                     <tr>
-                        <th width="40%">Config Key</th>
-                        <th width="40%">Config Value</th>
+                        <th width="35%">Config Key</th>
+                        <th width="35%">Config Value</th>
+                        <th width="10%">Default Value</th>
                         <th width="20%"></th>
                     </tr>
                     </thead>
                     <tbody>
                     {
                         Object.keys(this.state.configuration).map((key, index) => {
+
                             return (
                                 <tr key={`${this.props.topic}_${key}`}>
                                     <td>{key}</td>
-                                    <td>{this.state.configuration[key]}</td>
+                                    <td>{this.state.configuration[key].configValue}</td>
+                                    <td>{this.state.configuration[key].isDefault ? 'Yes' : <b>No</b>}</td>
                                     <td>
                                         {
                                             this.state.editKey !== key ?
                                                 <div>
                                                     <Button
-                                                        id={"Edit"+this.props.topic}
+                                                        id={"Edit" + this.props.topic}
                                                         color="success"
                                                         onClick={() => this.editConfig(key)}
                                                         disabled={!!this.state.editKey || this.isEditDisabled()}>Edit
@@ -87,15 +97,19 @@ class ConfigurationView extends Component {
                                                                           targetProfile={"write-admin"}
                                                     />
                                                 </div>
-                                                 :
+                                                :
                                                 <div>
                                                     <InputGroup>
-                                                        <Input type="text" defaultValue={this.state.configuration[key]} onChange={event => this.onEditUpdate(event.target.value)}/>
+                                                        <Input type="text"
+                                                               defaultValue={this.state.configuration[key].configValue}
+                                                               onChange={event => this.onEditUpdate(event.target.value)}/>
                                                         <InputGroupAddon addonType="append">
-                                                            <Button color="success" onClick={() => this.save()}>Save</Button>
+                                                            <Button color="success"
+                                                                    onClick={() => this.save()}>Save</Button>
                                                         </InputGroupAddon>
                                                         <InputGroupAddon addonType="append">
-                                                            <Button color="secondary" onClick={() => this.editConfig('')}>Cancel</Button>
+                                                            <Button color="secondary"
+                                                                    onClick={() => this.editConfig('')}>Cancel</Button>
                                                         </InputGroupAddon>
 
                                                     </InputGroup>
@@ -120,4 +134,4 @@ ConfigurationView.propTypes = {
 };
 
 
-export default ConfigurationView ;
+export default ConfigurationView;
