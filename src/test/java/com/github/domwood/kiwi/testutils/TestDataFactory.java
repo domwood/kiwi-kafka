@@ -27,25 +27,29 @@ public class TestDataFactory {
     public static final Long testOffset = 11L;
     public static final Integer testPartition = 3;
     public static final Long testTimestamp = -1L;
-    public static final SortedMap<String, String> topicConfiguration = ImmutableSortedMap
+    public static final SortedMap<String, TopicConfigValue> topicConfiguration = ImmutableSortedMap
+            .of("cleanup.policy", configValue("cleanup.policy", "compact"),
+                    "segment.ms", configValue("segment.ms", "18000000"));
+
+    public static final SortedMap<String, String> topicConfigurationUpdate = ImmutableSortedMap
             .of("cleanup.policy", "compact",
-                "segment.ms", "18000000");
+                    "segment.ms", "18000000");
     public static final String testClientId = "kiwiTestClient";
 
-    public static ImmutableCreateTopicRequest.Builder createTopicRequest(String name){
+    public static ImmutableCreateTopicRequest.Builder createTopicRequest(String name) {
         return ImmutableCreateTopicRequest
                 .builder()
                 .replicationFactor(replicationFactor)
                 .partitions(partitionCount)
                 .name(name)
-                .configuration(topicConfiguration);
+                .configuration(topicConfigurationUpdate);
     }
 
-    public static ImmutableProducerRequest.Builder buildProducerRequest(){
+    public static ImmutableProducerRequest.Builder buildProducerRequest() {
         return buildProducerRequest(testTopic);
     }
 
-    public static ImmutableProducerRequest.Builder buildProducerRequest(String topic){
+    public static ImmutableProducerRequest.Builder buildProducerRequest(String topic) {
         return ImmutableProducerRequest.builder()
                 .topic(topic)
                 .key(testKey)
@@ -53,21 +57,21 @@ public class TestDataFactory {
                 .headers(testHeaders);
     }
 
-    public static ImmutableConsumerRequest.Builder buildConsumerRequest(){
+    public static ImmutableConsumerRequest.Builder buildConsumerRequest() {
         return buildConsumerRequest(testTopic);
     }
 
-    public static ImmutableConsumerRequest.Builder buildConsumerRequest(String topic){
+    public static ImmutableConsumerRequest.Builder buildConsumerRequest(String topic) {
         return buildConsumerRequest(topic, 1);
     }
 
-    public static ImmutableConsumerRequest.Builder buildConsumerRequest(String topic, int limit){
+    public static ImmutableConsumerRequest.Builder buildConsumerRequest(String topic, int limit) {
         return ImmutableConsumerRequest.builder()
                 .topics(singletonList(topic))
                 .limit(limit);
     }
 
-    public static ImmutableConsumerToFileRequest.Builder buildConsumerToFileRequest(ConsumerRequestFileType type, String delimiter, ConsumerRequestColumns... columns){
+    public static ImmutableConsumerToFileRequest.Builder buildConsumerToFileRequest(ConsumerRequestFileType type, String delimiter, ConsumerRequestColumns... columns) {
         return ImmutableConsumerToFileRequest.builder()
                 .topics(singletonList(testTopic))
                 .limit(-1)
@@ -76,7 +80,7 @@ public class TestDataFactory {
                 .columnDelimiter(Optional.ofNullable(delimiter));
     }
 
-    public static ImmutableTopicInfo.Builder buildTopicInfo(String topicName){
+    public static ImmutableTopicInfo.Builder buildTopicInfo(String topicName) {
         return ImmutableTopicInfo.builder()
                 .partitionCount(partitionCount)
                 .replicaCount(replicationFactor)
@@ -85,7 +89,7 @@ public class TestDataFactory {
                 .partitions(IntStream.range(0, partitionCount).boxed().map((i) -> TestDataFactory.buildPartitionInfo(i).build()).collect(toList()));
     }
 
-    public static ImmutablePartitionInfo.Builder buildPartitionInfo(Integer index){
+    public static ImmutablePartitionInfo.Builder buildPartitionInfo(Integer index) {
         return ImmutablePartitionInfo.builder()
                 .leader(TestKafkaServer.testBrokerId)
                 .replicas(singletonList(TestKafkaServer.testBrokerId))
@@ -94,14 +98,14 @@ public class TestDataFactory {
                 .replicationFactor(replicationFactor);
     }
 
-    public static BrokerInfoList buildBrokerInfoList(){
+    public static BrokerInfoList buildBrokerInfoList() {
         return ImmutableBrokerInfoList.builder()
                 .addBrokerInfo(buildBrokerInfo()
                         .build())
                 .build();
     }
 
-    private static ImmutableBrokerInfo.Builder buildBrokerInfo(){
+    private static ImmutableBrokerInfo.Builder buildBrokerInfo() {
         return ImmutableBrokerInfo.builder()
                 .nodeName(String.valueOf(TestKafkaServer.testBrokerId))
                 .nodeNumber(TestKafkaServer.testBrokerId)
@@ -110,12 +114,12 @@ public class TestDataFactory {
                 .nodeRack(null);
     }
 
-    public static ImmutableConsumerResponse.Builder<String, String> buildConsumerResponse(){
+    public static ImmutableConsumerResponse.Builder<String, String> buildConsumerResponse() {
         return ImmutableConsumerResponse.<String, String>builder()
                 .messages(asList(buildConsumedMessage().build()));
     }
 
-    public static ImmutableConsumedMessage.Builder<String, String> buildConsumedMessage(){
+    public static ImmutableConsumedMessage.Builder<String, String> buildConsumedMessage() {
         return ImmutableConsumedMessage.<String, String>builder()
                 .key(testKey)
                 .headers(testHeaders)
@@ -125,7 +129,7 @@ public class TestDataFactory {
                 .timestamp(testTimestamp);
     }
 
-    public static ImmutableConsumerPosition.Builder buildConsumerPosition(){
+    public static ImmutableConsumerPosition.Builder buildConsumerPosition() {
         return ImmutableConsumerPosition.builder()
                 .startValue(0L)
                 .endValue(1L)
@@ -141,12 +145,12 @@ public class TestDataFactory {
                 .topic(testTopic);
     }
 
-    public static ImmutableConsumerGroupTopicWithOffsetDetails.Builder buildGroupTopicWithOffsetDetails(){
+    public static ImmutableConsumerGroupTopicWithOffsetDetails.Builder buildGroupTopicWithOffsetDetails() {
         return ImmutableConsumerGroupTopicWithOffsetDetails.builder()
                 .putOffset(testTopic, ImmutableList.of(buildTopicGroupAssignmentWithOffset().build()));
     }
 
-    public static ImmutableTopicGroupAssignmentWithOffset.Builder buildTopicGroupAssignmentWithOffset(){
+    public static ImmutableTopicGroupAssignmentWithOffset.Builder buildTopicGroupAssignmentWithOffset() {
         return ImmutableTopicGroupAssignmentWithOffset.builder()
                 .clientId(testClientId)
                 .groupId(testClientId)
@@ -157,7 +161,7 @@ public class TestDataFactory {
                 .groupState("UNKNOWN");
     }
 
-    public static ImmutablePartitionOffset.Builder buildPartitionOffset(){
+    public static ImmutablePartitionOffset.Builder buildPartitionOffset() {
         return ImmutablePartitionOffset.builder()
                 .groupOffset(testOffset)
                 .partitionOffset(testOffset)
@@ -191,5 +195,13 @@ public class TestDataFactory {
             topicPartition1, 200L,
             topicPartition2, 200L
     );
+
+    public static TopicConfigValue configValue(String configKey, String configValue) {
+        return ImmutableTopicConfigValue.builder()
+                .configKey(configKey)
+                .configValue(configValue)
+                .isDefault(true)
+                .build();
+    }
 
 }
