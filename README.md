@@ -29,6 +29,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
 
 ## Getting Started
+ - Note these commands assume running in a linux environment, they likely need tweaking for other OS's.
 
 #### Running via Docker
 `docker run -p 8080:8080 -e KAFKA_BASE_CLIENT_BOOTSTRAPSERVERS=kafka.ip.preprod1.myorg.com:9092 dmwood/kiwi:latest`
@@ -39,7 +40,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
  
 #### Run jar
 
- - Download jar from releases page
+ - Download jar from releases page or build yourself
  
 `java -jar -Dkafka.base.client.bootstrapServers=localhost:9092 target/kiwi-$version.jar`
  
@@ -65,9 +66,9 @@ There are various ways this can be started locally, this is my preferred method:
  - Run `./run-node-server.sh`
  - Go to `localhost:3000` to see UI
  
-Editing should javascript should lead to live updates of the UI at `localhost:3000`.
+Editing javascript should lead to live updates of the UI at `localhost:3000`.
 The UI will also be available at `localhost:8080` or whatever port you have set `server.port` to.
-But this will not update automatically when making changes.
+But this will not update automatically when making changes as its only rebuilt when running ui mvn build task
   
 
 #### Current release process
@@ -92,8 +93,8 @@ kafka.base.consumer.maxPollRecords = 0
 ```
  - Properties can apply to the consumer/producer/admin configuration for one cluster, where the variable following `clusters` can be selected from a dropdown on the web client to switch between different kafka clusters 
 ```
-kafka.clusters.default.producer.acks = 0
-kafka.clusters.backup.maxPollRecords = 0
+kafka.clusters.testcluster.producer.acks = 0
+kafka.clusters.prelivecluster.maxPollRecords = 0
 ```
  
  - Note: Kafka properties are the final component of the configuration and should be added without dots or hyphens eg the below converts to `key.serializer=org.apache.kafka.common.serialization.StringSerializer` in the producer config
@@ -106,12 +107,13 @@ kafka.base.producer.keySerializer=org.apache.kafka.common.serialization.StringSe
  - Example SSL configuration:
  
 ```
-kafka.clusters.secure.client.bootstrapServers=localhost:9024,localhost:9025,localhost:9026
-kafka.clusters.secure.client.securityProtocol=SSL
-kafka.clusters.secure.client.sslTruststoreLocation=scripts/ssl/kafka.client.truststore.jks
-kafka.clusters.secure.client.sslTruststorePassword=secret
-kafka.clusters.secure.client.sslKeystoreLocation=scripts/ssl/kafka.client.truststore.jks
-kafka.clusters.secure.client.sslKeystorePassword=secret
-kafka.clusters.secure.client.sslEndpointIdentificationAlgorithm=none
+kafka.clusters.prodcluster.client.bootstrapServers=localhost:9024,localhost:9025,localhost:9026
+kafka.clusters.prodcluster.client.securityProtocol=SSL
+kafka.clusters.prodcluster.client.sslTruststoreLocation=scripts/ssl/kafka.client.truststore.jks
+kafka.clusters.prodcluster.client.sslTruststorePassword=secret
+kafka.clusters.prodcluster.client.sslKeystoreLocation=scripts/ssl/kafka.client.truststore.jks
+kafka.clusters.prodcluster.client.sslKeystorePassword=secret
+kafka.clusters.prodcluster.client.sslEndpointIdentificationAlgorithm=none
 ```
- - See the docker-compose.yml in the scrips/ssl folder for an example of configuring kiwi to use ssl.
+ - See the docker-compose.yml in the scripts/ssl/ folder for an example of configuring kiwi to use ssl.
+ - Note that if your cluster has acls configured, some of the views in the UI may not work. For example if your ssl identity doesn't have rights to access consumer group admin commands, you will see an error when trying to view those in the consumer group list.
