@@ -50,6 +50,7 @@
     "jest-enzyme": "^7.1.1"
   },
   "resolutions": {
-    "serialize-javascript": "^4.0.0"
+    "serialize-javascript": "^4.0.0",
+    "object-path": "^0.11.5"
   }
 }
