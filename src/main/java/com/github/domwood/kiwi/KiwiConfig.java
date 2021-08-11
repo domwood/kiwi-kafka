@@ -14,8 +14,9 @@ public class KiwiConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost*")
+                .allowedOrigins("http://localhost:3000")
                 .allowedMethods("*")
+                .allowCredentials(true)
         ;
     }
 

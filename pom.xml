@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.3</version>
+        <version>2.1.18.RELEASE</version>
         <relativePath />
     </parent>
     <groupId>com.github.domwood</groupId>
@@ -18,8 +18,8 @@
         <connection>scm:git:git@github.com:domwood/kiwi.git</connection>
         <url>scm:git:git@github.com:domwood/kiwi.git</url>
         <developerConnection>scm:git:git@github.com:domwood/kiwi.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
@@ -42,14 +42,27 @@
         <guava.version>30.1.1-jre</guava.version>
         <commons.collections.version>4.4</commons.collections.version>
         <commons.lang.version>3.12.0</commons.lang.version>
-        <junit.jupiter.version>5.7.2</junit.jupiter.version>
+        <junit.jupiter.version>5.6.2</junit.jupiter.version>
         <junit.platform.version>1.7.2</junit.platform.version>
         <awaitility.version>4.1.0</awaitility.version>
         <apache.curator.version>2.13.0</apache.curator.version>
         <dockerfile-maven-version>1.4.10</dockerfile-maven-version>
         <mockito.version>3.11.2</mockito.version>
-        <jackson.version>2.12.4</jackson.version>
+        <jackson.version>2.11.4</jackson.version>
     </properties>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.7.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -142,10 +155,6 @@
                     <artifactId>junit</artifactId>
                     <groupId>junit</groupId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>junit-vintage-engine</artifactId>
-                    <groupId>org.junit.vintage</groupId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -179,6 +188,12 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 
