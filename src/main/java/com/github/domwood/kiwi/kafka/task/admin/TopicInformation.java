@@ -3,6 +3,7 @@ package com.github.domwood.kiwi.kafka.task.admin;
 import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
+import com.github.domwood.kiwi.utilities.StreamUtils;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.DescribeConfigsResult;
@@ -10,14 +11,12 @@ import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartitionInfo;
+import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.SortedMap;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;
@@ -60,6 +59,7 @@ public class TopicInformation extends AbstractKafkaTask<String, TopicInfo, Kafka
                 .partitionCount(description.partitions().size())
                 .replicaCount(maximum(description.partitions(), p -> p.replicas().size()))
                 .partitions(extract(description.partitions(), this::asPartitionInfo))
+                .permissions(extractAcls(description))
                 .build();
     }
 
@@ -97,6 +97,15 @@ public class TopicInformation extends AbstractKafkaTask<String, TopicInfo, Kafka
                 .from(topicInfo)
                 .configuration(config)
                 .build();
+    }
+
+    private List<String> extractAcls(TopicDescription description) {
+        Set<AclOperation> aclOperations = description.authorizedOperations();
+        if (aclOperations == null) {
+            return singletonList("UNKNOWN");
+        } else {
+            return StreamUtils.extract(description.authorizedOperations(), Enum::name);
+        }
     }
 
 }

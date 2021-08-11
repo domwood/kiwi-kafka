@@ -86,6 +86,7 @@ public class TestDataFactory {
                 .replicaCount(replicationFactor)
                 .topic(topicName)
                 .configuration(topicConfiguration)
+                .permissions(singletonList("UNKNOWN"))
                 .partitions(IntStream.range(0, partitionCount).boxed().map((i) -> TestDataFactory.buildPartitionInfo(i).build()).collect(toList()));
     }
 

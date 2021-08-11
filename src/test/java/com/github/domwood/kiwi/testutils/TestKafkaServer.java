@@ -1,7 +1,9 @@
 package com.github.domwood.kiwi.testutils;
 
+import com.google.common.collect.ImmutableMap;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
+import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -32,7 +34,10 @@ public class TestKafkaServer implements BeforeAllCallback, AfterAllCallback {
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
 
         zookeeperPort = randomAddress();
-        zookeeper = new TestingServer(zookeeperPort, getTemporaryFile("zookeeper-tmp"));
+        Map<String, Object> extraProps = ImmutableMap.of("admin.enableServer", "false");
+        InstanceSpec spec = new InstanceSpec(getTemporaryFile("zookeeper-tmp"), zookeeperPort, -1, -1, true, -1, -1, -1, extraProps, null);
+
+        zookeeper = new TestingServer(spec, true);
         zookeeper.start();
 
         logger.info("Started Test Zookeeper server on " + zookeeper.getConnectString());

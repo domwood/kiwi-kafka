@@ -16,5 +16,6 @@ public interface TopicInfo extends OutboundResponse{
     Integer partitionCount();
     Integer replicaCount();
     List<PartitionInfo> partitions();
+    List<String> permissions();
     @Nullable SortedMap<String, TopicConfigValue> configuration();
 }

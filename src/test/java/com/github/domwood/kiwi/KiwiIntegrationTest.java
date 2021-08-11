@@ -199,7 +199,7 @@ public class KiwiIntegrationTest {
 
         ConsumerResponse<String, String> initialPosition = consumeMessageWebsocket(buildConsumerRequest(testWebSocketTopic).build());
 
-        assertEquals(0, initialPosition.position().get().totalRecords());
+        assertEquals(0, initialPosition.position().get().totalRecords().intValue());
         assertEquals(0, initialPosition.messages().size());
     }
 
