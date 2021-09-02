@@ -53,6 +53,9 @@ Dependencies:
  
 Build:
  - Run `mvn clean install`
+or
+ - Run `mvn clean install -Ddockerfile.skip` (if you don't have docker install or don't want to build the image)
+
 Run: 
  - Run `mvn -Dkafka.base.client.bootstrapServers=localhost:9092 spring-boot:run` (You will need to have run the web build step before for the website to be hosted)
  - or Jar runnable via `java -jar -Dkafka.base.client.bootstrapServers=localhost:9092 target/kiwi-$version.jar`
