@@ -8,7 +8,6 @@ import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
 import com.github.domwood.kiwi.kafka.task.consumer.BasicConsumeMessages;
 import org.apache.kafka.common.KafkaException;
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,9 @@ import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerRes
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -51,14 +52,14 @@ public class ConsumerControllerTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    private BasicConsumeMessages basicConsumeMessages;
+    private BasicConsumeMessages<String, String> basicConsumeMessages;
 
     private String url;
 
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() {
         this.url = "http://localhost:" + port + "/api/consume";
-        when(kafkaTaskProvider.basicConsumeMessages(any(ConsumerRequest.class))).thenReturn(basicConsumeMessages);
+        when(kafkaTaskProvider.<String, String>basicConsumeMessages(any(ConsumerRequest.class))).thenReturn(basicConsumeMessages);
     }
 
     @Test
@@ -67,7 +68,7 @@ public class ConsumerControllerTest {
     }
 
     @Test
-    public void testConsumerRequest() throws JsonProcessingException{
+    public void testConsumerRequest() throws JsonProcessingException {
         when(basicConsumeMessages.execute())
                 .thenReturn(CompletableFuture.completedFuture(buildConsumerResponse().build()));
 
@@ -77,10 +78,10 @@ public class ConsumerControllerTest {
     }
 
     @Test
-    public void testConsumeFailure() throws IOException, JSONException {
+    public void testConsumeFailure() throws IOException {
 
         String message = "Failed to consume from kafka";
-        CompletableFuture<ConsumerResponse<String, String>> request = new CompletableFuture<>();
+        CompletableFuture<ConsumerResponse> request = new CompletableFuture<>();
         request.completeExceptionally(new KafkaException(message));
 
         when(basicConsumeMessages.execute())

@@ -53,7 +53,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         this.maxWaitCount = this.maxWaitTime / this.waitInterval;
     }
 
@@ -68,11 +68,11 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
                 consumerHandler.addConsumerTask(kiwiSession.getId(), (ConsumerRequest) inboundRequest, this.sendTextMessage(kiwiSession));
             } else if (inboundRequest instanceof CloseTaskRequest) {
                 consumerHandler.removeConsumerTask(session.getId());
-                if(((CloseTaskRequest) inboundRequest).closeSession()){
+                if (((CloseTaskRequest) inboundRequest).closeSession()) {
                     tryCloseSession(sessions.get(session.getId()), CloseStatus.NORMAL);
                 }
             }
-            if(inboundRequest instanceof MessageAcknowledge){
+            if (inboundRequest instanceof MessageAcknowledge) {
                 sessions.get(session.getId()).setReady();
             }
         } catch (IOException e) {
@@ -80,14 +80,15 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private Consumer<ConsumerResponse<String, String>> sendTextMessage(KiwiWebSocketSession session) {
-        return (ConsumerResponse<String, String> response) -> {
+    private Consumer<ConsumerResponse> sendTextMessage(KiwiWebSocketSession session) {
+        return (ConsumerResponse response) -> {
             try {
                 String payload = objectMapper.writeValueAsString(response);
 
                 maybeBlockConsumer(session);
 
-                if(!session.isOpen()) throw new WebSocketSendFailedException("Session closed whilst data pending send");
+                if (!session.isOpen())
+                    throw new WebSocketSendFailedException("Session closed whilst data pending send");
 
                 session.sendMessage(payload);
                 session.setNotReady();
@@ -106,23 +107,23 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
 
 
     //@SuppressWarnings("squid:S2142")
-    private void maybeBlockConsumer(KiwiWebSocketSession session){
-        try{
+    private void maybeBlockConsumer(KiwiWebSocketSession session) {
+        try {
             int sleeps = 0;
             while (sessionIsAvailable(session, sleeps++)) {
 
-                if(logger.isDebugEnabled()) logger.debug("Waiting for websocket backlog to clear");
+                if (logger.isDebugEnabled()) logger.debug("Waiting for websocket backlog to clear");
 
                 //Blocks upstream if socket is backlogged (ie will block kafka consumer polling further)
                 MILLISECONDS.sleep(waitInterval);
             }
-            if(sleeps >= maxWaitCount) throw new WebSocketSendFailedException("Websocket blocked for too long, reached max wait");
+            if (sleeps >= maxWaitCount)
+                throw new WebSocketSendFailedException("Websocket blocked for too long, reached max wait");
         } catch (InterruptedException e) {
             logger.error("Interrupted whilst awaiting socket availability", e);
             tryCloseSession(session);
             throw new WebSocketSendFailedException(e);
-        }
-        catch (WebSocketSendFailedException e){
+        } catch (WebSocketSendFailedException e) {
             logger.error("Failed to forward to websocket", e);
             tryCloseSession(session);
             throw e;
@@ -149,28 +150,26 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         this.consumerHandler.removeConsumerTask(session.getId());
     }
 
-    private void tryCloseSession(KiwiWebSocketSession session){
+    private void tryCloseSession(KiwiWebSocketSession session) {
         this.tryCloseSession(session, CloseStatus.SERVER_ERROR);
     }
 
-    private void tryCloseSession(KiwiWebSocketSession session, CloseStatus reason){
+    private void tryCloseSession(KiwiWebSocketSession session, CloseStatus reason) {
         try {
             session.close(reason);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             logger.warn("Failed to cleanly close session after error", e);
-        }
-        finally {
+        } finally {
             //Should be done in the event the session is not closed properly
             this.consumerHandler.removeConsumerTask(session.getId());
         }
     }
 
-    private KiwiWebSocketSession getSession(WebSocketSession session){
+    private KiwiWebSocketSession getSession(WebSocketSession session) {
         return this.sessions.get(session.getId());
     }
 
-    private boolean sessionIsAvailable(KiwiWebSocketSession session, int sleepCounter){
+    private boolean sessionIsAvailable(KiwiWebSocketSession session, int sleepCounter) {
         return !session.isReady() &&
                 sleepCounter <= this.maxWaitCount &&
                 session.isOpen();

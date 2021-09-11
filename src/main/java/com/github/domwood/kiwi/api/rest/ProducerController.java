@@ -31,7 +31,7 @@ public class ProducerController {
     @PostMapping(value = "/produce")
     @ResponseBody
     public CompletableFuture<ProducerResponse> sendToTopic(@RequestBody ProducerRequest input){
-        ProduceSingleMessage singleMessage = taskProvider.produceSingleMessage(input);
+        ProduceSingleMessage<?, ?> singleMessage = taskProvider.produceSingleMessage(input);
         return singleMessage.execute();
     }
 

@@ -19,7 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.fromKafkaHeaders;
@@ -27,28 +31,28 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.stream.Collectors.toList;
 
 
-public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractConsumerRequest, ConsumerResponse<String, String>, KafkaConsumerResource<String, String>> {
+public class BasicConsumeMessages<K, V> extends FuturisingAbstractKafkaTask<AbstractConsumerRequest, ConsumerResponse, KafkaConsumerResource<K, V>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public BasicConsumeMessages(KafkaConsumerResource<String, String> resource, AbstractConsumerRequest input) {
+    public BasicConsumeMessages(KafkaConsumerResource<K, V> resource, AbstractConsumerRequest input) {
         super(resource, input);
     }
 
     @Override
-    protected ConsumerResponse<String, String> delegateExecuteSync() {
+    protected ConsumerResponse delegateExecuteSync() {
 
         try {
             KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
 
-            Queue<ConsumedMessage<String, String>> queue = selectQueueType();
+            Queue<ConsumedMessage> queue = selectQueueType();
 
             boolean running = true;
             int pollEmptyCount = 0;
-            Predicate<ConsumerRecord<String, String>> filter = FilterBuilder.compileFilters(input.filters());
+            Predicate<ConsumerRecord<K, V>> filter = FilterBuilder.compileFilters(input.filters(), resource::convertKafkaKey, resource::convertKafkaValue);
 
             while (running) {
-                ConsumerRecords<String, String> records = resource.poll(Duration.of(200, MILLIS));
+                ConsumerRecords<K, V> records = resource.poll(Duration.of(200, MILLIS));
                 Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
 
                 if (records.isEmpty()) {
@@ -58,12 +62,10 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
                     logger.debug("Polled {} messages from {} topic ", records.count(), input.topics());
 
                     pollEmptyCount = 0;
-                    Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
-                    while (recordIterator.hasNext()) {
-                        ConsumerRecord<String, String> record = recordIterator.next();
-                        if (filter.test(record)) {
-                            queue.add(asConsumedRecord(record));
-                            toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
+                    for (ConsumerRecord<K, V> consumerRecord : records) {
+                        if (filter.test(consumerRecord)) {
+                            queue.add(asConsumedRecord(consumerRecord, resource::convertKafkaKey, resource::convertKafkaValue));
+                            toCommit.put(new TopicPartition(consumerRecord.topic(), consumerRecord.partition()), new OffsetAndMetadata(consumerRecord.offset()));
                         }
                     }
                     commitAsync(toCommit);
@@ -72,7 +74,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
             }
             this.resource.unsubscribe();
 
-            return ImmutableConsumerResponse.<String, String>builder()
+            return ImmutableConsumerResponse.builder()
                     .messages(queue.stream()
                             .sorted(Comparator.comparingLong(ConsumedMessage::timestamp))
                             .collect(toList()))
@@ -100,7 +102,7 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
     }
 
 
-    private Queue<ConsumedMessage<String, String>> selectQueueType() {
+    private Queue<ConsumedMessage> selectQueueType() {
         return new CircularFifoQueue<>(input.limit());
     }
 
@@ -130,14 +132,14 @@ public class BasicConsumeMessages extends FuturisingAbstractKafkaTask<AbstractCo
                 });
     }
 
-    private ConsumedMessage<String, String> asConsumedRecord(ConsumerRecord<String, String> record) {
-        return ImmutableConsumedMessage.<String, String>builder()
-                .timestamp(record.timestamp())
-                .offset(record.offset())
-                .partition(record.partition())
-                .key(record.key())
-                .message(record.value())
-                .headers(fromKafkaHeaders(record.headers()))
+    private ConsumedMessage asConsumedRecord(ConsumerRecord<K, V> consumerRecord, Function<K, String> keyFn, Function<V, String> valueFn) {
+        return ImmutableConsumedMessage.builder()
+                .timestamp(consumerRecord.timestamp())
+                .offset(consumerRecord.offset())
+                .partition(consumerRecord.partition())
+                .key(keyFn.apply(consumerRecord.key()))
+                .message(valueFn.apply(consumerRecord.value()))
+                .headers(fromKafkaHeaders(consumerRecord.headers()))
                 .build();
     }
 

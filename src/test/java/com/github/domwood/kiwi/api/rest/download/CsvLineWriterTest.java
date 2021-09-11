@@ -22,7 +22,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", KEY).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testKey;
@@ -35,7 +35,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", VALUE).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testPayload;
@@ -48,7 +48,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", HEADERS).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = mapper.writeValueAsString(testHeaders);
@@ -62,7 +62,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", OFFSET).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testOffset.toString();
@@ -75,7 +75,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", PARTITION).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testPartition.toString();
@@ -88,7 +88,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", TIMESTAMP).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = testTimestamp.toString();
@@ -101,7 +101,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", ConsumerRequestColumns.values()).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 
@@ -117,7 +117,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, "||", ConsumerRequestColumns.values()).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 
@@ -133,7 +133,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, null, ConsumerRequestColumns.values()).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 
@@ -149,7 +149,7 @@ public class CsvLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.CSV, " ", VALUE).build();
         CsvLineWriter lineWriter = new CsvLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage()
+        ConsumedMessage message = buildConsumedMessage()
                 .message(testPayload + "\n\nHelloWorld")
                 .build();
 

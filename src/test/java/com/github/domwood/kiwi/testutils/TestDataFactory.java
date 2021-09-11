@@ -1,7 +1,25 @@
 package com.github.domwood.kiwi.testutils;
 
-import com.github.domwood.kiwi.data.input.*;
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.input.ConsumerRequestColumns;
+import com.github.domwood.kiwi.data.input.ConsumerRequestFileType;
+import com.github.domwood.kiwi.data.input.ImmutableConsumerRequest;
+import com.github.domwood.kiwi.data.input.ImmutableConsumerToFileRequest;
+import com.github.domwood.kiwi.data.input.ImmutableCreateTopicRequest;
+import com.github.domwood.kiwi.data.input.ImmutableProducerRequest;
+import com.github.domwood.kiwi.data.output.BrokerInfoList;
+import com.github.domwood.kiwi.data.output.ImmutableBrokerInfo;
+import com.github.domwood.kiwi.data.output.ImmutableBrokerInfoList;
+import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerGroupTopicWithOffsetDetails;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerPosition;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
+import com.github.domwood.kiwi.data.output.ImmutablePartitionInfo;
+import com.github.domwood.kiwi.data.output.ImmutablePartitionOffset;
+import com.github.domwood.kiwi.data.output.ImmutableProducerResponse;
+import com.github.domwood.kiwi.data.output.ImmutableTopicConfigValue;
+import com.github.domwood.kiwi.data.output.ImmutableTopicGroupAssignmentWithOffset;
+import com.github.domwood.kiwi.data.output.ImmutableTopicInfo;
+import com.github.domwood.kiwi.data.output.TopicConfigValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -12,7 +30,6 @@ import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.IntStream;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
@@ -115,13 +132,13 @@ public class TestDataFactory {
                 .nodeRack(null);
     }
 
-    public static ImmutableConsumerResponse.Builder<String, String> buildConsumerResponse() {
-        return ImmutableConsumerResponse.<String, String>builder()
-                .messages(asList(buildConsumedMessage().build()));
+    public static ImmutableConsumerResponse.Builder buildConsumerResponse() {
+        return ImmutableConsumerResponse.builder()
+                .messages(singletonList(buildConsumedMessage().build()));
     }
 
-    public static ImmutableConsumedMessage.Builder<String, String> buildConsumedMessage() {
-        return ImmutableConsumedMessage.<String, String>builder()
+    public static ImmutableConsumedMessage.Builder buildConsumedMessage() {
+        return ImmutableConsumedMessage.builder()
                 .key(testKey)
                 .headers(testHeaders)
                 .message(testPayload)

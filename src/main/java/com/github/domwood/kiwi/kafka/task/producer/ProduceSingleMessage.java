@@ -15,11 +15,11 @@ import java.util.concurrent.CompletableFuture;
 import static com.github.domwood.kiwi.kafka.utils.KafkaUtils.toKafkaHeaders;
 import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;
 
-public class ProduceSingleMessage extends AbstractKafkaTask<ProducerRequest, ProducerResponse, KafkaProducerResource<String, String>> {
+public class ProduceSingleMessage<K, V> extends AbstractKafkaTask<ProducerRequest, ProducerResponse, KafkaProducerResource<K, V>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ProduceSingleMessage(KafkaProducerResource<String, String> resource, ProducerRequest input) {
+    public ProduceSingleMessage(KafkaProducerResource<K, V> resource, ProducerRequest input) {
         super(resource, input);
     }
 
@@ -28,22 +28,22 @@ public class ProduceSingleMessage extends AbstractKafkaTask<ProducerRequest, Pro
         try {
 
             String topic = input.topic();
-            String key = input.key();
-            ProducerRecord<String, String> record =
-                    new ProducerRecord<>(topic, null, key, input.payload().orElse(null), toKafkaHeaders(input.headers()));
+            K key = resource.convertKafkaKey(input.key());
+            V recordValue = input.payload().map(resource::convertKafkaValue).orElse(null);
+            ProducerRecord<K, V> producerRecord =
+                    new ProducerRecord<>(topic, null, key, recordValue, toKafkaHeaders(input.headers()));
 
-            logger.info("Attempting to {} to {} with key {}", input.payload().isPresent() ? "Produce": "Tombstone", topic, key);
+            logger.info("Attempting to {} to {} with key {}", input.payload().isPresent() ? "Produce" : "Tombstone", topic, key);
 
-            return resource.send(record)
+            return resource.send(producerRecord)
                     .thenApply(result -> onSuccess(result, resource));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Failed to execute produce single message task", e);
             return failedFuture(e);
         }
     }
 
-    private ProducerResponse onSuccess(RecordMetadata recordMetadata, KafkaProducerResource resource){
+    private ProducerResponse onSuccess(RecordMetadata recordMetadata, KafkaProducerResource resource) {
         String topic = recordMetadata.topic();
         int partition = recordMetadata.partition();
         long offset = recordMetadata.offset();

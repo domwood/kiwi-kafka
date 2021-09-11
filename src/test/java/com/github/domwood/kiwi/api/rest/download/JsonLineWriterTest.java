@@ -8,23 +8,34 @@ import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
 import com.github.domwood.kiwi.data.output.ConsumedMessage;
 import org.junit.jupiter.api.Test;
 
-import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.*;
-import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.HEADERS;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.KEY;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.OFFSET;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.PARTITION;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.TIMESTAMP;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.VALUE;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumedMessage;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerToFileRequest;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testHeaders;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testKey;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testOffset;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testPartition;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testTimestamp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonLineWriterTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void testJsonWriteKey() throws JsonProcessingException {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", KEY).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
-        String expected = "{\"Key\":\""+testKey+"\"}";
+        String expected = "{\"Key\":\"" + testKey + "\"}";
 
         assertEquals(expected, observed);
     }
@@ -34,7 +45,7 @@ public class JsonLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", VALUE).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String expected = "{\"Value\":\"{\\\"key\\\":\\\"value\\\"}\"}";
@@ -47,11 +58,11 @@ public class JsonLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", HEADERS).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
         String headers = mapper.writeValueAsString(testHeaders);
-        String expected = "{\"Headers\":"+headers+"}";
+        String expected = "{\"Headers\":" + headers + "}";
 
         assertEquals(expected, observed);
     }
@@ -62,10 +73,10 @@ public class JsonLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", OFFSET).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
-        String expected = "{\"Offset\":"+testOffset+"}";
+        String expected = "{\"Offset\":" + testOffset + "}";
 
         assertEquals(expected, observed);
     }
@@ -75,10 +86,10 @@ public class JsonLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", PARTITION).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
-        String expected = "{\"Partition\":"+testPartition+"}";
+        String expected = "{\"Partition\":" + testPartition + "}";
 
         assertEquals(expected, observed);
     }
@@ -88,10 +99,10 @@ public class JsonLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", TIMESTAMP).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
-        String expected = "{\"Timestamp\":"+testTimestamp+"}";
+        String expected = "{\"Timestamp\":" + testTimestamp + "}";
 
         assertEquals(expected, observed);
     }
@@ -101,22 +112,22 @@ public class JsonLineWriterTest {
         ConsumerToFileRequest request = buildConsumerToFileRequest(ConsumerRequestFileType.JSON, " ", ConsumerRequestColumns.values()).build();
         JsonLineWriter lineWriter = new JsonLineWriter(mapper, request);
 
-        ConsumedMessage<String, String> message = buildConsumedMessage().build();
+        ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
 
         String headers = mapper.writeValueAsString(testHeaders);
 
         String expected = "{" +
-                "\"Key\":\""+testKey+"\"," +
-                "\"Timestamp\":"+testTimestamp+"," +
-                "\"Partition\":"+testPartition+"," +
-                "\"Offset\":"+testOffset+"," +
-                "\"Headers\":"+headers+"," +
+                "\"Key\":\"" + testKey + "\"," +
+                "\"Timestamp\":" + testTimestamp + "," +
+                "\"Partition\":" + testPartition + "," +
+                "\"Offset\":" + testOffset + "," +
+                "\"Headers\":" + headers + "," +
                 "\"Value\":\"{\\\"key\\\":\\\"value\\\"}\"" +
-        "}";
+                "}";
 
         assertEquals(expected, observed);
     }
-    
+
 }

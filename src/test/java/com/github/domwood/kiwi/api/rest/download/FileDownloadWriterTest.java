@@ -15,8 +15,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.PrintWriter;
 
 import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.KEY;
-import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
-import static org.mockito.Mockito.*;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerResponse;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerToFileRequest;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testKey;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class FileDownloadWriterTest {
@@ -35,7 +39,7 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = consumerResponse(50,2L, 1L);
+        ConsumerResponse response = consumerResponse(50, 2L, 1L);
 
         writer.accept(response);
 
@@ -49,11 +53,11 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = consumerResponse(50,2L, 1L);
+        ConsumerResponse response = consumerResponse(50, 2L, 1L);
 
         writer.accept(response);
 
-        verify(outputStream, times(1)).println("{\"Key\":\""+testKey+"\"}");
+        verify(outputStream, times(1)).println("{\"Key\":\"" + testKey + "\"}");
         verifyNoMoreInteractions(outputStream, task);
     }
 
@@ -63,7 +67,7 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = consumerResponse(100,1L, 1L);
+        ConsumerResponse response = consumerResponse(100, 1L, 1L);
 
         writer.accept(response);
 
@@ -82,7 +86,7 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse<String, String> response = buildConsumerResponse().build();
+        ConsumerResponse response = buildConsumerResponse().build();
 
         writer.accept(response);
 
@@ -94,7 +98,7 @@ public class FileDownloadWriterTest {
         verifyNoMoreInteractions(outputStream, task);
     }
 
-    private FileDownloadWriter writer(ConsumerToFileRequest request){
+    private FileDownloadWriter writer(ConsumerToFileRequest request) {
         return new FileDownloadWriter(
                 objectMapper,
                 request,
@@ -103,8 +107,8 @@ public class FileDownloadWriterTest {
         );
     }
 
-    private ConsumerResponse<String, String> consumerResponse(Integer percentage, Long endValue, Long position){
-        return ImmutableConsumerResponse.<String, String>builder()
+    private ConsumerResponse consumerResponse(Integer percentage, Long endValue, Long position) {
+        return ImmutableConsumerResponse.builder()
                 .from(buildConsumerResponse().build())
                 .position(ImmutableConsumerPosition.builder()
                         .percentage(percentage)

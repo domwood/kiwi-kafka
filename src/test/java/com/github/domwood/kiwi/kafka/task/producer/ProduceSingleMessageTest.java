@@ -17,7 +17,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildProducerRequest;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildProducerResponse;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testOffset;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testPartition;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testTimestamp;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testTopic;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,7 +41,7 @@ public class ProduceSingleMessageTest {
 
         when(producerResource.send(any(ProducerRecord.class))).thenReturn(CompletableFuture.completedFuture(recordMetadata()));
 
-        ProduceSingleMessage produceSingleMessage = new ProduceSingleMessage(producerResource, buildProducerRequest().build());
+        ProduceSingleMessage<String, String> produceSingleMessage = new ProduceSingleMessage<>(producerResource, buildProducerRequest().build());
 
         ProducerResponse observed = produceSingleMessage.execute().get(1, TimeUnit.SECONDS);
 
@@ -46,10 +51,10 @@ public class ProduceSingleMessageTest {
 
     @DisplayName("Produce message task handles an exception scenario")
     @Test
-    public void failureProduceTest(){
+    public void failureProduceTest() {
         when(producerResource.send(any(ProducerRecord.class))).thenThrow(new KafkaException("Producer Error of some sort"));
 
-        ProduceSingleMessage produceSingleMessage = new ProduceSingleMessage(producerResource, buildProducerRequest().build());
+        ProduceSingleMessage<String, String> produceSingleMessage = new ProduceSingleMessage<>(producerResource, buildProducerRequest().build());
 
         CompletableFuture<ProducerResponse> future = produceSingleMessage.execute();
 
@@ -60,7 +65,7 @@ public class ProduceSingleMessageTest {
 
     }
 
-    private RecordMetadata recordMetadata(){
-        return new RecordMetadata(new TopicPartition(testTopic,testPartition), 0, testOffset, testTimestamp, 0L, 0, 0);
+    private RecordMetadata recordMetadata() {
+        return new RecordMetadata(new TopicPartition(testTopic, testPartition), 0, testOffset, testTimestamp, 0L, 0, 0);
     }
 }

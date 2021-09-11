@@ -24,7 +24,7 @@ public class KafkaUtils {
     }
 
 
-    public static Map<String, Object> fromKafkaHeaders(Headers headers) {
+    public static Map<String, String> fromKafkaHeaders(Headers headers) {
         return Optional.ofNullable(headers)
                 .map(Headers::toArray)
                 .map(Arrays::asList)

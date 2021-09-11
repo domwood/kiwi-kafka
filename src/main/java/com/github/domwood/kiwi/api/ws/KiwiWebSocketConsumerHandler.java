@@ -29,38 +29,36 @@ public class KiwiWebSocketConsumerHandler {
 
     public void addConsumerTask(String id,
                                 ConsumerRequest request,
-                                Consumer<ConsumerResponse<String, String>> consumer){
-        if(consumers.containsKey(id) && consumers.get(id).isClosed()){
+                                Consumer<ConsumerResponse> consumer) {
+        if (consumers.containsKey(id) && consumers.get(id).isClosed()) {
             logger.info("Consumer already present for session {}, but is closed, removing", id);
             this.consumers.remove(id);
         }
 
-        if(!consumers.containsKey(id)){
+        if (!consumers.containsKey(id)) {
             logger.info("Adding consumer for session {}", id);
-            ContinuousConsumeMessages consumeMessages = taskProvider.continousConsumeMessages(request);
+            ContinuousConsumeMessages consumeMessages = taskProvider.continuousConsumeMessages(request);
             this.consumers.put(id, consumeMessages);
             consumeMessages.registerConsumer(consumer);
             consumeMessages.execute()
                     .whenComplete((voidValue, e) -> {
-                        if(e != null) logger.error("Task for session "+id+" closed with error", e);
+                        if (e != null) logger.error("Task for session " + id + " closed with error", e);
                         else logger.info("Task closed normally for session {}", id);
                     });
-        }
-        else{
+        } else {
             logger.info("Updating existing consumer for session {}", id);
             ContinuousConsumeMessages consumeMessages = consumers.get(id);
             consumeMessages.update(request);
         }
     }
 
-    public void removeConsumerTask(String id){
-        if(consumers.containsKey(id)){
+    public void removeConsumerTask(String id) {
+        if (consumers.containsKey(id)) {
             logger.info("Close and remove continuous consumer task for {} ", id);
             this.consumers.get(id).close();
             this.consumers.remove(id);
         }
     }
-
 
 
 }
