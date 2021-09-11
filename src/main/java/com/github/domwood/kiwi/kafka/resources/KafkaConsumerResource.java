@@ -64,7 +64,7 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
         }
         try {
             this.getClient().close();
-            logger.info("Kafka consumer closed for groupId: %s" + this.getGroupId());
+            logger.info("Kafka consumer closed for groupId: " + this.getGroupId());
         } catch (Exception e) {
             throw new KafkaResourceClientCloseException("Failed to cleanly close Resource, due to " + e.getMessage(), e);
         }
