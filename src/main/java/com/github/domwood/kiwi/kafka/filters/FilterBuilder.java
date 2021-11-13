@@ -6,7 +6,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -37,8 +36,8 @@ public class FilterBuilder {
         }
     }
 
-    private static Predicate<String> buildFilterType(MessageFilter messageFilter){
-        switch(messageFilter.filterType()){
+    private static Predicate<String> buildFilterType(MessageFilter messageFilter) {
+        switch (messageFilter.filterType()) {
             case STARTS_WITH:
                 return messageFilter.isCaseSensitive() ?
                         startsWith(messageFilter.filter()) : startsWithCaseInsensitive(messageFilter.filter());
@@ -48,6 +47,9 @@ public class FilterBuilder {
             case CONTAINS:
                 return messageFilter.isCaseSensitive() ?
                         contains(messageFilter.filter()) : containsCaseInsensitive(messageFilter.filter());
+            case NOT_CONTAINS:
+                return messageFilter.isCaseSensitive() ?
+                        doesNotContain(messageFilter.filter()) : doesNotContainCaseInsensitive(messageFilter.filter());
             case MATCHES:
                 return messageFilter.isCaseSensitive() ?
                         matches(messageFilter.filter()) : matchesCaseInsensitive(messageFilter.filter());
@@ -103,6 +105,14 @@ public class FilterBuilder {
 
     private static Predicate<String> contains(String filterString){
         return (String value) -> value != null && value.contains(filterString);
+    }
+
+    private static Predicate<String> doesNotContainCaseInsensitive(String filterString) {
+        return (String value) -> value == null || !value.toLowerCase().contains(filterString.toLowerCase());
+    }
+
+    private static Predicate<String> doesNotContain(String filterString) {
+        return (String value) -> value == null || !value.contains(filterString);
     }
 
     private static Predicate<String> matchesCaseInsensitive(String filterString){

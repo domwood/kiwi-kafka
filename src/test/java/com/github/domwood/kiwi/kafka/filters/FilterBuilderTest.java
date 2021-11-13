@@ -136,6 +136,53 @@ public class FilterBuilderTest {
     }
 
     @Test
+    public void testBuildDoesNotContainCaseSensitiveFilter() {
+
+        MessageFilter filter = baseFilter()
+                .filterType(FilterType.NOT_CONTAINS)
+                .isCaseSensitive(true)
+                .build();
+
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+
+        when(mockRecord.key())
+                .thenReturn("HELLO WORLD")
+                .thenReturn("WELCOME YOU")
+                .thenReturn("HELLO YOU")
+                .thenReturn("hello YOU")
+                .thenReturn(null);
+
+        assertFalse(test.test(mockRecord));
+        assertTrue(test.test(mockRecord));
+        assertFalse(test.test(mockRecord));
+        assertTrue(test.test(mockRecord));
+        assertTrue(test.test(mockRecord));
+    }
+
+    @Test
+    public void testBuildDoesNotContainFilter() {
+
+        MessageFilter filter = baseFilter()
+                .filterType(FilterType.NOT_CONTAINS)
+                .build();
+
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+
+        when(mockRecord.key())
+                .thenReturn("hello world")
+                .thenReturn("welcome world")
+                .thenReturn("hello you")
+                .thenReturn("HELLO you")
+                .thenReturn(null);
+
+        assertFalse(test.test(mockRecord));
+        assertTrue(test.test(mockRecord));
+        assertFalse(test.test(mockRecord));
+        assertFalse(test.test(mockRecord));
+        assertTrue(test.test(mockRecord));
+    }
+
+    @Test
     public void testBuildMatchesFilter(){
 
         MessageFilter filter = baseFilter()
