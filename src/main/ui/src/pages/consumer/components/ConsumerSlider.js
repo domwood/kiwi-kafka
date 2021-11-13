@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { Component } from "react";
+import React, {Component} from "react";
 import Slider, {Handle} from 'rc-slider';
 import {Input, InputGroup, InputGroupAddon} from "reactstrap";
 
@@ -20,19 +20,18 @@ class ConsumerSlider extends Component {
     }
 
     onUpdateConsumerPosition = (value) => {
-        this.props.onUpdateConsumerPosition(parseFloat(value || 0));
+        this.props.onUpdateConsumerPosition(parseFloat(value || "0"));
     };
 
-
     handle = (props) => {
-        const { value, dragging, index, ...restProps } = props;
+        const {dragging, value, ...restProps} = props;
         return (
-            <div>
+            <React.Fragment>
                 <Handle id="handle"
                         value={value}
+                        dragging={dragging.toString()}
                         {...restProps} />
-            </div>
-
+            </React.Fragment>
         );
     };
 

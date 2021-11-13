@@ -172,6 +172,7 @@ class FilterConfigurer extends Component {
                                                         <DropdownItem onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts With</DropdownItem>
                                                         <DropdownItem onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends With</DropdownItem>
                                                         <DropdownItem onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
+                                                        <DropdownItem onClick={() => this.setFilterType("NOT_CONTAINS", index)}>Not contains</DropdownItem>
                                                         <DropdownItem onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
                                                     </DropdownMenu>
                                                 </InputGroupButtonDropdown>

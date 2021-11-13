@@ -39,6 +39,7 @@ MessageLimit.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     onMessageLimitUpdate: PropTypes.func.isRequired,
+    messageLimit: PropTypes.number.isRequired
 };
 
 export default MessageLimit;

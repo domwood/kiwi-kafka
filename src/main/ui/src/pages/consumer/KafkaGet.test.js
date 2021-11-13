@@ -4,7 +4,6 @@ import KafkaGet from './KafkaGet';
 import * as ApiService from "../../services/ApiService";
 import WebSocketService from "../../services/WebSocketService";
 import {mount} from "enzyme/build";
-import { waitForState } from 'enzyme-async-helpers';
 
 jest.mock("../../services/ApiService");
 jest.mock("../../services/WebSocketService");

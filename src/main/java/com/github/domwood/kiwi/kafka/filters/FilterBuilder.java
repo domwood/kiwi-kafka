@@ -53,6 +53,9 @@ public class FilterBuilder {
             case CONTAINS:
                 return messageFilter.isCaseSensitive() ?
                         contains(messageFilter.filter()) : containsCaseInsensitive(messageFilter.filter());
+            case NOT_CONTAINS:
+                return messageFilter.isCaseSensitive() ?
+                        doesNotContain(messageFilter.filter()) : doesNotContainCaseInsensitive(messageFilter.filter());
             case MATCHES:
                 return messageFilter.isCaseSensitive() ?
                         matches(messageFilter.filter()) : matchesCaseInsensitive(messageFilter.filter());
@@ -110,7 +113,15 @@ public class FilterBuilder {
         return (String value) -> value != null && value.contains(filterString);
     }
 
-    private static Predicate<String> matchesCaseInsensitive(String filterString) {
+    private static Predicate<String> doesNotContainCaseInsensitive(String filterString) {
+        return (String value) -> value == null || !value.toLowerCase().contains(filterString.toLowerCase());
+    }
+
+    private static Predicate<String> doesNotContain(String filterString) {
+        return (String value) -> value == null || !value.contains(filterString);
+    }
+
+    private static Predicate<String> matchesCaseInsensitive(String filterString){
         return (String value) -> value != null && value.equalsIgnoreCase(filterString);
     }
 

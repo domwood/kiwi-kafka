@@ -257,7 +257,9 @@ class CreateTopic extends Component {
 
 CreateTopic.propTypes = {
     onClose: PropTypes.func.isRequired,
-    profiles: PropTypes.array.isRequired
+    onCreate: PropTypes.func.isRequired,
+    profiles: PropTypes.array.isRequired,
+    groupId: PropTypes.string.isRequired
 };
 
 

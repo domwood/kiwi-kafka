@@ -81,7 +81,7 @@ class ConsumerGroupDetailsView extends Component {
 
 
                         { Object.entries(this.state.groupData)
-                            .filter(([topic, data]) => !this.props.topics || this.props.topics.includes(topic))
+                            .filter(([topic]) => !this.props.topics || this.props.topics.includes(topic))
                             .map(([topic, data]) => {
                                 return (
                                     <tbody key={`${encodeURIComponent(this.props.groupId)}_${topic}`}>
