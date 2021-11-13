@@ -120,7 +120,8 @@ class TopicView extends Component {
 
 TopicView.propTypes = {
     topic: PropTypes.string.isRequired,
-    profiles: PropTypes.array
+    profiles: PropTypes.array.isRequired,
+    onDeletion: PropTypes.func.isRequired
 };
 
 export default TopicView ;

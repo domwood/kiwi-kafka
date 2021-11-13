@@ -9,6 +9,7 @@ import * as ApiService from "../../services/ApiService";
 import {toast} from "react-toastify";
 import SearchableViewList from "../common/SearchableViewList";
 import ConsumerGroupView from "./components/ConsumerGroupView";
+import PropTypes from "prop-types";
 
 class KafkaConsumerGroups extends Component {
 
@@ -29,7 +30,7 @@ class KafkaConsumerGroups extends Component {
 
     componentWillUnmount(){
         this.mounted = false;
-    };
+    }
 
     loadConsumerGroups = () => {
         this.setState({
@@ -79,5 +80,9 @@ class KafkaConsumerGroups extends Component {
     }
 
 }
+
+KafkaConsumerGroups.propTypes = {
+    profiles: PropTypes.array.isRequired
+};
 
 export default KafkaConsumerGroups;

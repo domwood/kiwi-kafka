@@ -170,7 +170,8 @@ FileDownloader.propTypes = {
     id: PropTypes.string.isRequired,
     filters: PropTypes.array.isRequired,
     targetTopic: PropTypes.string.isRequired,
-    profiles: PropTypes.array.isRequired
+    profiles: PropTypes.array.isRequired,
+    topic: PropTypes.string.isRequired
 };
 
 export default FileDownloader;

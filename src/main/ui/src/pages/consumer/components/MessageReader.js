@@ -200,7 +200,8 @@ MessageReader.propTypes = {
     isReversed: PropTypes.bool.isRequired,
     updateMessages: PropTypes.func.isRequired,
     messages: PropTypes.array.isRequired,
-    profiles: PropTypes.array.isRequired
+    profiles: PropTypes.array.isRequired,
+    topic: PropTypes.string
 };
 
 export default MessageReader;
