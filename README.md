@@ -1,7 +1,7 @@
 # KIWI - Kafka Interactive Web Interface 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Latest-0.7.0-green.svg)]()
+[![Status](https://img.shields.io/badge/Latest-0.8.0-green.svg)]()
 
 A Kafka Web Interface, written to help my professional day to day role working with kafka, but provided here in the event anyone else may benefit from using it.
 
@@ -64,9 +64,9 @@ Run:
 
 There are various ways this can be started locally, this is my preferred method:
 
- - Run `./run-docker.sh`
+ - Run `cd scripts && ./run-docker.sh`
  - Start KiwiApplication or via `mvn spring-boot:run`
- - Run `./run-node-server.sh`
+ - Run `cd scripts && ./run-node-server.sh`
  - Go to `localhost:3000` to see UI
  
 Editing javascript should lead to live updates of the UI at `localhost:3000`.
@@ -75,6 +75,7 @@ But this will not update automatically when making changes as its only rebuilt w
   
 
 #### Current release process
+ - Login to docker in order to push the image to hub via `docker login`
  - `mvn clean release:prepare`
  - `mvn clean release:perform`
  - Manual upload jar, release draft
