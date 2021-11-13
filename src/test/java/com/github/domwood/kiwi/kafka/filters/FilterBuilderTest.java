@@ -35,7 +35,8 @@ public class FilterBuilderTest {
 
         MessageFilter filter = baseFilter().build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -56,7 +57,8 @@ public class FilterBuilderTest {
                 .filterType(FilterType.ENDS_WITH)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -77,7 +79,8 @@ public class FilterBuilderTest {
                 .isCaseSensitive(true)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -99,7 +102,8 @@ public class FilterBuilderTest {
                 .filter("HE[L]{2}[Oo]")
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -123,7 +127,9 @@ public class FilterBuilderTest {
                 .filterType(FilterType.CONTAINS)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -144,7 +150,8 @@ public class FilterBuilderTest {
                 .isCaseSensitive(true)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -167,7 +174,8 @@ public class FilterBuilderTest {
                 .filterType(FilterType.NOT_CONTAINS)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("hello world")
@@ -190,7 +198,8 @@ public class FilterBuilderTest {
                 .filterType(FilterType.MATCHES)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -212,7 +221,8 @@ public class FilterBuilderTest {
                 .filterApplication(FilterApplication.VALUE)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.value())
                 .thenReturn("HELLO WORLD")
@@ -234,7 +244,8 @@ public class FilterBuilderTest {
                 .filterApplication(FilterApplication.HEADER_KEY)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(headers.toArray())
                 .thenReturn(new Header[]{createHeader("HELLO", "WORLD")})
@@ -254,7 +265,8 @@ public class FilterBuilderTest {
                 .filterApplication(FilterApplication.HEADER_VALUE)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(singletonList(filter), Function.identity(), Function.identity());
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(headers.toArray())
                 .thenReturn(new Header[]{createHeader("HELLO", "WORLD")})
