@@ -11,7 +11,7 @@ import {
     NavItem,
     NavLink
 } from 'reactstrap';
-import {HashRouter as Router, Link, Route, Switch} from "react-router-dom";
+import {HashRouter as Router, Link, Route, Routes} from "react-router-dom";
 import KafkaHome from "./pages/brokers/KafkaHome";
 import KafkaTopics from "./pages/topics/KafkaTopics";
 import KafkaPost from "./pages/producer/KafkaPost";
@@ -122,15 +122,15 @@ class App extends Component {
                                 </Nav>
                             </Collapse>
                         </Navbar>
-                        <Switch>
-                            <Route exact path="/" component={props => <KafkaHome {...props} profiles={this.state.profiles}/>} />
-                            <Route path="/topics" component={props => <KafkaTopics {...props} profiles={this.state.profiles}/> } />
-                            <Route path="/groups" component={props => <KafkaConsumerGroups {...props} profiles={this.state.profiles}/>} />
-                            <Route path="/post" component={props => <KafkaPost {...props} profiles={this.state.profiles}/> } />
-                            <Route path="/get" component={props => <KafkaGet {...props} isDownload={false} profiles={this.state.profiles}/>} />
-                            <Route path="/download" component={props => <KafkaGet {...props} isDownload={true} profiles={this.state.profiles}/>} />
+                        <Routes>
+                            <Route exact path="/" element={<KafkaHome profiles={this.state.profiles}/>} />
+                            <Route path="/topics" element={<KafkaTopics profiles={this.state.profiles}/> } />
+                            <Route path="/groups" element={<KafkaConsumerGroups profiles={this.state.profiles}/>} />
+                            <Route path="/post" element={<KafkaPost profiles={this.state.profiles}/> } />
+                            <Route path="/get" element={<KafkaGet isDownload={false} profiles={this.state.profiles}/>} />
+                            <Route path="/download" element={<KafkaGet isDownload={true} profiles={this.state.profiles}/>} />
                             <Route redirectTo="/"/>
-                        </Switch>
+                        </Routes>
                     </div>
                 </Router>
             </div>

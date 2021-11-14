@@ -1,15 +1,14 @@
-import React, { Component } from "react";
-import {FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Label} from "reactstrap";
+import React, {Component} from "react";
+import {FormGroup, Input, InputGroup, InputGroupText, Label} from "reactstrap";
 import PropTypes from 'prop-types';
-import {toast} from "react-toastify/index";
-
+import {toast} from "react-toastify";
 
 class JsonEditor extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id : props.id,
-            name : props.name,
+            id: props.id,
+            name: props.name,
             local: "",
             nullMessage: false
         };
@@ -19,7 +18,7 @@ class JsonEditor extends Component {
 
     updateState = (event) => {
         let local = event.target.value;
-        let toSend = this.state.nullMessage ? null: local
+        let toSend = this.state.nullMessage ? null : local
         this.setState({
             local: event.target.value
         }, () => this.props.updateMessage(toSend));
@@ -27,7 +26,7 @@ class JsonEditor extends Component {
 
     toggleNullMessage = () => {
         this.setState({
-            nullMessage:!this.state.nullMessage
+            nullMessage: !this.state.nullMessage
         }, () => this.props.updateMessage(this.state.nullMessage ? null : this.state.local));
 
 
@@ -55,17 +54,15 @@ class JsonEditor extends Component {
             <FormGroup>
                 <Label>Input:</Label>
                 <InputGroup>
-                    <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                            <Input addon type="checkbox"
-                                   aria-label="Send value of null"
-                                   name="nullRecordCheckbox"
-                                   id="nullRecordCheckbox"
-                                   value={this.state.nullMessage}
-                                   onChange={this.toggleNullMessage}
-                            />
-                        </InputGroupText>
-                    </InputGroupAddon>
+                    <InputGroupText>
+                        <Input addon type="checkbox"
+                               aria-label="Send value of null"
+                               name="nullRecordCheckbox"
+                               id="nullRecordCheckbox"
+                               value={this.state.nullMessage}
+                               onChange={this.toggleNullMessage}
+                        />
+                    </InputGroupText>
                     <Input placeholder={"Send Null Message Payload"} disabled></Input>
                 </InputGroup>
                 <div className={"Gap"}/>

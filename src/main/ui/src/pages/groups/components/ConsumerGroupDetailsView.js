@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, ButtonGroup, InputGroupAddon, InputGroupText, Spinner, Table} from "reactstrap";
+import {Button, ButtonGroup, InputGroupText, Spinner, Table} from "reactstrap";
 import {MdRefresh} from "react-icons/md";
 import {toast} from "react-toastify";
 import * as ApiService from "../../../services/ApiService";
@@ -51,9 +51,7 @@ class ConsumerGroupDetailsView extends Component {
             <div>
                 <div className={"TwoGap"} />
                 <ButtonGroup>
-                    <InputGroupAddon addonType="prepend">
-                        <InputGroupText>Consumer Group: {this.props.groupId}</InputGroupText>
-                    </InputGroupAddon>
+                    <InputGroupText>Consumer Group: {this.props.groupId}</InputGroupText>
                     <Button color="primary" onClick={this.loadConsumerDetails}>Refresh <MdRefresh/></Button>
                     {/*<Button color="warning" disabled>Reset to Latest</Button>*/}
                     {/*<Button color="warning" disabled>Reset to Earliest</Button>*/}

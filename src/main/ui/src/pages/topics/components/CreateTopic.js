@@ -7,7 +7,6 @@ import {
     DropdownToggle,
     Input,
     InputGroup,
-    InputGroupAddon,
     InputGroupText,
     ListGroup,
     ListGroupItem,
@@ -34,12 +33,12 @@ class CreateTopic extends Component {
     }
 
     isCreateDisabled = () => {
-        let profiles = this.props.profiles||[];
+        let profiles = this.props.profiles || [];
         return profiles.length !== 0 && profiles.indexOf("write-admin") === -1;
     };
 
-    componentDidMount(){
-        ApiService.getCreateTopicConfig(config =>{
+    componentDidMount() {
+        ApiService.getCreateTopicConfig(config => {
             this.setState({
                 createTopicConfig: config
             });
@@ -89,7 +88,7 @@ class CreateTopic extends Component {
 
     addConfig = () => {
         let topicConfig = this.state.topicConfig || {};
-        if(this.state.configKey && this.state.configValue){
+        if (this.state.configKey && this.state.configValue) {
             topicConfig[this.state.configKey] = this.state.configValue;
         }
         this.setState({
@@ -121,7 +120,7 @@ class CreateTopic extends Component {
             toast.info("Successfully created topic " + topic.name);
             this.onClose();
             this.props.onCreate();
-        },  (error) => toast.error(`Failed to create topic: ${error.message}`))
+        }, (error) => toast.error(`Failed to create topic: ${error.message}`))
     };
 
     render() {
@@ -132,9 +131,7 @@ class CreateTopic extends Component {
 
                     <ListGroupItem>
                         <InputGroup>
-                            <InputGroupAddon addonType="prepend">
-                                <InputGroupText>Topic Name:</InputGroupText>
-                            </InputGroupAddon>
+                            <InputGroupText>Topic Name:</InputGroupText>
                             <Input type="text" name="topicAddName" id="topicAddName"
                                    value={this.state.topicName}
                                    onChange={event => this.setAddTopicName(event.target.value)}
@@ -145,9 +142,7 @@ class CreateTopic extends Component {
 
                     <ListGroupItem>
                         <InputGroup>
-                            <InputGroupAddon addonType="prepend">
-                                <InputGroupText>Partitions</InputGroupText>
-                            </InputGroupAddon>
+                            <InputGroupText>Partitions</InputGroupText>
                             <Input type="number" name="topicAddPartitions" id="topicAddPartitions"
                                    value={this.state.partitions}
                                    onChange={event => this.setAddTopicPartition(event.target.value)}
@@ -158,9 +153,7 @@ class CreateTopic extends Component {
 
                     <ListGroupItem>
                         <InputGroup>
-                            <InputGroupAddon addonType="prepend" >
-                                <InputGroupText>Replication Factor</InputGroupText>
-                            </InputGroupAddon>
+                            <InputGroupText>Replication Factor</InputGroupText>
                             <Input type="number" name="topicAddReplication" id="topicAddReplication"
                                    value={this.state.replicationFactor}
                                    onChange={event => this.setAddTopicReplication(event.target.value)}
@@ -178,7 +171,8 @@ class CreateTopic extends Component {
                                 </DropdownToggle>
                                 <DropdownMenu>
                                     {
-                                        this.state.createTopicConfig.map(item => <DropdownItem key={item} onClick={() => this.setConfigKey(item)}>
+                                        this.state.createTopicConfig.map(item => <DropdownItem key={item}
+                                                                                               onClick={() => this.setConfigKey(item)}>
                                             {item}
                                         </DropdownItem>)
                                     }
@@ -191,16 +185,15 @@ class CreateTopic extends Component {
                             <Input type="text" name="configValue" id="configValue"
                                    value={this.state.configValue}
                                    onChange={event => this.setConfigValue(event.target.value)}/>
-                            <InputGroupAddon addonType="append" >
+                            <InputGroupText>
                                 {
                                     this.state.configKey && this.state.configValue ?
                                         <Button color="success" onClick={this.addConfig}>Add Configuration</Button> :
-                                    this.state.configKey || this.state.configValue ?
-                                        <Button color="warning" disabled={true}>Add Configuration</Button> :
-                                        <Button color="secondary" disabled={true}>Add Configuration</Button>
+                                        <Button
+                                            color={this.state.configKey || this.state.configValue ? "warning" : "success"}
+                                            disabled={true}>Add Configuration</Button>
                                 }
-
-                            </InputGroupAddon>
+                            </InputGroupText>
                         </InputGroup>
                     </ListGroupItem>
 
@@ -212,16 +205,17 @@ class CreateTopic extends Component {
                                     <tr>
                                         <th width="40%">Key</th>
                                         <th width="40%">Value</th>
-                                        <th width="20%"></th>
+                                        <th width="20%"/>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {
                                         Object.keys(this.state.topicConfig).filter(key => this.state.topicConfig[key])
-                                            .map(key => <tr key={"config"+key}>
+                                            .map(key => <tr key={"config" + key}>
                                                 <td>{key}</td>
                                                 <td>{this.state.topicConfig[key]}</td>
-                                                <td><Button onClick={() => this.removeConfig(key)}>Remove Configuration</Button></td>
+                                                <td><Button onClick={() => this.removeConfig(key)}>Remove
+                                                    Configuration</Button></td>
                                             </tr>)
                                     }
                                     </tbody>
@@ -235,11 +229,12 @@ class CreateTopic extends Component {
                         <ButtonGroup>
                             {
                                 this.state.topicName && !(this.state.configKey || this.state.configValue) ?
-                                    <Button id="CreateTopic" color="success" onClick={this.createTopic} disabled={this.isCreateDisabled()}>Create</Button> :
+                                    <Button id="CreateTopic" color="success" onClick={this.createTopic}
+                                            disabled={this.isCreateDisabled()}>Create</Button> :
                                     <Button id="CreateTopic" color="secondary" disabled>Create</Button>
                             }
                             <ProfileToggleToolTip profiles={this.props.profiles}
-                                                  id={`${this.props.groupId}_create`}
+                                                  id={`${this.state.topicName}_create`}
                                                   targetProfile={"write-admin"}
                             />
 
@@ -258,8 +253,7 @@ class CreateTopic extends Component {
 CreateTopic.propTypes = {
     onClose: PropTypes.func.isRequired,
     onCreate: PropTypes.func.isRequired,
-    profiles: PropTypes.array.isRequired,
-    groupId: PropTypes.string.isRequired
+    profiles: PropTypes.array.isRequired
 };
 
 

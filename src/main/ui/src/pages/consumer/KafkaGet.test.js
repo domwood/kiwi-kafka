@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import KafkaGet from './KafkaGet';
 import * as ApiService from "../../services/ApiService";
 import WebSocketService from "../../services/WebSocketService";
-import {mount} from "enzyme/build";
 
 jest.mock("../../services/ApiService");
 jest.mock("../../services/WebSocketService");
@@ -24,35 +23,6 @@ jest.mock('popper.js', () => {
     };
 });
 
-const testDataResponse = {
-    responseType:".ImmutableConsumerResponse",
-    messages:[
-        {
-            responseType:".ImmutableConsumedMessage",
-            timestamp:1557561292030,
-            partition:7,
-            offset:30,
-            message:"testData1",
-            key:"testKey1",
-            headers:{}
-        },
-        {
-            responseType:".ImmutableConsumedMessage",
-            timestamp:1557561192030,
-            partition:8,
-            offset:45,
-            message:"testData2",
-            key:"testKey2",
-            headers:{}
-        }
-    ]
-};
-
-
-const topicList = [
-    "exampleTestTopicOne", "exampleTestTopicTwo"
-];
-
 beforeEach(() => {
     ApiService.getTopics.mockClear();
     ApiService.consume.mockClear();
@@ -65,10 +35,10 @@ it('renders without crashing', () => {
     ReactDOM.unmountComponentAtNode(div);
 });
 
-it('renders via enzyme', () => {
-    const wrapper = mount(<KafkaGet isDownload={false} profiles={[]}/>);
-    const title = <h1>Get Data From Kafka</h1>
-    expect(wrapper.contains(title)).toEqual(true);
-});
+// it('renders via enzyme', () => {
+//     const wrapper = mount(<KafkaGet isDownload={false} profiles={[]}/>);
+//     const title = <h1>Get Data From Kafka</h1>
+//     expect(wrapper.contains(title)).toEqual(true);
+// });
 
 

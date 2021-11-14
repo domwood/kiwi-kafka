@@ -1,14 +1,9 @@
 import * as ApiService from "../../services/ApiService";
 
-import {
-    Button,
-    FormGroup,
-    InputGroup, InputGroupAddon,
-    Label
-} from "reactstrap";
+import {Button, FormGroup, InputGroup, InputGroupText, Label} from "reactstrap";
 
 import React, {Component} from "react";
-import { MdRefresh } from "react-icons/md/index";
+import {MdRefresh} from "react-icons/all";
 import PropTypes from "prop-types";
 import {toast} from "react-toastify";
 import {Typeahead} from 'react-bootstrap-typeahead';
@@ -26,7 +21,7 @@ class TopicInput extends Component {
         this._cancellable = false;
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this._cancellable = true;
         this._cancellable && this.getTopicList();
     }
@@ -36,11 +31,11 @@ class TopicInput extends Component {
     }
 
     getTopicList = (reload) => {
-        if(this.state.topicList.length === 0 || reload){
+        if (this.state.topicList.length === 0 || reload) {
             ApiService.getTopics((topics) => {
-                if(this._cancellable){
+                if (this._cancellable) {
                     this.setState({
-                        topicList:topics
+                        topicList: topics
                     });
                 }
             }, () => toast.warn("Could not retrieve topic list from server"));
@@ -62,15 +57,16 @@ class TopicInput extends Component {
                         defaultInputValue={this.props.targetTopic}
                         id={"topicInput"}
                         onChange={select => this.setTargetTopic(select[0]) || ''}
-                        onInputChange={i =>this.setTargetTopic(i || '') }
+                        onInputChange={i => this.setTargetTopic(i || '')}
                         options={this.state.topicList}
                         className={"StretchedInput"}
                         selectHintOnEnter={true}
                     />
 
-                    <InputGroupAddon addonType="append">
-                        <Button color="primary" onClick={() => this.getTopicList(true)}>Refresh Topics<MdRefresh/></Button>
-                    </InputGroupAddon>
+                    <InputGroupText>
+                        <Button color="primary" onClick={() => this.getTopicList(true)}>Refresh
+                            Topics<MdRefresh/></Button>
+                    </InputGroupText>
                 </InputGroup>
             </FormGroup>
         )

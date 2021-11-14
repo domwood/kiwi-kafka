@@ -39,10 +39,10 @@ class KafkaTopics extends Component {
             loading: true
         }, () => {
             ApiService.getTopics((topics) => {
-                if(this.mounted){
+                if (this.mounted) {
                     this.setState({
                         topicList: topics || [],
-                        loading:false
+                        loading: false
                     }, () => {
                         toast.info("Refreshed topic list from server");
                     });
@@ -73,18 +73,23 @@ class KafkaTopics extends Component {
 
                 <ButtonGroup>
                     <Button color="primary" onClick={this.reloadTopics}>Reload List <MdRefresh/></Button>
-                    {!this.state.addTopic ? <Button color="success" onClick={() => this.addTopic(true)}>Add Topic +</Button> : ''}
+                    {!this.state.addTopic ?
+                        <Button color="success" onClick={() => this.addTopic(true)}>Add Topic +</Button> : ''}
                     {this.state.loading ? <Spinner color="secondary"/> : ''}
                 </ButtonGroup>
 
                 <div className={"Gap"}/>
 
-                {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)} onCreate={this.reloadTopics} profiles={this.props.profiles}/> : ''}
+                {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)}
+                                                    onCreate={this.reloadTopics}
+                                                    profiles={this.props.profiles}/> : ''}
 
                 <div className={"Gap"}/>
 
                 <SearchableViewList elementList={this.state.topicList}
-                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic} onDeletion={this.reloadTopics} profiles={this.props.profiles}/> } />
+                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic}
+                                                                               onDeletion={this.reloadTopics}
+                                                                               profiles={this.props.profiles}/>}/>
             </Container>
         );
     }

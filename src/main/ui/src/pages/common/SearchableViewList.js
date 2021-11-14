@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {InputGroup, InputGroupAddon, InputGroupText, ListGroup, ListGroupItem} from "reactstrap";
+import {InputGroup, InputGroupText, ListGroup, ListGroupItem} from "reactstrap";
 import "../../App.css";
 import PropTypes from "prop-types";
 import {Typeahead} from "react-bootstrap-typeahead";
@@ -16,7 +16,7 @@ class SearchableViewList extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(prevProps.elementList !== this.props.elementList){
+        if (prevProps.elementList !== this.props.elementList) {
             this.setState({
                 unfilteredList: this.props.elementList,
                 filteredList: this.props.elementList
@@ -45,9 +45,7 @@ class SearchableViewList extends Component {
             <ListGroup>
                 <ListGroupItem>
                     <InputGroup>
-                        <InputGroupAddon addonType="prepend">
-                            <InputGroupText>Filter:</InputGroupText>
-                        </InputGroupAddon>
+                        <InputGroupText>Filter:</InputGroupText>
                         <Typeahead
                             id={"searchList"}
                             onChange={selected => selected && selected[0] ? this.filterList(selected[0]) : ''}

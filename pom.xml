@@ -34,7 +34,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <java.version>1.8</java.version>
         <frontendSrcDir>${project.basedir}/src/main/ui/</frontendSrcDir>
-        <node.version>v12.18.3</node.version>
+        <node.version>v16.13.0</node.version>
         <yarn.version>v1.22.4</yarn.version>
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
         <immutables.version>2.8.8</immutables.version>
