@@ -45,14 +45,13 @@ class SearchableViewList extends Component {
             <ListGroup>
                 <ListGroupItem>
                     <InputGroup>
-                        <InputGroupText>Filter:</InputGroupText>
+                        <InputGroupText className={"input-group-text-padded"}>Filter:</InputGroupText>
                         <Typeahead
                             id={"searchList"}
                             onChange={selected => selected && selected[0] ? this.filterList(selected[0]) : ''}
                             onInputChange={i => this.filterList(i || '')}
                             options={this.state.unfilteredList}
                             className={"StretchedInput"}
-                            selectHintOnEnter={true}
                         />
                     </InputGroup>
                 </ListGroupItem>

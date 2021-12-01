@@ -131,7 +131,7 @@ class CreateTopic extends Component {
 
                     <ListGroupItem>
                         <InputGroup>
-                            <InputGroupText>Topic Name:</InputGroupText>
+                            <InputGroupText className={"input-group-text-padded"}>Topic Name:</InputGroupText>
                             <Input type="text" name="topicAddName" id="topicAddName"
                                    value={this.state.topicName}
                                    onChange={event => this.setAddTopicName(event.target.value)}
@@ -142,7 +142,7 @@ class CreateTopic extends Component {
 
                     <ListGroupItem>
                         <InputGroup>
-                            <InputGroupText>Partitions</InputGroupText>
+                            <InputGroupText className={"input-group-text-padded"}>Partitions</InputGroupText>
                             <Input type="number" name="topicAddPartitions" id="topicAddPartitions"
                                    value={this.state.partitions}
                                    onChange={event => this.setAddTopicPartition(event.target.value)}
@@ -153,7 +153,7 @@ class CreateTopic extends Component {
 
                     <ListGroupItem>
                         <InputGroup>
-                            <InputGroupText>Replication Factor</InputGroupText>
+                            <InputGroupText className={"input-group-text-padded"}>Replication Factor</InputGroupText>
                             <Input type="number" name="topicAddReplication" id="topicAddReplication"
                                    value={this.state.replicationFactor}
                                    onChange={event => this.setAddTopicReplication(event.target.value)}
@@ -185,7 +185,7 @@ class CreateTopic extends Component {
                             <Input type="text" name="configValue" id="configValue"
                                    value={this.state.configValue}
                                    onChange={event => this.setConfigValue(event.target.value)}/>
-                            <InputGroupText>
+                            <InputGroupText className={"input-group-text-padded"}>
                                 {
                                     this.state.configKey && this.state.configValue ?
                                         <Button color="success" onClick={this.addConfig}>Add Configuration</Button> :

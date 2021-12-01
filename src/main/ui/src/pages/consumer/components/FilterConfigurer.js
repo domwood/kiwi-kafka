@@ -216,18 +216,19 @@ class FilterConfigurer extends Component {
                                                 }
                                             </InputGroupText>
                                             <InputGroupText id={"auto" + index}>
-                                                Auto-Trim: &nbsp;
-                                                <Input addon
-                                                       type="checkbox"
-                                                       aria-label="Check to trim whitespace"
-                                                       checked={this.state.filters[index].trimWhitespace}
-                                                       onChange={() => this.setWhiteSpaceTrim(index)}/>
-                                                <Tooltip target={"auto" + index}
-                                                         placement={"top"}
-                                                         toggle={() => this.setWhiteSpaceTrimToolTipToggle(index)}
-                                                         isOpen={this.state.filters[index].whitespaceToggle}>
-                                                    Automatically remove whitespace from start/end of filter string
-                                                </Tooltip>
+                                                <div className={"input-group-text-padded"}>Auto-Trim: &nbsp;
+                                                    <Input addon
+                                                           type="checkbox"
+                                                           aria-label="Check to trim whitespace"
+                                                           checked={this.state.filters[index].trimWhitespace}
+                                                           onChange={() => this.setWhiteSpaceTrim(index)}/>
+                                                    <Tooltip target={"auto" + index}
+                                                             placement={"top"}
+                                                             toggle={() => this.setWhiteSpaceTrimToolTipToggle(index)}
+                                                             isOpen={this.state.filters[index].whitespaceToggle}>
+                                                        Automatically remove whitespace from start/end of filter string
+                                                    </Tooltip>
+                                                </div>
                                             </InputGroupText>
                                         </InputGroup>
                                         {

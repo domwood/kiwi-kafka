@@ -73,7 +73,7 @@ class ConsumerSlider extends Component {
                         value={this.props.consumerPosition}
                         onChange={(event) => this.onUpdateConsumerPosition(event.target.value)}
                     />
-                    <InputGroupText>% Start @</InputGroupText>
+                    <InputGroupText className={"input-group-text-padded"}>% Start @</InputGroupText>
                 </InputGroup>
             </div>
         )

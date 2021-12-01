@@ -210,6 +210,7 @@ class KafkaPost extends Component {
                                            onChange={this.handleHeaderMapChange}/>
                                     <InputGroupText addonType="append">
                                         <Button
+                                            style={{"height": "100%"}}
                                             color={this.state.currentKafkaHeaderMap !== "" ? "success" : "secondary"}
                                             onClick={() => this.addHeaders()}
                                             disabled={this.state.currentKafkaHeaderMap === ""}>

@@ -51,7 +51,7 @@ class ConsumerGroupDetailsView extends Component {
             <div>
                 <div className={"TwoGap"} />
                 <ButtonGroup>
-                    <InputGroupText>Consumer Group: {this.props.groupId}</InputGroupText>
+                    <InputGroupText className={"input-group-text-padded"}>Consumer Group: {this.props.groupId}</InputGroupText>
                     <Button color="primary" onClick={this.loadConsumerDetails}>Refresh <MdRefresh/></Button>
                     {/*<Button color="warning" disabled>Reset to Latest</Button>*/}
                     {/*<Button color="warning" disabled>Reset to Earliest</Button>*/}

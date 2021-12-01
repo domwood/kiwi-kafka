@@ -60,7 +60,6 @@ class TopicInput extends Component {
                         onInputChange={i => this.setTargetTopic(i || '')}
                         options={this.state.topicList}
                         className={"StretchedInput"}
-                        selectHintOnEnter={true}
                     />
 
                     <InputGroupText>

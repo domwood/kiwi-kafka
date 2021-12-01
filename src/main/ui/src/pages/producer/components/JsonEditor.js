@@ -54,7 +54,7 @@ class JsonEditor extends Component {
             <FormGroup>
                 <Label>Input:</Label>
                 <InputGroup>
-                    <InputGroupText>
+                    <InputGroupText className={"input-group-text-padded"}>
                         <Input addon type="checkbox"
                                aria-label="Send value of null"
                                name="nullRecordCheckbox"

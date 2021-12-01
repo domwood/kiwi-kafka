@@ -37,7 +37,6 @@ class MessageTable extends Component {
         this.setState({
             [field]: !this.state[field]
         });
-        console.log(this.state.buttons.filter(b => this.state[b.key]));
     };
 
     isLastHeader= (button) => {

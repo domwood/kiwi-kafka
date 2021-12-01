@@ -1,91 +1,111 @@
 .App {
-  text-align: center;
-  pointer-events: all;
+    text-align: center;
+    pointer-events: all;
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
+    animation: App-logo-spin infinite 20s linear;
+    height: 40vmin;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
 }
 
 .App-link {
-  color: #61dafb;
+    color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .scrollTable {
-  height: 100px;
-  overflow: scroll;
+    height: 100px;
+    overflow: scroll;
 }
 
-.Gap{
-  margin-top: 1rem;
+.Gap {
+    margin-top: 1rem;
 }
 
-.TwoGap{
-  margin-top: 2rem;
+.TwoGap {
+    margin-top: 2rem;
 }
 
-.ThreeGap{
-  margin-top: 3rem;
+.ThreeGap {
+    margin-top: 3rem;
 }
 
 .btn-group.WideBoiGroup {
-  display: flex;
+    display: flex;
 }
 
 .WideBoiGroup.btn {
-  flex: 1
+    flex: 1
 }
 
-.WrappedTable{
-  word-break:break-all;
-  overflow: auto;
-  width: 100%;
-  font-size: small;
-  word-wrap: break-word;
+.WrappedTable {
+    word-break: break-all;
+    overflow: auto;
+    width: 100%;
+    font-size: small;
+    word-wrap: break-word;
 }
 
 .WideBoi {
-  max-width:90%;
+    max-width: 90%;
 }
 
 .FullSpan {
-  max-width:100%;
-  width:100%;
+    max-width: 100%;
+    width: 100%;
 }
 
 .StretchedInput {
-  flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
-.ListGroupNoHorizontalPad{
-  padding-left: 0rem;
-  padding-right: 0rem;
-  border: none
+.ListGroupNoHorizontalPad {
+    padding-left: 0rem;
+    padding-right: 0rem;
+    border: none
 }
 
-.ButtonOverlayDiv{
-  position:absolute;top:0px;left:0px;
-  z-index:10;
-  display:none;
+.ButtonOverlayDiv {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+    display: none;
+}
+
+.Btn, .btn {
+    border-radius: 0 !important;
+}
+
+.input-group-text {
+    padding: 0;
+    border-radius: 0;
+}
+
+.input-group-text-padded {
+    padding-right: 0.4rem;
+    padding-left: 0.4rem;
+}
+
+.list-group-item {
+    border-width: 0;
 }
