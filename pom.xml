@@ -49,6 +49,7 @@
         <dockerfile-maven-version>1.4.10</dockerfile-maven-version>
         <mockito.version>3.11.2</mockito.version>
         <jackson.version>2.11.4</jackson.version>
+        <log4j2.version>2.17.1</log4j2.version>
     </properties>
 
 
@@ -209,6 +210,12 @@
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
         </dependency>
 
     </dependencies>
