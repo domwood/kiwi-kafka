@@ -6,5 +6,6 @@ public enum FilterType {
     ENDS_WITH,
     CONTAINS,
     NOT_CONTAINS,
-    MATCHES
+    MATCHES,
+    NOT_MATCHES
 }

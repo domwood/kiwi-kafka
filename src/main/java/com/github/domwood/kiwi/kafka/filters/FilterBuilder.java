@@ -59,6 +59,9 @@ public class FilterBuilder {
             case MATCHES:
                 return messageFilter.isCaseSensitive() ?
                         matches(messageFilter.filter()) : matchesCaseInsensitive(messageFilter.filter());
+            case NOT_MATCHES:
+                return messageFilter.isCaseSensitive() ?
+                        notMatches(messageFilter.filter()) : notMatchesCaseInsensitive(messageFilter.filter());
             case REGEX:
                 return regex(messageFilter.filter());
             default:
@@ -121,12 +124,20 @@ public class FilterBuilder {
         return (String value) -> value == null || !value.contains(filterString);
     }
 
-    private static Predicate<String> matchesCaseInsensitive(String filterString){
+    private static Predicate<String> matchesCaseInsensitive(String filterString) {
         return (String value) -> value != null && value.equalsIgnoreCase(filterString);
     }
 
     private static Predicate<String> matches(String filterString) {
         return (String value) -> value != null && value.equals(filterString);
+    }
+
+    private static Predicate<String> notMatches(String filterString) {
+        return (String value) -> value == null || !value.equals(filterString);
+    }
+
+    private static Predicate<String> notMatchesCaseInsensitive(String filterString) {
+        return (String value) -> value == null || !value.equalsIgnoreCase(filterString);
     }
 
     private static Predicate<String> regex(String filterString) {
