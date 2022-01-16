@@ -203,7 +203,7 @@ class FilterConfigurer extends Component {
                                                 value={this.state.filters[index].filter}
                                                 onChange={event => this.setFilter(event.target.value, index)}
                                             />
-                                            <InputGroupText addonType="append">
+                                            <InputGroupText>
                                                 {
                                                     this.state.filters[index].filterType !== 'REGEX' ?
                                                         <div>

@@ -156,7 +156,7 @@ class FileDownloader extends Component {
                         block>Download</Button>
                 <ProfileToggleToolTip profiles={this.props.profiles}
                                       targetProfile={"read-consumer"}
-                                      id={`${this.props.topic}_fd`}
+                                      id={`${this.props.targetTopic}_fd`}
                                       style={{"float":"right", "marginRight":"-20px", "marginTop":"-31px"}}
                 />
 
@@ -170,8 +170,7 @@ FileDownloader.propTypes = {
     id: PropTypes.string.isRequired,
     filters: PropTypes.array.isRequired,
     targetTopic: PropTypes.string.isRequired,
-    profiles: PropTypes.array.isRequired,
-    topic: PropTypes.string.isRequired
+    profiles: PropTypes.array.isRequired
 };
 
 export default FileDownloader;
