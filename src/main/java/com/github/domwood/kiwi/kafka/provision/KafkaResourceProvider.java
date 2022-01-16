@@ -12,6 +12,7 @@ import com.github.domwood.kiwi.kafka.resources.KafkaTopicConfigResource;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.Properties;
 
 @Component
 public class KafkaResourceProvider {
@@ -39,7 +40,7 @@ public class KafkaResourceProvider {
     }
 
     public KafkaTopicConfigResource kafkaTopicConfigResource() {
-        return new KafkaTopicConfigResource(null);
+        return new KafkaTopicConfigResource(new Properties());
     }
 
     public KafkaResourcePair<KafkaAdminResource, KafkaConsumerResource<String, String>> kafkaAdminAndConsumer(Optional<String> clusterName) {

@@ -185,7 +185,7 @@ class CreateTopic extends Component {
                             <Input type="text" name="configValue" id="configValue"
                                    value={this.state.configValue}
                                    onChange={event => this.setConfigValue(event.target.value)}/>
-                            <InputGroupText className={"input-group-text-padded"}>
+                            <InputGroupText className={"input-group-text"}>
                                 {
                                     this.state.configKey && this.state.configValue ?
                                         <Button color="success" onClick={this.addConfig}>Add Configuration</Button> :

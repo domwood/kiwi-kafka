@@ -236,7 +236,7 @@ class KafkaPost extends Component {
                                             <tr key={headerKey}>
                                                 <td width={"40%"}>{headerKey}</td>
                                                 <td width={"40%"}>{this.state.kafkaHeaders[headerKey]}</td>
-                                                <td width={"20%"}><Button onClick={() => this.removeHeader(headerKey)}>Remove
+                                                <td width={"20%"}><Button onClick={() => this.removeHeader(headerKey)} style={{width: "100%"}}>Remove
                                                     Header</Button></td>
                                             </tr>
                                         )
