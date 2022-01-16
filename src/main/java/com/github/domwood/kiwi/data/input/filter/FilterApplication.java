@@ -4,7 +4,11 @@ public enum FilterApplication {
 
     VALUE,
     KEY,
+    HEADER,
     HEADER_VALUE,
-    HEADER_KEY
+    HEADER_KEY,
+    PARTITION,
+    OFFSET,
+    TIMESTAMP
 
 }

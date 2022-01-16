@@ -7,5 +7,7 @@ public enum FilterType {
     CONTAINS,
     NOT_CONTAINS,
     MATCHES,
-    NOT_MATCHES
+    NOT_MATCHES,
+    GREATER_THAN,
+    LESS_THAN
 }

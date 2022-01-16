@@ -78,8 +78,22 @@ class FilterConfigurer extends Component {
         }, this.updateParent)
     };
 
+    isNumericFilter = (filterApplication) => {
+        return filterApplication === "PARTITION" ||
+            filterApplication === "OFFSET" ||
+            filterApplication === "TIMESTAMP"
+    }
+
+    isNumericFilterAtIndex = (index) => {
+        let filter = this.state.filters[index];
+        return this.isNumericFilter(filter.filterApplication);
+    }
+
     setFilterApplication = (filterApplication, index) => {
         let filters = this.state.filters;
+        if (this.isNumericFilter(filterApplication) !== this.isNumericFilterAtIndex(index)) {
+            filters[index].filterType = "MATCHES";
+        }
         filters[index].filterApplication = filterApplication;
 
         this.setState({
@@ -137,6 +151,7 @@ class FilterConfigurer extends Component {
         }, this.updateParent);
     };
 
+
     render() {
         return (
             <div id={this.state.id}>
@@ -169,6 +184,15 @@ class FilterConfigurer extends Component {
                                                     <DropdownItem
                                                         onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header
                                                         Value</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("PARTITION", index)}>Partition
+                                                    </DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("OFFSET", index)}>Offset
+                                                    </DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("TIMESTAMP", index)}>Timestamp
+                                                    </DropdownItem>
                                                 </DropdownMenu>
                                             </ButtonDropdown>
                                             <ButtonDropdown isOpen={this.state.filters[index].filterTypeButtonOpen}
@@ -176,29 +200,74 @@ class FilterConfigurer extends Component {
                                                 <DropdownToggle caret>
                                                     {this.state.filters[index].filterType}
                                                 </DropdownToggle>
-                                                <DropdownMenu>
-                                                    <DropdownItem header>Filter Type</DropdownItem>
-                                                    <DropdownItem onClick={() => this.setFilterType("MATCHES", index)}>
-                                                        Matches
-                                                    </DropdownItem>
-                                                    <DropdownItem onClick={() => this.setFilterType("NOT_MATCHES", index)}>
-                                                        Not Matches
-                                                    </DropdownItem>
-                                                    <DropdownItem
-                                                        onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts
-                                                        With</DropdownItem>
-                                                    <DropdownItem
-                                                        onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends
-                                                        With</DropdownItem>
-                                                    <DropdownItem
-                                                        onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
-                                                    <DropdownItem
-                                                        onClick={() => this.setFilterType("NOT_CONTAINS", index)}>Not
-                                                        contains</DropdownItem>
-                                                    <DropdownItem
-                                                        onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
-                                                </DropdownMenu>
+                                                {
+                                                    !this.isNumericFilterAtIndex(index) ?
+                                                        <DropdownMenu>
+                                                            <DropdownItem header>Filter Type</DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("MATCHES", index)}>
+                                                                Matches
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("NOT_MATCHES", index)}>
+                                                                Not Matches
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts
+                                                                With</DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends
+                                                                With</DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("NOT_CONTAINS", index)}>Not
+                                                                contains</DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
+                                                        </DropdownMenu>
+                                                        :
+                                                        <DropdownMenu>
+                                                            <DropdownItem header>Filter Type</DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("MATCHES", index)}>
+                                                                Matches
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("NOT_MATCHES", index)}>
+                                                                Not Matches
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("LESS_THAN", index)}>
+                                                                Less Than
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType("GREATER_THAN", index)}>
+                                                                Greater Than
+                                                            </DropdownItem>
+                                                        </DropdownMenu>
+                                                }
+
                                             </ButtonDropdown>
+                                            { // TODO finish here
+                                                this.state.filters[index].filterApplication === 'TIMESTAMP' ?
+                                                    <InputGroupText id={"datetime" + index}>
+                                                        <Input addon
+                                                               type="date"
+                                                               aria-label="Date (UTC)"
+                                                               value="1970-01-01"
+                                                               style={{borderRadius: "unset", width: "150px"}}
+                                                               onChange={() => {
+                                                               }}/>
+                                                        <Input addon
+                                                               type="time"
+                                                               aria-label="Time (UTC)"
+                                                               value="00:00:00"
+                                                               style={{borderRadius: "unset", width: "150px"}}
+                                                               onChange={() => {
+                                                               }}/>
+                                                    </InputGroupText> : <React.Fragment/>
+                                            }
                                             <Input
                                                 type="text"
                                                 name="filter"
@@ -208,31 +277,37 @@ class FilterConfigurer extends Component {
                                             />
                                             <InputGroupText>
                                                 {
-                                                    this.state.filters[index].filterType !== 'REGEX' ?
+                                                    this.state.filters[index].filterType !== 'REGEX' && !this.isNumericFilterAtIndex(index) ?
                                                         <div>
                                                             <Button onClick={() => this.setCaseSensitive(index)}
                                                                     color={this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}>
                                                                 {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive'}
                                                             </Button>
                                                         </div>
-                                                        : null
+                                                        : <React.Fragment/>
                                                 }
                                             </InputGroupText>
-                                            <InputGroupText id={"auto" + index}>
-                                                <div className={"input-group-text-padded"}>Auto-Trim: &nbsp;
-                                                    <Input addon
-                                                           type="checkbox"
-                                                           aria-label="Check to trim whitespace"
-                                                           checked={this.state.filters[index].trimWhitespace}
-                                                           onChange={() => this.setWhiteSpaceTrim(index)}/>
-                                                    <Tooltip target={"auto" + index}
-                                                             placement={"top"}
-                                                             toggle={() => this.setWhiteSpaceTrimToolTipToggle(index)}
-                                                             isOpen={this.state.filters[index].whitespaceToggle}>
-                                                        Automatically remove whitespace from start/end of filter string
-                                                    </Tooltip>
-                                                </div>
-                                            </InputGroupText>
+                                            {
+                                                this.state.filters[index].filterType !== 'REGEX' && !this.isNumericFilterAtIndex(index) ?
+                                                    <InputGroupText id={"auto" + index}>
+                                                        <div className={"input-group-text-padded"}>Auto-Trim: &nbsp;
+                                                            <Input addon
+                                                                   type="checkbox"
+                                                                   aria-label="Check to trim whitespace"
+                                                                   checked={this.state.filters[index].trimWhitespace}
+                                                                   onChange={() => this.setWhiteSpaceTrim(index)}/>
+                                                            <Tooltip target={"auto" + index}
+                                                                     placement={"top"}
+                                                                     toggle={() => this.setWhiteSpaceTrimToolTipToggle(index)}
+                                                                     isOpen={this.state.filters[index].whitespaceToggle}>
+                                                                Automatically remove whitespace from start/end of filter
+                                                                string
+                                                            </Tooltip>
+                                                        </div>
+                                                    </InputGroupText> : <React.Fragment/>
+                                            }
+
+
                                         </InputGroup>
                                         {
                                             index === this.state.filters.length - 1 ?

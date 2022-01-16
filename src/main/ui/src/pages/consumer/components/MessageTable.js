@@ -15,7 +15,7 @@ class MessageTable extends Component {
             name: props.name,
 
             showTimestamp: true,
-            showDateTime: false,
+            showDateTime: true,
             showPartition: true,
             showOffset: true,
             showKey: true,
