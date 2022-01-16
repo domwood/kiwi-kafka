@@ -196,7 +196,7 @@ class KafkaPost extends Component {
                                     <Input type="text" name="kafkaHeaderValue" id="kafkaHeaderValue"
                                            value={this.state.currentKafkaHeaderValue}
                                            onChange={this.handleCurrentHeaderValueChange}/>
-                                    <InputGroupText addonType="append">
+                                    <InputGroupText>
                                         <Button color={this.isHeaderActive() ? "success" : "secondary"}
                                                 onClick={() => this.addHeader()} disabled={!this.isHeaderActive()}>
                                             Add Header
@@ -208,7 +208,7 @@ class KafkaPost extends Component {
                                     <Input type="textarea" name="kafkaHeadersMap" id="kafkaHeadersMap"
                                            value={this.state.currentKafkaHeaderMap}
                                            onChange={this.handleHeaderMapChange}/>
-                                    <InputGroupText addonType="append">
+                                    <InputGroupText>
                                         <Button
                                             style={{"height": "100%"}}
                                             color={this.state.currentKafkaHeaderMap !== "" ? "success" : "secondary"}

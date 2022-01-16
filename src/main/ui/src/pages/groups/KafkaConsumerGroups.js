@@ -73,7 +73,8 @@ class KafkaConsumerGroups extends Component {
 
                 <div className={"Gap"}/>
 
-                <SearchableViewList elementList={this.state.groupList}
+                <SearchableViewList id={"consumerGroupsList"}
+                                    elementList={this.state.groupList}
                                     elementViewProvider={(group) => <ConsumerGroupView key={`${group}_search`} groupId={group} onDeletion={this.loadConsumerGroups} profiles={this.props.profiles}/> } />
             </Container>
         );
