@@ -1,7 +1,9 @@
 # KIWI - Kafka Interactive Web Interface 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Latest-0.8.0-green.svg)]()
+[![Status](https://img.shields.io/badge/Latest-0.8.1-green.svg)]()
+
+*Note: Security Vulnerability CVE-2021-44832 in log4j2 present in tags/releases before 0.8.1*
 
 A Kafka Web Interface, written to help my professional day to day role working with kafka, but provided here in the event anyone else may benefit from using it.
 
