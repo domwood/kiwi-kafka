@@ -13,9 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -30,11 +31,12 @@ public class FilterBuilderTest {
     Headers headers;
 
     @Test
-    public void testBuildStartsWithFilter(){
+    public void testBuildStartsWithFilter() {
 
         MessageFilter filter = baseFilter().build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -49,13 +51,14 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testBuildEndsWithFilter(){
+    public void testBuildEndsWithFilter() {
 
         MessageFilter filter = baseFilter()
                 .filterType(FilterType.ENDS_WITH)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -70,13 +73,14 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testBuildCaseInsensitiveFilter(){
+    public void testBuildCaseInsensitiveFilter() {
 
         MessageFilter filter = baseFilter()
                 .isCaseSensitive(true)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -91,14 +95,15 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testBuildRegexFilter(){
+    public void testBuildRegexFilter() {
 
         MessageFilter filter = baseFilter()
                 .filterType(FilterType.REGEX)
                 .filter("HE[L]{2}[Oo]")
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -116,13 +121,15 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testBuildContainsFilter(){
+    public void testBuildContainsFilter() {
 
         MessageFilter filter = baseFilter()
                 .filterType(FilterType.CONTAINS)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -143,7 +150,8 @@ public class FilterBuilderTest {
                 .isCaseSensitive(true)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -166,7 +174,8 @@ public class FilterBuilderTest {
                 .filterType(FilterType.NOT_CONTAINS)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("hello world")
@@ -183,13 +192,14 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testBuildMatchesFilter(){
+    public void testBuildMatchesFilter() {
 
         MessageFilter filter = baseFilter()
                 .filterType(FilterType.MATCHES)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.key())
                 .thenReturn("HELLO WORLD")
@@ -205,13 +215,14 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testValueFilterApplication(){
+    public void testValueFilterApplication() {
 
         MessageFilter filter = baseFilter()
                 .filterApplication(FilterApplication.VALUE)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(mockRecord.value())
                 .thenReturn("HELLO WORLD")
@@ -226,14 +237,15 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testHeaderKeyFilterApplication(){
+    public void testHeaderKeyFilterApplication() {
         when(mockRecord.headers()).thenReturn(headers);
 
         MessageFilter filter = baseFilter()
                 .filterApplication(FilterApplication.HEADER_KEY)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(headers.toArray())
                 .thenReturn(new Header[]{createHeader("HELLO", "WORLD")})
@@ -246,14 +258,15 @@ public class FilterBuilderTest {
     }
 
     @Test
-    public void testHeaderValueFilterApplication(){
+    public void testHeaderValueFilterApplication() {
         when(mockRecord.headers()).thenReturn(headers);
 
         MessageFilter filter = baseFilter()
                 .filterApplication(FilterApplication.HEADER_VALUE)
                 .build();
 
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder.compileFilters(asList(filter));
+        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
+                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
 
         when(headers.toArray())
                 .thenReturn(new Header[]{createHeader("HELLO", "WORLD")})
@@ -265,7 +278,7 @@ public class FilterBuilderTest {
         assertFalse(test.test(mockRecord));
     }
 
-    private ImmutableMessageFilter.Builder baseFilter(){
+    private ImmutableMessageFilter.Builder baseFilter() {
         return ImmutableMessageFilter.builder()
                 .filter("HELLO")
                 .filterApplication(FilterApplication.KEY)
@@ -273,7 +286,7 @@ public class FilterBuilderTest {
                 .isCaseSensitive(false);
     }
 
-    private Header createHeader(String key, String value){
+    private Header createHeader(String key, String value) {
         return new KafkaHeader(key, value);
     }
 

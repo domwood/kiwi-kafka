@@ -1,18 +1,20 @@
 import React, {Component} from "react";
 import {
     Button,
+    ButtonGroup,
+    ButtonToolbar,
+    Container,
     Form,
     FormGroup,
-    Label,
     Input,
-    Container,
     InputGroup,
-    InputGroupAddon,
-    Table, ButtonToolbar, ButtonGroup
+    InputGroupText,
+    Label,
+    Table
 } from 'reactstrap';
 import JsonEditor from "./components/JsonEditor"
 import TopicInput from "../common/TopicInput";
-import uuid from "uuid/v4";
+import {v4 as uuid} from 'uuid';
 import * as ApiService from "../../services/ApiService";
 import {toast} from "react-toastify";
 import "../../App.css";
@@ -167,9 +169,9 @@ class KafkaPost extends Component {
                                    value={this.state.kafkaKey}
                                    onChange={event => this.setKafkaKey(event.target.value)}
                             />
-                            <InputGroupAddon addonType="append">
+                            <InputGroupText>
                                 <Button color="secondary" onClick={this.setRandomKafkaKey}>Random</Button>
-                            </InputGroupAddon>
+                            </InputGroupText>
                         </InputGroup>
                     </FormGroup>
                     <FormGroup>
@@ -194,26 +196,27 @@ class KafkaPost extends Component {
                                     <Input type="text" name="kafkaHeaderValue" id="kafkaHeaderValue"
                                            value={this.state.currentKafkaHeaderValue}
                                            onChange={this.handleCurrentHeaderValueChange}/>
-                                    <InputGroupAddon addonType="append">
+                                    <InputGroupText addonType="append">
                                         <Button color={this.isHeaderActive() ? "success" : "secondary"}
                                                 onClick={() => this.addHeader()} disabled={!this.isHeaderActive()}>
                                             Add Header
                                         </Button>
-                                    </InputGroupAddon>
+                                    </InputGroupText>
                                 </InputGroup>
                                 :
                                 <InputGroup>
                                     <Input type="textarea" name="kafkaHeadersMap" id="kafkaHeadersMap"
                                            value={this.state.currentKafkaHeaderMap}
                                            onChange={this.handleHeaderMapChange}/>
-                                    <InputGroupAddon addonType="append">
+                                    <InputGroupText addonType="append">
                                         <Button
+                                            style={{"height": "100%"}}
                                             color={this.state.currentKafkaHeaderMap !== "" ? "success" : "secondary"}
                                             onClick={() => this.addHeaders()}
                                             disabled={this.state.currentKafkaHeaderMap === ""}>
                                             Add Headers
                                         </Button>
-                                    </InputGroupAddon>
+                                    </InputGroupText>
                                 </InputGroup>
                         }
 
@@ -233,7 +236,7 @@ class KafkaPost extends Component {
                                             <tr key={headerKey}>
                                                 <td width={"40%"}>{headerKey}</td>
                                                 <td width={"40%"}>{this.state.kafkaHeaders[headerKey]}</td>
-                                                <td width={"20%"}><Button onClick={() => this.removeHeader(headerKey)}>Remove
+                                                <td width={"20%"}><Button onClick={() => this.removeHeader(headerKey)} style={{width: "100%"}}>Remove
                                                     Header</Button></td>
                                             </tr>
                                         )

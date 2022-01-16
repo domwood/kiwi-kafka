@@ -13,14 +13,23 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
 
-import static com.github.domwood.kiwi.api.rest.utils.RestUtils.*;
+import static com.github.domwood.kiwi.api.rest.utils.RestUtils.base64Decoded;
+import static com.github.domwood.kiwi.api.rest.utils.RestUtils.getContentDisposition;
+import static com.github.domwood.kiwi.api.rest.utils.RestUtils.unEncodeParameter;
 import static com.github.domwood.kiwi.utilities.Constants.API_ENDPOINT;
 
 @Profile("read-consumer")
@@ -40,20 +49,20 @@ public class ConsumerController {
     @Async
     @PostMapping("/consume")
     @ResponseBody
-    public CompletableFuture<ConsumerResponse<String, String>> sendToTopic(@RequestBody ConsumerRequest request) {
+    public CompletableFuture<ConsumerResponse> sendToTopic(@RequestBody ConsumerRequest request) {
 
-        BasicConsumeMessages consumeMessages = taskProvider.basicConsumeMessages(request);
+        BasicConsumeMessages<?, ?> consumeMessages = taskProvider.basicConsumeMessages(request);
         return consumeMessages.execute();
     }
 
-    @GetMapping(value = "/consumeToFile", produces=MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/consumeToFile", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ResponseBody
-    public CompletableFuture consumeTopicDataToFile(@RequestParam("request") String requestEncoded,
-                                                    HttpServletResponse response) throws IOException {
+    public CompletableFuture<Void> consumeTopicDataToFile(@RequestParam("request") String requestEncoded,
+                                                          HttpServletResponse response) throws IOException {
         String decodedRequest = base64Decoded(unEncodeParameter(requestEncoded));
         ConsumerToFileRequest request = mapper.readValue(decodedRequest, ConsumerToFileRequest.class);
 
-        ContinuousConsumeMessages consumeMessagesTask = taskProvider.continousConsumeMessages(request);
+        ContinuousConsumeMessages<?, ?> consumeMessagesTask = taskProvider.continuousConsumeMessages(request);
 
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/force-download");

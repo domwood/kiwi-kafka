@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, {Component} from "react";
 import Slider, {Handle} from 'rc-slider';
-import {Input, InputGroup, InputGroupAddon} from "reactstrap";
+import {Input, InputGroup, InputGroupText} from "reactstrap";
 
 const SliderStyle = {
     width: '85%',
@@ -73,7 +73,7 @@ class ConsumerSlider extends Component {
                         value={this.props.consumerPosition}
                         onChange={(event) => this.onUpdateConsumerPosition(event.target.value)}
                     />
-                    <InputGroupAddon addonType="append">% Start @</InputGroupAddon>
+                    <InputGroupText className={"input-group-text-padded"}>% Start @</InputGroupText>
                 </InputGroup>
             </div>
         )

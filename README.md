@@ -50,7 +50,7 @@ Such as kafka-console-consumer.sh, kafka-consumer-groups.sh
 
 Dependencies: 
  - Requires Java 8 or higher 
- - Requires Node 8 or higher
+ - Requires Node 16 or higher
  - Requires Maven 3 or higher
  
 Build:

@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 import static com.github.domwood.kiwi.data.input.ConsumerRequestFileType.CSV;
 
-public class FileDownloadWriter implements Consumer<ConsumerResponse<String, String>> {
+public class FileDownloadWriter implements Consumer<ConsumerResponse> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PrintWriter outputStream;
@@ -27,7 +27,7 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
     public FileDownloadWriter(ObjectMapper mapper,
                               ConsumerToFileRequest request,
                               PrintWriter outputStream,
-                              ContinuousConsumeMessages task){
+                              ContinuousConsumeMessages task) {
         this.isClosed = new AtomicBoolean(false);
         this.outputStream = outputStream;
         this.task = task;
@@ -36,39 +36,36 @@ public class FileDownloadWriter implements Consumer<ConsumerResponse<String, Str
     }
 
     @Override
-    public void accept(ConsumerResponse<String, String> data) {
+    public void accept(ConsumerResponse data) {
         try {
-            for(ConsumedMessage message : data.messages()){
+            for (ConsumedMessage message : data.messages()) {
                 outputStream.println(writer.writeLine(message));
             }
-            if(hasReachedEnd(data)){
+            if (hasReachedEnd(data)) {
                 tryToClose();
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             throw new KiwiFileDownloadException("Failed to correctly execute file download", e);
         }
     }
 
-    private boolean hasReachedEnd(ConsumerResponse<String, String> data){
+    private boolean hasReachedEnd(ConsumerResponse data) {
         return !data.position().isPresent() ||
                 data.position().map(d -> d.endValue() <= d.consumerPosition()).orElse(false);
     }
 
-    public void tryToClose(){
-        if(!this.isClosed.getAndSet(true)){
+    public void tryToClose() {
+        if (!this.isClosed.getAndSet(true)) {
             try {
                 logger.info("Finished Writing to file");
                 outputStream.flush();
                 outputStream.close();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 logger.error("Failed to safely clean up stream");
             }
-            try{
+            try {
                 task.close();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 logger.error("Failed to safely clean up consumer");
             }
         }

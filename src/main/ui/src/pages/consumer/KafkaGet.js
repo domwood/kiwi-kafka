@@ -1,9 +1,5 @@
 import React, {Component} from "react";
-import {
-    Container,
-    Form,
-    FormGroup
-} from "reactstrap";
+import {Container, Form, FormGroup} from "reactstrap";
 
 import TopicInput from "../common/TopicInput"
 import "../../App.css";
@@ -42,11 +38,11 @@ class KafkaGet extends Component {
     }
 
     setTargetTopic = (target) => {
-        this.setState({targetTopic:target})
+        this.setState({targetTopic: target})
     };
 
     setMessageLimit = (messageLimit) => {
-        this.setState({messageLimit:messageLimit})
+        this.setState({messageLimit: messageLimit})
     };
 
     setFilter = (filters) => {
@@ -56,7 +52,7 @@ class KafkaGet extends Component {
     };
 
     setMessages = (msgs) => {
-        if(this.mounted){
+        if (this.mounted) {
             this.setState({
                 messages: msgs
             });
@@ -67,21 +63,21 @@ class KafkaGet extends Component {
         return (
             <Container className={"WideBoi"}>
                 <div className="mt-lg-4"/>
-                <h1>{this.props.isDownload ? 'Download Data From Kafka' : 'Get Data From Kafka'}</h1>
+                <h1 id={"kafkaGetDataTitle"}>{this.props.isDownload ? "Download Data From Kafka" : "Get Data From Kafka"}</h1>
                 <div className="mt-lg-4"/>
                 <Form>
-                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic || ''}/>
+                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic || ""}/>
 
                     <div className="mt-lg-1"/>
 
                     <FormGroup>
                         {!this.props.isDownload ?
-                        <MessageLimit id={"messageLimit"}
-                                      name={"messageLimit"}
-                                      messageLimit={this.state.messageLimit}
-                                      onMessageLimitUpdate={this.setMessageLimit}
-                                      />
-                                      : null
+                            <MessageLimit id={"messageLimit"}
+                                          name={"messageLimit"}
+                                          messageLimit={this.state.messageLimit}
+                                          onMessageLimitUpdate={this.setMessageLimit}
+                            />
+                            : null
                         }
                         <FilterConfigurer name={"filterConfigurer"} id={"filterConfigurer"} onUpdate={this.setFilter}/>
                     </FormGroup>
@@ -103,12 +99,12 @@ class KafkaGet extends Component {
 
                                 <MessageTable name={"messageTable"}
                                               id={"messageTable"}
-                                              messages={this.state.messages} />
+                                              messages={this.state.messages}/>
                             </div>
                             :
                             <div>
-                                <FileDownloader id={'FileDownloader'}
-                                                name={'FileDownloader'}
+                                <FileDownloader id={"FileDownloader"}
+                                                name={"FileDownloader"}
                                                 filters={this.state.filters}
                                                 targetTopic={this.state.targetTopic}
                                                 profiles={this.props.profiles}

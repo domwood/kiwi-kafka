@@ -1,11 +1,17 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {
-    Button, ButtonGroup,
+    Button,
+    ButtonDropdown,
+    ButtonGroup,
     DropdownItem,
     DropdownMenu,
-    DropdownToggle, Input,
-    InputGroup, InputGroupAddon,
-    InputGroupButtonDropdown, InputGroupText, Tooltip, ListGroup, ListGroupItem
+    DropdownToggle,
+    Input,
+    InputGroup,
+    InputGroupText,
+    ListGroup,
+    ListGroupItem,
+    Tooltip
 } from "reactstrap";
 import PropTypes from "prop-types";
 import "../../../App.css";
@@ -15,15 +21,15 @@ class FilterConfigurer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id : props.id,
-            name : props.name,
+            id: props.id,
+            name: props.name,
             useFilter: false,
             filters: []
         };
     }
 
     updateParent = () => {
-        if(this.state.useFilter && this.state.filters.every(this.validateFilter)){
+        if (this.state.useFilter && this.state.filters.every(this.validateFilter)) {
             this.props.onUpdate(this.state.filters.map(filter => {
                 return {
                     filter: filter.filter,
@@ -32,8 +38,7 @@ class FilterConfigurer extends Component {
                     isCaseSensitive: filter.isCaseSensitive
                 }
             }));
-        }
-        else this.props.onUpdate([]);
+        } else this.props.onUpdate([]);
     };
 
     validateFilter = (filter) =>
@@ -59,9 +64,9 @@ class FilterConfigurer extends Component {
 
     setFilter = (filter, index) => {
         let filters = this.state.filters;
-        filters[index].filter = filters[index].trimWhitespace ? (filter||'').trim() : filter;
+        filters[index].filter = filters[index].trimWhitespace ? (filter || '').trim() : filter;
         this.setState({
-            filters:filters
+            filters: filters
         }, this.updateParent);
     };
 
@@ -138,95 +143,108 @@ class FilterConfigurer extends Component {
 
                 <div className="mt-lg-1"/>
                 <div className="Gap"/>
-                {   this.state.useFilter ?
+                {this.state.useFilter ?
 
                     <ListGroup>
                         {
                             this.state.filters.map((filter, index) => {
                                 return (
-                                        <ListGroupItem key={index} className={"ListGroupNoHorizontalPad"}>
-                                            <InputGroup>
-                                                <InputGroupButtonDropdown addonType="prepend"
-                                                                          isOpen={this.state.filters[index].filterApplicationButtonOpen}
-                                                                          toggle={() => this.toggleFilterTypeApplicationButton(index)}>
-                                                    <DropdownToggle caret>
-                                                        {this.state.filters[index].filterApplication}
-                                                    </DropdownToggle>
-                                                    <DropdownMenu>
-                                                        <DropdownItem header>Filter Applies To</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterApplication("KEY", index)}>Key</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterApplication("VALUE", index)}>Value</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterApplication("HEADER_KEY", index)}>Header Key</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header Value</DropdownItem>
-                                                    </DropdownMenu>
-                                                </InputGroupButtonDropdown>
-                                                <InputGroupButtonDropdown addonType="prepend"
-                                                                          isOpen={this.state.filters[index].filterTypeButtonOpen}
-                                                                          toggle={() => this.toggleFilterTypeButton(index)}>
-                                                    <DropdownToggle caret>
-                                                        {this.state.filters[index].filterType}
-                                                    </DropdownToggle>
-                                                    <DropdownMenu>
-                                                        <DropdownItem header>Filter Type</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterType("MATCHES", index)}>Matches</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts With</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends With</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterType("NOT_CONTAINS", index)}>Not contains</DropdownItem>
-                                                        <DropdownItem onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
-                                                    </DropdownMenu>
-                                                </InputGroupButtonDropdown>
-                                                <Input
-                                                    type="text"
-                                                    name="filter"
-                                                    id="filter"
-                                                    value={this.state.filters[index].filter}
-                                                    onChange={event => this.setFilter(event.target.value, index)}
-                                                />
-                                                <InputGroupAddon addonType="append">
-                                                    {
-                                                        this.state.filters[index].filterType !== 'REGEX' ?
-                                                            <div>
-                                                                <Button onClick={() => this.setCaseSensitive(index)}
-                                                                        color={ this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}>
-                                                                    {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive' }
-                                                                </Button>
-                                                            </div>
-                                                            : null
-                                                    }
-                                                </InputGroupAddon>
-                                                <InputGroupAddon addonType="append">
-                                                    <InputGroupText id={"auto"+index}>
-                                                        Auto-Trim: &nbsp;
-                                                        <Input addon
-
-                                                               type="checkbox"
-                                                               aria-label="Check to trim whitespace"
-                                                               checked={this.state.filters[index].trimWhitespace}
-                                                               onChange={() => this.setWhiteSpaceTrim(index)}/>
-                                                    </InputGroupText>
-                                                    <Tooltip target={"auto"+index}
+                                    <ListGroupItem key={index} className={"ListGroupNoHorizontalPad"}>
+                                        <InputGroup>
+                                            <ButtonDropdown
+                                                isOpen={this.state.filters[index].filterApplicationButtonOpen}
+                                                toggle={() => this.toggleFilterTypeApplicationButton(index)}>
+                                                <DropdownToggle caret>
+                                                    {this.state.filters[index].filterApplication}
+                                                </DropdownToggle>
+                                                <DropdownMenu>
+                                                    <DropdownItem header>Filter Applies To</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("KEY", index)}>Key</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("VALUE", index)}>Value</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("HEADER_KEY", index)}>Header
+                                                        Key</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header
+                                                        Value</DropdownItem>
+                                                </DropdownMenu>
+                                            </ButtonDropdown>
+                                            <ButtonDropdown isOpen={this.state.filters[index].filterTypeButtonOpen}
+                                                            toggle={() => this.toggleFilterTypeButton(index)}>
+                                                <DropdownToggle caret>
+                                                    {this.state.filters[index].filterType}
+                                                </DropdownToggle>
+                                                <DropdownMenu>
+                                                    <DropdownItem header>Filter Type</DropdownItem>
+                                                    <DropdownItem onClick={() => this.setFilterType("MATCHES", index)}>
+                                                        Matches
+                                                    </DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts
+                                                        With</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends
+                                                        With</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterType("NOT_CONTAINS", index)}>Not
+                                                        contains</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
+                                                </DropdownMenu>
+                                            </ButtonDropdown>
+                                            <Input
+                                                type="text"
+                                                name="filter"
+                                                id="filter"
+                                                value={this.state.filters[index].filter}
+                                                onChange={event => this.setFilter(event.target.value, index)}
+                                            />
+                                            <InputGroupText addonType="append">
+                                                {
+                                                    this.state.filters[index].filterType !== 'REGEX' ?
+                                                        <div>
+                                                            <Button onClick={() => this.setCaseSensitive(index)}
+                                                                    color={this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}>
+                                                                {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive'}
+                                                            </Button>
+                                                        </div>
+                                                        : null
+                                                }
+                                            </InputGroupText>
+                                            <InputGroupText id={"auto" + index}>
+                                                <div className={"input-group-text-padded"}>Auto-Trim: &nbsp;
+                                                    <Input addon
+                                                           type="checkbox"
+                                                           aria-label="Check to trim whitespace"
+                                                           checked={this.state.filters[index].trimWhitespace}
+                                                           onChange={() => this.setWhiteSpaceTrim(index)}/>
+                                                    <Tooltip target={"auto" + index}
                                                              placement={"top"}
                                                              toggle={() => this.setWhiteSpaceTrimToolTipToggle(index)}
                                                              isOpen={this.state.filters[index].whitespaceToggle}>
                                                         Automatically remove whitespace from start/end of filter string
                                                     </Tooltip>
-                                                </InputGroupAddon>
-                                            </InputGroup>
-                                            {
-                                                index === this.state.filters.length-1 ?
-                                                    <div className={"Gap"}>
-                                                        <ButtonGroup>
-                                                            <Button onClick={() => this.addFilter()} color={'success'}>
-                                                                + Add
-                                                            </Button>
-                                                            <Button onClick={() => this.removeFilter()} color={'warning'}>
-                                                                - Remove
-                                                            </Button>
-                                                        </ButtonGroup>
-                                                    </div>
-                                                    : null
-                                            }
+                                                </div>
+                                            </InputGroupText>
+                                        </InputGroup>
+                                        {
+                                            index === this.state.filters.length - 1 ?
+                                                <div className={"Gap"}>
+                                                    <ButtonGroup>
+                                                        <Button onClick={() => this.addFilter()} color={'success'}>
+                                                            + Add
+                                                        </Button>
+                                                        <Button onClick={() => this.removeFilter()} color={'warning'}>
+                                                            - Remove
+                                                        </Button>
+                                                    </ButtonGroup>
+                                                </div>
+                                                : null
+                                        }
 
                                     </ListGroupItem>
                                 )
@@ -235,7 +253,8 @@ class FilterConfigurer extends Component {
 
                     </ListGroup>
                     :
-                    <Button color="secondary" size="sm" block onClick={this.addFilter} width={'100%'}>Include Message Filter</Button>
+                    <Button color="secondary" size="sm" block onClick={this.addFilter} width={'100%'}>Include Message
+                        Filter</Button>
                 }
 
                 <div className="mt-lg-1"/>

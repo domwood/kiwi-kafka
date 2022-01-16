@@ -2,16 +2,9 @@ import logo from './imgs/Kiwi2.png';
 import github from './imgs/github.svg';
 import docker from './imgs/docker.svg';
 
-import React, { Component } from 'react';
-import {
-    Collapse,
-    Navbar,
-    NavbarBrand,
-    Nav,
-    NavItem,
-    NavLink
-} from 'reactstrap';
-import {HashRouter as Router, Link, Route, Switch} from "react-router-dom";
+import React, {Component} from 'react';
+import {Nav, Navbar, NavbarBrand, NavItem, NavLink} from 'reactstrap';
+import {HashRouter as Router, Link, Route, Routes} from "react-router-dom";
 import KafkaHome from "./pages/brokers/KafkaHome";
 import KafkaTopics from "./pages/topics/KafkaTopics";
 import KafkaPost from "./pages/producer/KafkaPost";
@@ -34,10 +27,10 @@ class App extends Component {
         };
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.mounted = true;
         ApiService.getVersion((version) => {
-            if(this.mounted){
+            if (this.mounted) {
                 this.setState({
                     version: version
                 })
@@ -45,7 +38,7 @@ class App extends Component {
         }, () => toast.error("No connection to server"));
 
         ApiService.getProfiles((profiles) => {
-            if(this.mounted){
+            if (this.mounted) {
                 this.setState({
                     profiles: profiles
                 })
@@ -73,71 +66,73 @@ class App extends Component {
                             rtl={false}
                             pauseOnVisibilityChange
                             draggable={false}
+                            theme={"colored"}
                             pauseOnHover
                         />
                         <Navbar color="light" light expand="md" className={"pt-0 pb-0"}>
-                            <NavbarBrand>
-                                <img src={logo} height="40" width="40" alt="Kiwi - Kafka Interactive Web Interface" />
-                            </NavbarBrand>
-                            <Collapse navbar>
-                                <Nav className="ml-0" navbar>
-                                    <NavItem>
-                                        <NavLink tag={Link} to="/" replace={true} >Kafka Brokers</NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink tag={Link} to="/topics" replace={true} >Kafka Topics</NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink tag={Link} to="/groups" replace={true} >Kafka Consumers Groups</NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink tag={Link} to="/post" replace={true} >Kafka Post</NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink tag={Link} to="/get" replace={true} >Kafka Get</NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink tag={Link} to="/download" replace={true} >Kafka Download</NavLink>
-                                    </NavItem>
-                                </Nav>
-                                <Nav className="ml-auto" navbar>
-                                    <div style={{padding:'3px'}}>
-                                        <ClusterChooser/>
+                            <Nav className="ml-auto" navbar>
+                                <NavbarBrand>
+                                    <img style={{"marginTop":"-0.375rem"}} src={logo} height="30" width="30"
+                                         alt="Kiwi - Kafka Interactive Web Interface"/>
+                                </NavbarBrand>
+                                <NavItem>
+                                    <NavLink tag={Link} to="/" replace={true}>Kafka Brokers</NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink tag={Link} to="/topics" replace={true}>Kafka Topics</NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink tag={Link} to="/groups" replace={true}>Kafka Consumers Groups</NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink tag={Link} to="/post" replace={true}>Kafka Post</NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink tag={Link} to="/get" replace={true}>Kafka Get</NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink tag={Link} to="/download" replace={true}>Kafka Download</NavLink>
+                                </NavItem>
+                            </Nav>
+                            <Nav className="mr-auto" navbar>
+                                <div style={{padding: '3px'}}>
+                                    <ClusterChooser/>
+                                </div>
+                                <NavItem>
+                                    <div style={{padding: '11px'}}>
+                                        Version: {this.state.version}
                                     </div>
-                                    <NavItem>
-                                        <div style={{padding:'11px'}}>
-                                            Version: {this.state.version}
-                                        </div>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink href="https://github.com/domwood/kiwi">
-                                            <img src={github} height="20" width="20" alt="Github Link: https://github.com/domwood/kiwi" />
-                                        </NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink href="https://hub.docker.com/r/dmwood/kiwi">
-                                            <img src={docker} height="20" width="20" alt="Docker Link: https://hub.docker.com/r/dmwood/kiwi" />
-                                        </NavLink>
-                                    </NavItem>
-                                </Nav>
-                            </Collapse>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink href="https://github.com/domwood/kiwi">
+                                        <img src={github} height="20" width="20"
+                                             alt="Github Link: https://github.com/domwood/kiwi"/>
+                                    </NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink href="https://hub.docker.com/r/dmwood/kiwi">
+                                        <img src={docker} height="20" width="20"
+                                             alt="Docker Link: https://hub.docker.com/r/dmwood/kiwi"/>
+                                    </NavLink>
+                                </NavItem>
+                            </Nav>
                         </Navbar>
-                        <Switch>
-                            <Route exact path="/" component={props => <KafkaHome {...props} profiles={this.state.profiles}/>} />
-                            <Route path="/topics" component={props => <KafkaTopics {...props} profiles={this.state.profiles}/> } />
-                            <Route path="/groups" component={props => <KafkaConsumerGroups {...props} profiles={this.state.profiles}/>} />
-                            <Route path="/post" component={props => <KafkaPost {...props} profiles={this.state.profiles}/> } />
-                            <Route path="/get" component={props => <KafkaGet {...props} isDownload={false} profiles={this.state.profiles}/>} />
-                            <Route path="/download" component={props => <KafkaGet {...props} isDownload={true} profiles={this.state.profiles}/>} />
+                        <Routes>
+                            <Route exact path="/" element={<KafkaHome profiles={this.state.profiles}/>}/>
+                            <Route path="/topics" element={<KafkaTopics profiles={this.state.profiles}/>}/>
+                            <Route path="/groups" element={<KafkaConsumerGroups profiles={this.state.profiles}/>}/>
+                            <Route path="/post" element={<KafkaPost profiles={this.state.profiles}/>}/>
+                            <Route path="/get" element={<KafkaGet isDownload={false} profiles={this.state.profiles}/>}/>
+                            <Route path="/download"
+                                   element={<KafkaGet isDownload={true} profiles={this.state.profiles}/>}/>
                             <Route redirectTo="/"/>
-                        </Switch>
+                        </Routes>
                     </div>
                 </Router>
             </div>
         );
     }
 }
-
 
 
 export default App;

@@ -6,27 +6,33 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class FilterBuilder {
 
-    private FilterBuilder() {}
+    private FilterBuilder() {
+    }
 
-    public static Predicate<ConsumerRecord<String, String>> compileFilters(List<MessageFilter> messageFilterList){
+    public static <K, V> Predicate<ConsumerRecord<K, V>> compileFilters(List<MessageFilter> messageFilterList,
+                                                                        Function<K, String> keyHandler,
+                                                                        Function<V, String> valueHandler) {
         return messageFilterList.stream()
                 .filter(FilterBuilder::isFilterValid)
-                .map(FilterBuilder::compileFilter)
+                .map(f -> FilterBuilder.compileFilter(f, keyHandler, valueHandler))
                 .reduce(Predicate::and)
                 .orElse(dummyFilter());
     }
 
-    private static Predicate<ConsumerRecord<String, String>> compileFilter(MessageFilter messageFilter){
-        switch(messageFilter.filterApplication()){
+    private static <K, V> Predicate<ConsumerRecord<K, V>> compileFilter(MessageFilter messageFilter,
+                                                                        Function<K, String> keyHandler,
+                                                                        Function<V, String> valueHandler) {
+        switch (messageFilter.filterApplication()) {
             case KEY:
-                return record -> buildFilterType(messageFilter).test(keyExtractor(record));
+                return record -> buildFilterType(messageFilter).test(keyExtractor(record, keyHandler));
             case VALUE:
-                return record -> buildFilterType(messageFilter).test(valueExtractor(record));
+                return record -> buildFilterType(messageFilter).test(valueExtractor(record, valueHandler));
             case HEADER_KEY:
                 return record -> headerKeyExtractor(record, buildFilterType(messageFilter));
             case HEADER_VALUE:
@@ -60,22 +66,22 @@ public class FilterBuilder {
         }
     }
 
-    private static  String keyExtractor(ConsumerRecord<String, String> record){
-        return record.key();
+    private static <K> String keyExtractor(ConsumerRecord<K, ?> record, Function<K, String> keyHandler) {
+        return keyHandler.apply(record.key());
     }
 
-    private static  String valueExtractor(ConsumerRecord<String, String> record){
-        return record.value();
+    private static <V> String valueExtractor(ConsumerRecord<?, V> record, Function<V, String> valueHandler) {
+        return valueHandler.apply(record.value());
     }
 
-    private static  Boolean headerKeyExtractor(ConsumerRecord<String, String> record, Predicate<String> headerMatcher){
+    private static Boolean headerKeyExtractor(ConsumerRecord<?, ?> record, Predicate<String> headerMatcher) {
         return KafkaUtils.fromKafkaHeaders(record.headers())
                 .keySet()
                 .stream()
                 .anyMatch(headerMatcher);
     }
 
-    private static  Boolean headerValueExtractor(ConsumerRecord<String, String> record, Predicate<String> headerMatcher){
+    private static Boolean headerValueExtractor(ConsumerRecord<?, ?> record, Predicate<String> headerMatcher) {
         return KafkaUtils.fromKafkaHeaders(record.headers())
                 .values()
                 .stream()
@@ -83,27 +89,27 @@ public class FilterBuilder {
                 .anyMatch(headerMatcher);
     }
 
-    private static Predicate<String> startsWithCaseInsensitive(String filterString){
+    private static Predicate<String> startsWithCaseInsensitive(String filterString) {
         return (String value) -> value != null && value.toLowerCase().startsWith(filterString.toLowerCase());
     }
 
-    private static Predicate<String> startsWith(String filterString){
+    private static Predicate<String> startsWith(String filterString) {
         return (String value) -> value != null && value.startsWith(filterString);
     }
 
-    private static Predicate<String> endsWithCaseInsensitive(String filterString){
+    private static Predicate<String> endsWithCaseInsensitive(String filterString) {
         return (String value) -> value != null && value.toLowerCase().endsWith(filterString.toLowerCase());
     }
 
-    private static Predicate<String> endsWith(String filterString){
+    private static Predicate<String> endsWith(String filterString) {
         return (String value) -> value != null && value.endsWith(filterString);
     }
 
-    private static Predicate<String> containsCaseInsensitive(String filterString){
+    private static Predicate<String> containsCaseInsensitive(String filterString) {
         return (String value) -> value != null && value.toLowerCase().contains(filterString.toLowerCase());
     }
 
-    private static Predicate<String> contains(String filterString){
+    private static Predicate<String> contains(String filterString) {
         return (String value) -> value != null && value.contains(filterString);
     }
 
@@ -119,21 +125,20 @@ public class FilterBuilder {
         return (String value) -> value != null && value.equalsIgnoreCase(filterString);
     }
 
-    private static Predicate<String> matches(String filterString){
+    private static Predicate<String> matches(String filterString) {
         return (String value) -> value != null && value.equals(filterString);
     }
 
-    private static Predicate<String> regex(String filterString){
+    private static Predicate<String> regex(String filterString) {
         Pattern p = Pattern.compile(filterString);
         return (String value) -> value != null && p.matcher(value).find();
     }
 
-    private static Predicate<ConsumerRecord<String, String>> dummyFilter(){
-        return record -> true;
+    private static <K, V> Predicate<ConsumerRecord<K, V>> dummyFilter() {
+        return unused -> true;
     }
 
-    private static boolean isFilterValid(MessageFilter messageFilter){
-        return Objects.nonNull(messageFilter.filter()) &&
-                Objects.nonNull(messageFilter.isCaseSensitive());
+    private static boolean isFilterValid(MessageFilter messageFilter) {
+        return Objects.nonNull(messageFilter.filter());
     }
 }

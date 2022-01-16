@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, Input, InputGroup, InputGroupAddon, Table} from "reactstrap";
+import {Button, Input, InputGroup, InputGroupText, Table} from "reactstrap";
 import * as ApiService from "../../../services/ApiService";
 import {toast} from "react-toastify";
 import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
@@ -70,7 +70,7 @@ class ConfigurationView extends Component {
                         <th width="35%">Config Key</th>
                         <th width="35%">Config Value</th>
                         <th width="10%">Default Value</th>
-                        <th width="20%"></th>
+                        <th width="20%"/>
                     </tr>
                     </thead>
                     <tbody>
@@ -87,6 +87,7 @@ class ConfigurationView extends Component {
                                             this.state.editKey !== key ?
                                                 <div>
                                                     <Button
+                                                        style={{"width": "100%"}}
                                                         id={"Edit" + this.props.topic}
                                                         color="success"
                                                         onClick={() => this.editConfig(key)}
@@ -103,14 +104,16 @@ class ConfigurationView extends Component {
                                                         <Input type="text"
                                                                defaultValue={this.state.configuration[key].configValue}
                                                                onChange={event => this.onEditUpdate(event.target.value)}/>
-                                                        <InputGroupAddon addonType="append">
-                                                            <Button color="success"
-                                                                    onClick={() => this.save()}>Save</Button>
-                                                        </InputGroupAddon>
-                                                        <InputGroupAddon addonType="append">
+                                                        <InputGroupText>
+                                                            <Button
+                                                                color="success"
+                                                                disabled={!this.state.editValue}
+                                                                onClick={() => this.save()}>Save</Button>
+                                                        </InputGroupText>
+                                                        <InputGroupText>
                                                             <Button color="secondary"
                                                                     onClick={() => this.editConfig('')}>Cancel</Button>
-                                                        </InputGroupAddon>
+                                                        </InputGroupText>
 
                                                     </InputGroup>
                                                 </div>

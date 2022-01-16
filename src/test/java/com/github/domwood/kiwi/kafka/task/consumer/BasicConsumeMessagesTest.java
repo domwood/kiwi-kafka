@@ -30,15 +30,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
 
-import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerRequest;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testTimestamp;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testTopic;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
@@ -52,19 +56,21 @@ public class BasicConsumeMessagesTest {
     @Mock
     KafkaConsumerResource<String, String> consumerResource;
 
-    private void setupMock(int partitionCount, int perPartitionSize, int recordsPerPoll){
+    private void setupMock(int partitionCount, int perPartitionSize, int recordsPerPoll) {
 
         setupAssignment(partitionCount, perPartitionSize);
 
         OngoingStubbing<ConsumerRecords<String, String>> stub = when(consumerResource.poll(any(Duration.class)));
-        for(int i=0; i < perPartitionSize; i+=recordsPerPoll){
-            stub = stub.thenReturn(consumerRecords(partitionCount, recordsPerPoll, i+1));
+        for (int i = 0; i < perPartitionSize; i += recordsPerPoll) {
+            stub = stub.thenReturn(consumerRecords(partitionCount, recordsPerPoll, i + 1));
         }
 
         stub.thenReturn(emptyRecords());
+        when(consumerResource.convertKafkaKey(anyString())).thenAnswer((answer) -> answer.getArgument(0));
+        when(consumerResource.convertKafkaValue(anyString())).thenAnswer((answer) -> answer.getArgument(0));
     }
 
-    private void setupAssignment(int partitionCount, int perPartitionSize){
+    private void setupAssignment(int partitionCount, int perPartitionSize) {
         reset(consumerResource);
 
         when(consumerResource.assignment())
@@ -79,15 +85,15 @@ public class BasicConsumeMessagesTest {
     public void testConsumeMessages() throws InterruptedException, ExecutionException, TimeoutException {
         setupMock(2, 3, 1);
 
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest(testTopic, 100).build());
+        BasicConsumeMessages<String, String> basicConsumeMessages = new BasicConsumeMessages<>(consumerResource, buildConsumerRequest(testTopic, 100).build());
 
-        ConsumerResponse<String, String> consumerResponse =
+        ConsumerResponse consumerResponse =
                 basicConsumeMessages.execute().get(20, TimeUnit.SECONDS);
 
         assertEquals(6, consumerResponse.messages().size());
 
-        List<ConsumedMessage<String, String>> expected = buildConsumedMessages(2, 3);
-        assertEquals(consumerResponse.messages(), expected);
+        List<ConsumedMessage> expected = buildConsumedMessages(2, 3);
+        assertEquals(expected, consumerResponse.messages());
     }
 
     @DisplayName("Test that limits are applied after filter checks")
@@ -106,30 +112,30 @@ public class BasicConsumeMessagesTest {
                         .build()))
                 .build();
 
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, request);
+        BasicConsumeMessages<?, ?> basicConsumeMessages = new BasicConsumeMessages<>(consumerResource, request);
 
-        ConsumerResponse<String, String> consumerResponse =
+        ConsumerResponse consumerResponse =
                 basicConsumeMessages.execute().get(20, TimeUnit.SECONDS);
 
         assertEquals(2, consumerResponse.messages().size());
 
-        List<ConsumedMessage<String, String>> expected = buildConsumedMessages(2, 1);
+        List<ConsumedMessage> expected = buildConsumedMessages(2, 1);
 
-        assertEquals(consumerResponse.messages(), expected);
+        assertEquals(expected, consumerResponse.messages());
     }
 
     @DisplayName("Test that failure is handled")
     @Test
-    public void failureTest(){
+    public void failureTest() {
 
         setupAssignment(2, 3);
 
         when(consumerResource.poll(any(Duration.class)))
                 .thenThrow(new KafkaException("Failed to do kafka thing"));
 
-        BasicConsumeMessages basicConsumeMessages = new BasicConsumeMessages(consumerResource, buildConsumerRequest().build());
+        BasicConsumeMessages<?, ?> basicConsumeMessages = new BasicConsumeMessages<>(consumerResource, buildConsumerRequest().build());
 
-        CompletableFuture<ConsumerResponse<String, String>> future = basicConsumeMessages.execute();
+        CompletableFuture<ConsumerResponse> future = basicConsumeMessages.execute();
 
         await().atMost(1, TimeUnit.SECONDS)
                 .until(future::isCompletedExceptionally);
@@ -137,14 +143,14 @@ public class BasicConsumeMessagesTest {
         assertThrows(ExecutionException.class, future::get);
     }
 
-    private List<ConsumedMessage<String, String>> buildConsumedMessages(int partitions, int records){
-        return IntStream.range(1, records+1).boxed()
+    private List<ConsumedMessage> buildConsumedMessages(int partitions, int records) {
+        return IntStream.range(1, records + 1).boxed()
                 .flatMap(i -> IntStream.range(0, partitions).boxed()
                         .map(p -> buildConsumedMessage(p, i)))
                 .collect(toList());
     }
 
-    private ConsumedMessage<String, String> buildConsumedMessage(int partition, int i){
+    private ConsumedMessage buildConsumedMessage(int partition, int i) {
         return ImmutableConsumedMessage.<String, String>builder()
                 .key(String.format(KEY_VALUE, i))
                 .headers(emptyMap())
@@ -155,37 +161,37 @@ public class BasicConsumeMessagesTest {
                 .build();
     }
 
-    private ConsumerRecords<String, String> emptyRecords(){
+    private ConsumerRecords<String, String> emptyRecords() {
         return new ConsumerRecords<>(emptyMap());
     }
 
     private ConsumerRecords<String, String> consumerRecords(int partitionCount,
                                                             int perPartitionCount,
-                                                            int startingOffset){
+                                                            int startingOffset) {
         return new ConsumerRecords<>(IntStream.range(0, partitionCount)
                 .boxed()
                 .collect(toMap(p -> new TopicPartition(testTopic, p), p -> consumerRecordList(perPartitionCount, p, startingOffset))));
     }
 
-    private List<ConsumerRecord<String, String>> consumerRecordList(int recordListSize, int partition, int startingOffset){
-        return IntStream.range(startingOffset, startingOffset+recordListSize)
+    private List<ConsumerRecord<String, String>> consumerRecordList(int recordListSize, int partition, int startingOffset) {
+        return IntStream.range(startingOffset, startingOffset + recordListSize)
                 .boxed()
                 .map(i -> consumerRecord(partition, i))
                 .collect(toList());
     }
 
-    private ConsumerRecord<String, String> consumerRecord(int partition, int i){
+    private ConsumerRecord<String, String> consumerRecord(int partition, int i) {
         return new ConsumerRecord<>(testTopic, partition, i, String.format(KEY_VALUE, i), String.format(RECORD_VALUE, i));
     }
 
-    private Set<TopicPartition> assignment(int partitions){
+    private Set<TopicPartition> assignment(int partitions) {
         return IntStream.range(0, partitions)
                 .boxed()
                 .map(i -> new TopicPartition(testTopic, i))
                 .collect(toSet());
     }
 
-    private Map<TopicPartition, Long> endOffsets(int partitions, long size){
+    private Map<TopicPartition, Long> endOffsets(int partitions, long size) {
         return IntStream.range(0, partitions)
                 .boxed()
                 .map(i -> new TopicPartition(testTopic, i))

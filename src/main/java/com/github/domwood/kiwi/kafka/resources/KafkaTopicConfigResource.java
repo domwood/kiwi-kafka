@@ -1,6 +1,7 @@
 package com.github.domwood.kiwi.kafka.resources;
 
 import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
+import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.common.config.TopicConfig;
 
 import java.util.Properties;
@@ -11,7 +12,7 @@ public class KafkaTopicConfigResource extends AbstractKafkaResource<TopicConfig>
     }
 
     @Override
-    protected TopicConfig createClient(Properties props) {
+    protected TopicConfig createClient(ImmutableMap<Object, Object> props) {
         return new TopicConfig();
     }
 

@@ -11,13 +11,13 @@ import java.util.Map;
 @JsonSerialize(as = ImmutableConsumedMessage.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumedMessage<K, V>{
+public interface ConsumedMessage{
 
     @Nullable
-    K message();
+    String message();
 
     @Nullable
-    V key();
+    String key();
 
     long timestamp();
 
@@ -25,6 +25,6 @@ public interface ConsumedMessage<K, V>{
 
     long offset();
 
-    Map<String, Object> headers();
+    Map<String, String> headers();
 
 }

@@ -10,7 +10,12 @@ import org.immutables.value.Value;
 public interface MessageFilter {
     FilterType filterType();
     FilterApplication filterApplication();
-    Boolean isCaseSensitive();
+
+    @Value.Default
+    default boolean isCaseSensitive(){
+        return true;
+    }
+
     String filter();
 
 }
