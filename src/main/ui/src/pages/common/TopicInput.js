@@ -3,7 +3,7 @@ import * as ApiService from "../../services/ApiService";
 import {Button, FormGroup, InputGroup, InputGroupText, Label} from "reactstrap";
 
 import React, {Component} from "react";
-import {MdRefresh} from "react-icons/all";
+import {MdRefresh} from "react-icons/md";
 import PropTypes from "prop-types";
 import {toast} from "react-toastify";
 import {Typeahead} from 'react-bootstrap-typeahead';

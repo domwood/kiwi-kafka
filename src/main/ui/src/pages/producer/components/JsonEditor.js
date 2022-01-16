@@ -32,10 +32,10 @@ class JsonEditor extends Component {
 
     };
 
-    format = (messagedata, pretty) => {
+    format = (messageData, pretty) => {
         try {
-            if (/^{/.test(messagedata)) {
-                let obj = JSON.parse(messagedata);
+            if (/^{/.test(messageData)) {
+                let obj = JSON.parse(messageData);
                 if (pretty) {
                     return JSON.stringify(obj, undefined, 4);
                 }
@@ -46,7 +46,7 @@ class JsonEditor extends Component {
             this.error('Cannot format message which is not valid json');
         }
 
-        return messagedata;
+        return messageData;
     };
 
     render() {

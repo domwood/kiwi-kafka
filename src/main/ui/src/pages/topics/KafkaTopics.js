@@ -86,8 +86,11 @@ class KafkaTopics extends Component {
 
                 <div className={"Gap"}/>
 
-                <SearchableViewList elementList={this.state.topicList}
-                                    elementViewProvider={(topic) => <TopicView key={`${topic}_view`} topic={topic}
+                <SearchableViewList id={"topicViewList"}
+                                    elementList={this.state.topicList}
+                                    elementViewProvider={(topic) => <TopicView id={`${topic}_view`}
+                                                                               key={`${topic}_view`}
+                                                                               topic={topic}
                                                                                onDeletion={this.reloadTopics}
                                                                                profiles={this.props.profiles}/>}/>
             </Container>

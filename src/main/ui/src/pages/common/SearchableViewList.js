@@ -15,16 +15,16 @@ class SearchableViewList extends Component {
         };
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate = prevProps => {
         if (prevProps.elementList !== this.props.elementList) {
             this.setState({
                 unfilteredList: this.props.elementList,
                 filteredList: this.props.elementList
             }, () => this.filterList(this.state.filterWord));
         }
-    }
+    };
 
-    filterList = (filterWord) => {
+    filterList = filterWord => {
         if (filterWord && filterWord.length > 0) {
             this.setState({
                 filterWord: filterWord,
@@ -42,28 +42,31 @@ class SearchableViewList extends Component {
 
     render() {
         return (
-            <ListGroup>
-                <ListGroupItem>
-                    <InputGroup>
-                        <InputGroupText className={"input-group-text-padded"}>Filter:</InputGroupText>
-                        <Typeahead
-                            id={"searchList"}
-                            onChange={selected => selected && selected[0] ? this.filterList(selected[0]) : ''}
-                            onInputChange={i => this.filterList(i || '')}
-                            options={this.state.unfilteredList}
-                            className={"StretchedInput"}
-                        />
-                    </InputGroup>
-                </ListGroupItem>
-                {
-                    this.state.filteredList.map(this.props.elementViewProvider)
-                }
-            </ListGroup>
+            <div id={this.props.id}>
+                <ListGroup>
+                    <ListGroupItem>
+                        <InputGroup>
+                            <InputGroupText className={"input-group-text-padded"}>Filter:</InputGroupText>
+                            <Typeahead
+                                id={"searchList"}
+                                onChange={selected => selected && selected[0] ? this.filterList(selected[0]) : ''}
+                                onInputChange={i => this.filterList(i || '')}
+                                options={this.state.unfilteredList}
+                                className={"StretchedInput"}
+                            />
+                        </InputGroup>
+                    </ListGroupItem>
+                    {
+                        this.state.filteredList.map(this.props.elementViewProvider)
+                    }
+                </ListGroup>
+            </div>
         );
     }
 }
 
 SearchableViewList.propTypes = {
+    id: PropTypes.string.isRequired,
     elementList: PropTypes.array.isRequired,
     elementViewProvider: PropTypes.func.isRequired
 };
