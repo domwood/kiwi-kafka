@@ -53,6 +53,7 @@
     "immer": "^9.0.12",
     "glob-parent": "^5.1.2",
     "browserslist": "^4.19.1",
-    "ansi-html": "npm:ansi-html-community@0.0.8"
+    "ansi-html": "npm:ansi-html-community@0.0.8",
+    "react-error-overlay": "6.0.9"
   }
 }

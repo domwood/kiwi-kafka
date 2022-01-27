@@ -2,7 +2,6 @@ import WebSocketFactory from "./WebSocketFactory";
 import SessionStore from "./SessionStore";
 
 
-//TODO WIP POC
 const WebSocketService = {
     socket:{
         readyState: 4, //0 Connecting, 1 Connected, 2 Closing, 3 Closed (∴ 4 =~ UNCREATED)

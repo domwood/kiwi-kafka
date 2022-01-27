@@ -16,6 +16,23 @@ import {
 import PropTypes from "prop-types";
 import "../../../App.css";
 
+const TIMESTAMP = "TIMESTAMP";
+const STARTS_WITH = "STARTS_WITH";
+const KEY = "KEY";
+const VALUE = "VALUE";
+const HEADER_KEY = "HEADER_KEY";
+const HEADER_VALUE = "HEADER_VALUE";
+const PARTITION = "PARTITION";
+const OFFSET = "OFFSET";
+const MATCHES = "MATCHES";
+const NOT_MATCHES = "NOT_MATCHES";
+const ENDS_WITH = "ENDS_WITH";
+const CONTAINS = "CONTAINS";
+const NOT_CONTAINS = "NOT_CONTAINS";
+const REGEX = "REGEX";
+const LESS_THAN = "LESS_THAN";
+const GREATER_THAN = "GREATER_THAN";
+
 class FilterConfigurer extends Component {
 
     constructor(props) {
@@ -24,7 +41,9 @@ class FilterConfigurer extends Component {
             id: props.id,
             name: props.name,
             useFilter: false,
-            filters: []
+            filters: [],
+            dateValue: Date.now(),
+            timeValue: 0
         };
     }
 
@@ -32,7 +51,7 @@ class FilterConfigurer extends Component {
         if (this.state.useFilter && this.state.filters.every(this.validateFilter)) {
             this.props.onUpdate(this.state.filters.map(filter => {
                 return {
-                    filter: filter.filter,
+                    filter: filter.trimWhitespace ? ((filter.filter || '') + '').trim() : filter.filter,
                     filterType: filter.filterType,
                     filterApplication: filter.filterApplication,
                     isCaseSensitive: filter.isCaseSensitive
@@ -64,7 +83,7 @@ class FilterConfigurer extends Component {
 
     setFilter = (filter, index) => {
         let filters = this.state.filters;
-        filters[index].filter = filters[index].trimWhitespace ? (filter || '').trim() : filter;
+        filters[index].filter = filter;
         this.setState({
             filters: filters
         }, this.updateParent);
@@ -79,9 +98,9 @@ class FilterConfigurer extends Component {
     };
 
     isNumericFilter = (filterApplication) => {
-        return filterApplication === "PARTITION" ||
-            filterApplication === "OFFSET" ||
-            filterApplication === "TIMESTAMP"
+        return filterApplication === PARTITION ||
+            filterApplication === OFFSET ||
+            filterApplication === TIMESTAMP
     }
 
     isNumericFilterAtIndex = (index) => {
@@ -92,12 +111,17 @@ class FilterConfigurer extends Component {
     setFilterApplication = (filterApplication, index) => {
         let filters = this.state.filters;
         if (this.isNumericFilter(filterApplication) !== this.isNumericFilterAtIndex(index)) {
-            filters[index].filterType = "MATCHES";
+            filters[index].filterType = MATCHES;
+        }
+        if (filterApplication === TIMESTAMP) {
+            filters[index].filter = Date.now();
         }
         filters[index].filterApplication = filterApplication;
 
         this.setState({
-            filters: filters
+            filters: filters,
+            dateValue: new Date(),
+            timeValue: new Date().getTime,
         }, this.updateParent)
     };
 
@@ -134,8 +158,8 @@ class FilterConfigurer extends Component {
                 filterTypeButtonOpen: false,
                 filterApplicationButtonOpen: false,
                 filter: '',
-                filterType: 'STARTS_WITH',
-                filterApplication: 'KEY',
+                filterType: STARTS_WITH,
+                filterApplication: KEY,
                 isCaseSensitive: false,
                 trimWhitespace: true,
                 whitespaceToggle: false
@@ -151,6 +175,21 @@ class FilterConfigurer extends Component {
         }, this.updateParent);
     };
 
+    updateTime = (event) => {
+        let timestamp = (this.state.dateValue + event.target.valueAsDate).getMilliseconds();
+        this.setState({
+            timeValue: event.target.valueAsDate,
+            filter: timestamp
+        }, this.updateParent);
+    }
+
+    updateDate = (event) => {
+        let timestamp = (this.state.timeValue + event.target.valueAsDate).getMilliseconds();
+        this.setState({
+            dateValue: event.target.valueAsDate,
+            filter: timestamp
+        }, this.updateParent);
+    }
 
     render() {
         return (
@@ -175,23 +214,23 @@ class FilterConfigurer extends Component {
                                                 <DropdownMenu>
                                                     <DropdownItem header>Filter Applies To</DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("KEY", index)}>Key</DropdownItem>
+                                                        onClick={() => this.setFilterApplication(KEY, index)}>Key</DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("VALUE", index)}>Value</DropdownItem>
+                                                        onClick={() => this.setFilterApplication(VALUE, index)}>Value</DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("HEADER_KEY", index)}>Header
+                                                        onClick={() => this.setFilterApplication(HEADER_KEY, index)}>Header
                                                         Key</DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("HEADER_VALUE", index)}>Header
+                                                        onClick={() => this.setFilterApplication(HEADER_VALUE, index)}>Header
                                                         Value</DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("PARTITION", index)}>Partition
+                                                        onClick={() => this.setFilterApplication(PARTITION, index)}>Partition
                                                     </DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("OFFSET", index)}>Offset
+                                                        onClick={() => this.setFilterApplication(OFFSET, index)}>Offset
                                                     </DropdownItem>
                                                     <DropdownItem
-                                                        onClick={() => this.setFilterApplication("TIMESTAMP", index)}>Timestamp
+                                                        onClick={() => this.setFilterApplication(TIMESTAMP, index)}>Timestamp
                                                     </DropdownItem>
                                                 </DropdownMenu>
                                             </ButtonDropdown>
@@ -205,67 +244,65 @@ class FilterConfigurer extends Component {
                                                         <DropdownMenu>
                                                             <DropdownItem header>Filter Type</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("MATCHES", index)}>
+                                                                onClick={() => this.setFilterType(MATCHES, index)}>
                                                                 Matches
                                                             </DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("NOT_MATCHES", index)}>
+                                                                onClick={() => this.setFilterType(NOT_MATCHES, index)}>
                                                                 Not Matches
                                                             </DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("STARTS_WITH", index)}>Starts
+                                                                onClick={() => this.setFilterType(STARTS_WITH, index)}>Starts
                                                                 With</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("ENDS_WITH", index)}>Ends
+                                                                onClick={() => this.setFilterType(ENDS_WITH, index)}>Ends
                                                                 With</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("CONTAINS", index)}>Contains</DropdownItem>
+                                                                onClick={() => this.setFilterType(CONTAINS, index)}>Contains</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("NOT_CONTAINS", index)}>Not
+                                                                onClick={() => this.setFilterType(NOT_CONTAINS, index)}>Not
                                                                 contains</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("REGEX", index)}>Regex</DropdownItem>
+                                                                onClick={() => this.setFilterType(REGEX, index)}>Regex</DropdownItem>
                                                         </DropdownMenu>
                                                         :
                                                         <DropdownMenu>
                                                             <DropdownItem header>Filter Type</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("MATCHES", index)}>
+                                                                onClick={() => this.setFilterType(MATCHES, index)}>
                                                                 Matches
                                                             </DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("NOT_MATCHES", index)}>
+                                                                onClick={() => this.setFilterType(NOT_MATCHES, index)}>
                                                                 Not Matches
                                                             </DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("LESS_THAN", index)}>
+                                                                onClick={() => this.setFilterType(LESS_THAN, index)}>
                                                                 Less Than
                                                             </DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType("GREATER_THAN", index)}>
+                                                                onClick={() => this.setFilterType(GREATER_THAN, index)}>
                                                                 Greater Than
                                                             </DropdownItem>
                                                         </DropdownMenu>
                                                 }
 
                                             </ButtonDropdown>
-                                            { // TODO finish here
-                                                this.state.filters[index].filterApplication === 'TIMESTAMP' ?
+                                            {
+                                                this.state.filters[index].filterApplication === TIMESTAMP ?
                                                     <InputGroupText id={"datetime" + index}>
                                                         <Input addon
                                                                type="date"
                                                                aria-label="Date (UTC)"
-                                                               value="1970-01-01"
-                                                               style={{borderRadius: "unset", width: "150px"}}
-                                                               onChange={() => {
-                                                               }}/>
+                                                               defaultValue="1970-01-01"
+                                                               style={{borderRadius: "unset", width: "175px"}}
+                                                               onChange={this.updateTimestamp}/>
                                                         <Input addon
                                                                type="time"
                                                                aria-label="Time (UTC)"
-                                                               value="00:00:00"
-                                                               style={{borderRadius: "unset", width: "150px"}}
-                                                               onChange={() => {
-                                                               }}/>
+                                                               defaultValue="00:00:00.000"
+                                                               style={{borderRadius: "unset", width: "175px"}}
+                                                               onChange={this.updateTimestamp}/>
                                                     </InputGroupText> : <React.Fragment/>
                                             }
                                             <Input
@@ -277,7 +314,7 @@ class FilterConfigurer extends Component {
                                             />
                                             <InputGroupText>
                                                 {
-                                                    this.state.filters[index].filterType !== 'REGEX' && !this.isNumericFilterAtIndex(index) ?
+                                                    this.state.filters[index].filterType !== REGEX && !this.isNumericFilterAtIndex(index) ?
                                                         <div>
                                                             <Button onClick={() => this.setCaseSensitive(index)}
                                                                     color={this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}>
@@ -288,7 +325,7 @@ class FilterConfigurer extends Component {
                                                 }
                                             </InputGroupText>
                                             {
-                                                this.state.filters[index].filterType !== 'REGEX' && !this.isNumericFilterAtIndex(index) ?
+                                                this.state.filters[index].filterType !== REGEX && !this.isNumericFilterAtIndex(index) ?
                                                     <InputGroupText id={"auto" + index}>
                                                         <div className={"input-group-text-padded"}>Auto-Trim: &nbsp;
                                                             <Input addon
