@@ -41,9 +41,7 @@ class FilterConfigurer extends Component {
             id: props.id,
             name: props.name,
             useFilter: false,
-            filters: [],
-            dateValue: Date.now(),
-            timeValue: 0
+            filters: []
         };
     }
 
@@ -114,14 +112,12 @@ class FilterConfigurer extends Component {
             filters[index].filterType = MATCHES;
         }
         if (filterApplication === TIMESTAMP) {
-            filters[index].filter = Date.now();
+            filters[index].filter = new Date().getTime();
         }
         filters[index].filterApplication = filterApplication;
 
         this.setState({
-            filters: filters,
-            dateValue: new Date(),
-            timeValue: new Date().getTime,
+            filters: filters
         }, this.updateParent)
     };
 
@@ -175,20 +171,18 @@ class FilterConfigurer extends Component {
         }, this.updateParent);
     };
 
-    updateTime = (event) => {
-        let timestamp = (this.state.dateValue + event.target.valueAsDate).getMilliseconds();
-        this.setState({
-            timeValue: event.target.valueAsDate,
-            filter: timestamp
-        }, this.updateParent);
+    asDateString = (timestamp) => {
+        timestamp = timestamp ? parseInt(timestamp) : new Date().getTime();
+        timestamp = timestamp < 100000000000000 && timestamp >= 0 ? timestamp : new Date().getTime();
+        return new Date(timestamp).toISOString().replace(/Z$/g, "");
     }
 
-    updateDate = (event) => {
-        let timestamp = (this.state.timeValue + event.target.valueAsDate).getMilliseconds();
+    updateTimestamp = (event, index) => {
+        let filters = this.state.filters;
+        filters[index] = (event.target.valueAsDate || new Date()).getTime();
         this.setState({
-            dateValue: event.target.valueAsDate,
-            filter: timestamp
-        }, this.updateParent);
+            filters: filters
+        }, this.updateParent)
     }
 
     render() {
@@ -269,20 +263,20 @@ class FilterConfigurer extends Component {
                                                         <DropdownMenu>
                                                             <DropdownItem header>Filter Type</DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType(MATCHES, index)}>
-                                                                Matches
-                                                            </DropdownItem>
-                                                            <DropdownItem
-                                                                onClick={() => this.setFilterType(NOT_MATCHES, index)}>
-                                                                Not Matches
+                                                                onClick={() => this.setFilterType(GREATER_THAN, index)}>
+                                                                Greater Than
                                                             </DropdownItem>
                                                             <DropdownItem
                                                                 onClick={() => this.setFilterType(LESS_THAN, index)}>
                                                                 Less Than
                                                             </DropdownItem>
                                                             <DropdownItem
-                                                                onClick={() => this.setFilterType(GREATER_THAN, index)}>
-                                                                Greater Than
+                                                                onClick={() => this.setFilterType(MATCHES, index)}>
+                                                                Matches
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                onClick={() => this.setFilterType(NOT_MATCHES, index)}>
+                                                                Not Matches
                                                             </DropdownItem>
                                                         </DropdownMenu>
                                                 }
@@ -292,17 +286,14 @@ class FilterConfigurer extends Component {
                                                 this.state.filters[index].filterApplication === TIMESTAMP ?
                                                     <InputGroupText id={"datetime" + index}>
                                                         <Input addon
-                                                               type="date"
-                                                               aria-label="Date (UTC)"
-                                                               defaultValue="1970-01-01"
-                                                               style={{borderRadius: "unset", width: "175px"}}
-                                                               onChange={this.updateTimestamp}/>
-                                                        <Input addon
-                                                               type="time"
-                                                               aria-label="Time (UTC)"
-                                                               defaultValue="00:00:00.000"
-                                                               style={{borderRadius: "unset", width: "175px"}}
-                                                               onChange={this.updateTimestamp}/>
+                                                               type="datetime-local"
+                                                               aria-label="Time"
+                                                               step={".001"}
+                                                               value={this.asDateString(this.state.filters[index].filter)}
+                                                               style={{borderRadius: "unset", width: "350px"}}
+                                                               onChange={(event) =>
+                                                                   this.setFilter((event.target.valueAsDate || new Date()).getTime(), index)}
+                                                        />
                                                     </InputGroupText> : <React.Fragment/>
                                             }
                                             <Input
