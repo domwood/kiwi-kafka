@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,16 +52,16 @@ public class ContinuousConsumeMessages<K, V>
     private final AtomicBoolean paused;
 
     private Consumer<ConsumerResponse> consumer;
-    private volatile List<MessageFilter> filters;
+    private final List<MessageFilter> filters;
 
-    public ContinuousConsumeMessages(KafkaConsumerResource<K, V> resource,
-                                     AbstractConsumerRequest input) {
+    public ContinuousConsumeMessages(final KafkaConsumerResource<K, V> resource,
+                                     final AbstractConsumerRequest input) {
         super(resource, input);
 
         this.consumer = message -> logger.warn("No consumer attached to kafka task");
         this.paused = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
-        this.filters = emptyList();
+        this.filters = new ArrayList<>();
     }
 
     @Override
@@ -75,8 +76,14 @@ public class ContinuousConsumeMessages<K, V>
     }
 
     @Override
+    public void unpause() {
+        this.paused.set(false);
+    }
+
+    @Override
     public void update(AbstractConsumerRequest input) {
-        this.filters = input.filters();
+        this.filters.clear();
+        this.filters.addAll(input.filters());
     }
 
     @Override
@@ -86,7 +93,7 @@ public class ContinuousConsumeMessages<K, V>
 
     @Override
     protected Void delegateExecuteSync() {
-        this.filters = input.filters();
+        update(input);
 
         try {
             KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
@@ -113,13 +120,13 @@ public class ContinuousConsumeMessages<K, V>
                         Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
                         int totalBatchSize = 0;
                         while (recordIterator.hasNext() && !this.isClosed()) {
-                            ConsumerRecord<K, V> record = recordIterator.next();
+                            ConsumerRecord<K, V> kafkaRecord = recordIterator.next();
                             tracker.incrementRecordCount();
 
-                            if (filter.test(record)) {
-                                ConsumedMessage consumedMessage = asConsumedRecord(record, resource::convertKafkaKey, resource::convertKafkaValue);
+                            if (filter.test(kafkaRecord)) {
+                                ConsumedMessage consumedMessage = asConsumedRecord(kafkaRecord, resource::convertKafkaKey, resource::convertKafkaValue);
                                 messages.add(consumedMessage);
-                                toCommit.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
+                                toCommit.put(new TopicPartition(kafkaRecord.topic(), kafkaRecord.partition()), new OffsetAndMetadata(kafkaRecord.offset()));
                                 totalBatchSize += Optional.ofNullable(consumedMessage.message()).orElse("").length() * 16;
                             }
 

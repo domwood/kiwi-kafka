@@ -1,16 +1,15 @@
 package com.github.domwood.kiwi.data.input;
 
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
 
-@JsonSerialize(as = ImmutableCloseTaskRequest.class)
-@JsonDeserialize(as = ImmutableCloseTaskRequest.class)
+@JsonSerialize(as = ImmutablePauseTaskRequest.class)
+@JsonDeserialize(as = ImmutablePauseTaskRequest.class)
 @Value.Immutable
-public interface CloseTaskRequest extends InboundRequest {
+public interface PauseTaskRequest extends InboundRequest {
     @Value.Default
-    default boolean closeSession() {
+    default boolean pauseSession() {
         return false;
     }
 }

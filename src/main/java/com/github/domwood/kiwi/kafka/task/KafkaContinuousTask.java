@@ -7,6 +7,8 @@ public interface KafkaContinuousTask<I, O> extends Closeable {
 
     public void pause();
 
+    public void unpause();
+
     public void update(I input);
 
     public void registerConsumer(Consumer<O> consumer);

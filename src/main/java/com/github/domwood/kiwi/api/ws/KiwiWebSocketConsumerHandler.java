@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class KiwiWebSocketConsumerHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Map<String, ContinuousConsumeMessages> consumers;
+    private final Map<String, ContinuousConsumeMessages<?, ?>> consumers;
     private final KafkaTaskProvider taskProvider;
 
     @Autowired
@@ -37,7 +37,7 @@ public class KiwiWebSocketConsumerHandler {
 
         if (!consumers.containsKey(id)) {
             logger.info("Adding consumer for session {}", id);
-            ContinuousConsumeMessages consumeMessages = taskProvider.continuousConsumeMessages(request);
+            ContinuousConsumeMessages<?, ?> consumeMessages = taskProvider.continuousConsumeMessages(request);
             this.consumers.put(id, consumeMessages);
             consumeMessages.registerConsumer(consumer);
             consumeMessages.execute()
@@ -47,7 +47,7 @@ public class KiwiWebSocketConsumerHandler {
                     });
         } else {
             logger.info("Updating existing consumer for session {}", id);
-            ContinuousConsumeMessages consumeMessages = consumers.get(id);
+            ContinuousConsumeMessages<?, ?> consumeMessages = consumers.get(id);
             consumeMessages.update(request);
         }
     }
@@ -60,5 +60,8 @@ public class KiwiWebSocketConsumerHandler {
         }
     }
 
+    public ContinuousConsumeMessages<?, ?> getConsumerTask(String id){
+        return consumers.get(id);
+    }
 
 }

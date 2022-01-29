@@ -6,8 +6,10 @@ import com.github.domwood.kiwi.data.input.CloseTaskRequest;
 import com.github.domwood.kiwi.data.input.ConsumerRequest;
 import com.github.domwood.kiwi.data.input.InboundRequest;
 import com.github.domwood.kiwi.data.input.MessageAcknowledge;
+import com.github.domwood.kiwi.data.input.PauseTaskRequest;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.exceptions.WebSocketSendFailedException;
+import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,16 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
                 consumerHandler.removeConsumerTask(session.getId());
                 if (((CloseTaskRequest) inboundRequest).closeSession()) {
                     tryCloseSession(sessions.get(session.getId()), CloseStatus.NORMAL);
+                }
+            } else if (inboundRequest instanceof PauseTaskRequest) {
+                KiwiWebSocketSession kiwiSession = getSession(session);
+                ContinuousConsumeMessages<?, ?> consumerTask = consumerHandler.getConsumerTask(kiwiSession.getId());
+                if (consumerTask != null) {
+                    if (((PauseTaskRequest) inboundRequest).pauseSession()) {
+                        consumerTask.pause();
+                    } else {
+                        consumerTask.unpause();
+                    }
                 }
             }
             if (inboundRequest instanceof MessageAcknowledge) {
