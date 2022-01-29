@@ -1,9 +1,5 @@
 import React, {Component} from "react";
-import {
-    Button,
-    Container,
-    Spinner
-} from "reactstrap";
+import {Button, Container, Spinner} from "reactstrap";
 import {MdRefresh} from "react-icons/md";
 import * as ApiService from "../../services/ApiService";
 import {toast} from "react-toastify";
@@ -28,7 +24,7 @@ class KafkaConsumerGroups extends Component {
         this.loadConsumerGroups();
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         this.mounted = false;
     }
 
@@ -37,16 +33,16 @@ class KafkaConsumerGroups extends Component {
             loading: true
         }, () => {
             ApiService.getConsumerGroups((groups) => {
-                if(this.mounted){
+                if (this.mounted) {
                     this.setState({
-                        groupList:  groups || [],
-                        loading:false
+                        groupList: groups || [],
+                        loading: false
                     }, () => {
                         toast.info("Refreshed consumer group list from server");
                     });
                 }
             }, () => {
-                if(this.mounted){
+                if (this.mounted) {
                     this.setState({
                         loading: false
                     });
@@ -75,7 +71,13 @@ class KafkaConsumerGroups extends Component {
 
                 <SearchableViewList id={"consumerGroupsList"}
                                     elementList={this.state.groupList}
-                                    elementViewProvider={(group) => <ConsumerGroupView key={`${group}_search`} groupId={group} onDeletion={this.loadConsumerGroups} profiles={this.props.profiles}/> } />
+                                    elementViewProvider={(group) =>
+                                        <ConsumerGroupView
+                                            key={`${group}_search`}
+                                            groupId={group}
+                                            onDeletion={this.loadConsumerGroups}
+                                            profiles={this.props.profiles}/>}
+                />
             </Container>
         );
     }
