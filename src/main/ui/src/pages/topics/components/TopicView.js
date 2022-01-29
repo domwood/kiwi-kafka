@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, ButtonGroup, Label, ListGroup, ListGroupItem, Spinner} from "reactstrap";
+import {Button, ButtonGroup, Label, ListGroup, ListGroupItem, Spinner, Table} from "reactstrap";
 import {MdRefresh} from "react-icons/md";
 import DeleteTopic from "./DeleteTopic";
 import PartitionView from "./PartitionView";
@@ -74,23 +74,30 @@ class TopicView extends Component {
                 {
                     this.state.toggle ?
                         <ListGroup style={{marginTop: "5px"}}>
-                            <ListGroupItem>
-                                <Label>Name: </Label><b> {this.props.topic}</b>
-                            </ListGroupItem>
-                            <ListGroupItem>
-                                <Label>Replication Count: </Label><b> {this.state.topicData.replicaCount} </b>
-                            </ListGroupItem>
-                            <ListGroupItem>
-                                <Label>Partitions: </Label><b> {this.state.topicData.partitionCount}</b>
-                            </ListGroupItem>
-                            <ListGroupItem>
-                                <ButtonGroup>
-                                    <Button color="primary"
-                                            onClick={() => this.toggleDetails(true)}>Refresh <MdRefresh/></Button>
-                                    <DeleteTopic topic={this.props.topic} onComplete={this.props.onDeletion}
-                                                 profiles={this.props.profiles}/>
-                                </ButtonGroup>
-                            </ListGroupItem>
+                            <Table>
+                                <tbody>
+                                <tr style={{textAlign: "center", width: "100%"}}>
+                                    <td style={{width: "25%", paddingTop: "15px"}}>
+                                        <Label>Name: </Label><b> {this.props.topic}</b>
+                                    </td>
+                                    <td style={{width: "25%", paddingTop: "15px"}}>
+                                        <Label>Replication Count: </Label><b> {this.state.topicData.replicaCount} </b>
+                                    </td>
+                                    <td style={{width: "25%", paddingTop: "15px"}}>
+                                        <Label>Partitions: </Label><b> {this.state.topicData.partitionCount}</b>
+                                    </td>
+                                    <td style={{width: "25%"}}>
+                                        <ButtonGroup>
+                                            <Button color="primary"
+                                                    onClick={() => this.toggleDetails(true)}>Refresh Topic Details<MdRefresh/></Button>
+                                            <DeleteTopic topic={this.props.topic}
+                                                         onComplete={this.props.onDeletion}
+                                                         profiles={this.props.profiles}/>
+                                        </ButtonGroup>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </Table>
                             <ListGroupItem>
                                 <div className={"Gap"}/>
                                 <ButtonGroup className={"WideBoiGroup"}>
@@ -114,7 +121,6 @@ class TopicView extends Component {
                                 {
                                     this.viewSelection()
                                 }
-
                             </ListGroupItem>
                         </ListGroup>
                         : <React.Fragment/>
