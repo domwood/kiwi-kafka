@@ -30,22 +30,31 @@ class ConsumerView extends Component {
     render() {
         return (
             <div>
-
-                {this.state.groups.length === 0 ? <Button color="primary" onClick={this.getConsumerGroups}>Refresh <MdRefresh/></Button> : ''}
+                {this.state.groups.length === 0 ?
+                    <Button color="primary" onClick={this.getConsumerGroups}>Refresh <MdRefresh/></Button> : ''}
                 {this.state.groups.length === 0 ?
                     <div>
                         <div className={"Gap"}/>
                         <div>No active consumers found.</div>
                     </div> : ''}
-                {this.state.groups.map(group => <ConsumerGroupDetailsView key={`${group}_${this.props.topic}_view`} groupId={group} topics={[this.props.topic]} />)}
+                {this.state.groups.map(group =>
+                    <ConsumerGroupDetailsView
+                        key={`${group}_${this.props.topic}_view`}
+                        groupId={group}
+                        topics={[this.props.topic]}
+                        onDeletion={this.getConsumerGroups}
+                        profiles={this.props.profiles}
+                    />)
+                }
             </div>
         )
     }
 }
 
 ConsumerView.propTypes = {
-    topic: PropTypes.string.isRequired
+    topic: PropTypes.string.isRequired,
+    profiles: PropTypes.array.isRequired
 };
 
 
-export default ConsumerView ;
+export default ConsumerView;

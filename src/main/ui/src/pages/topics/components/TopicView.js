@@ -61,7 +61,7 @@ class TopicView extends Component {
                                       configuration={this.state.topicData.configuration}
                                       profiles={this.props.profiles}/>;
         } else {
-            return <ConsumerView topic={this.props.topic}/>;
+            return <ConsumerView topic={this.props.topic} profiles={this.props.profiles}/>;
         }
     }
 
