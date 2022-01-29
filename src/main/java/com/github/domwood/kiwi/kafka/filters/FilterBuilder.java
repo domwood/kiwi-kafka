@@ -6,11 +6,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-// TODO Complete tests for extra filter types
 public class FilterBuilder {
 
     private FilterBuilder() {
@@ -31,19 +31,19 @@ public class FilterBuilder {
                                                                         final Function<V, String> valueHandler) {
         switch (messageFilter.filterApplication()) {
             case KEY:
-                return record -> buildFilterType(messageFilter).test(keyExtractor(record, keyHandler));
+                return kafkaRecord -> buildFilterType(messageFilter).test(keyExtractor(kafkaRecord, keyHandler));
             case VALUE:
-                return record -> buildFilterType(messageFilter).test(valueExtractor(record, valueHandler));
+                return kafkaRecord -> buildFilterType(messageFilter).test(valueExtractor(kafkaRecord, valueHandler));
             case HEADER_KEY:
-                return record -> headerKeyExtractor(record, buildFilterType(messageFilter));
+                return kafkaRecord -> headerKeyExtractor(kafkaRecord, buildFilterType(messageFilter));
             case HEADER_VALUE:
-                return record -> headerValueExtractor(record, buildFilterType(messageFilter));
+                return kafkaRecord -> headerValueExtractor(kafkaRecord, buildFilterType(messageFilter));
             case PARTITION:
-                return record -> partitionExtractor(record, buildNumericFilterType(messageFilter));
+                return kafkaRecord -> partitionExtractor(kafkaRecord, buildNumericFilterType(messageFilter));
             case OFFSET:
-                return record -> offsetExtractor(record, buildNumericFilterType(messageFilter));
+                return kafkaRecord -> offsetExtractor(kafkaRecord, buildNumericFilterType(messageFilter));
             case TIMESTAMP:
-                return record -> timestampExtractor(record, buildNumericFilterType(messageFilter));
+                return kafkaRecord -> timestampExtractor(kafkaRecord, buildNumericFilterType(messageFilter));
             default:
                 return dummyFilter();
         }
@@ -91,39 +91,39 @@ public class FilterBuilder {
         }
     }
 
-    private static <K> String keyExtractor(final ConsumerRecord<K, ?> record, final Function<K, String> keyHandler) {
-        return keyHandler.apply(record.key());
+    private static <K> String keyExtractor(final ConsumerRecord<K, ?> kafkaRecord, final Function<K, String> keyHandler) {
+        return keyHandler.apply(kafkaRecord.key());
     }
 
-    private static <V> String valueExtractor(final ConsumerRecord<?, V> record, final Function<V, String> valueHandler) {
-        return valueHandler.apply(record.value());
+    private static <V> String valueExtractor(final ConsumerRecord<?, V> kafkaRecord, final Function<V, String> valueHandler) {
+        return valueHandler.apply(kafkaRecord.value());
     }
 
-    private static Boolean headerKeyExtractor(final ConsumerRecord<?, ?> record, final Predicate<String> headerMatcher) {
-        return KafkaUtils.fromKafkaHeaders(record.headers())
+    private static Boolean headerKeyExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<String> headerMatcher) {
+        return KafkaUtils.fromKafkaHeaders(kafkaRecord.headers())
                 .keySet()
                 .stream()
                 .anyMatch(headerMatcher);
     }
 
-    private static Boolean headerValueExtractor(final ConsumerRecord<?, ?> record, final Predicate<String> headerMatcher) {
-        return KafkaUtils.fromKafkaHeaders(record.headers())
+    private static Boolean headerValueExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<String> headerMatcher) {
+        return KafkaUtils.fromKafkaHeaders(kafkaRecord.headers())
                 .values()
                 .stream()
                 .map(String::valueOf)
                 .anyMatch(headerMatcher);
     }
 
-    private static Boolean partitionExtractor(final ConsumerRecord<?, ?> record, final Predicate<Long> partitionMatcher) {
-        return partitionMatcher.test((long) record.partition());
+    private static Boolean partitionExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<Long> partitionMatcher) {
+        return partitionMatcher.test((long) kafkaRecord.partition());
     }
 
-    private static Boolean offsetExtractor(final ConsumerRecord<?, ?> record, final Predicate<Long> offsetMatcher) {
-        return offsetMatcher.test(record.offset());
+    private static Boolean offsetExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<Long> offsetMatcher) {
+        return offsetMatcher.test(kafkaRecord.offset());
     }
 
-    private static Boolean timestampExtractor(final ConsumerRecord<?, ?> record, final Predicate<Long> timestampMatcher) {
-        return timestampMatcher.test(record.timestamp());
+    private static Boolean timestampExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<Long> timestampMatcher) {
+        return timestampMatcher.test(kafkaRecord.timestamp());
     }
 
     private static Predicate<String> startsWithCaseInsensitive(final String filterString) {
@@ -220,12 +220,14 @@ public class FilterBuilder {
         }
     }
 
-    private static Long safeLong(final String input) {
+    private static long safeLong(final String input) {
         try {
-            return Long.valueOf(input);
-        } catch (Exception e) {
+            return Optional.ofNullable(input)
+                    .map(Long::parseLong)
+                    .orElse(Long.MIN_VALUE);
+        } catch (NumberFormatException e) {
             //Do Nothing
         }
-        return null;
+        return Long.MIN_VALUE;
     }
 }
