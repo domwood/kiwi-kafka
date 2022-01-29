@@ -66,7 +66,7 @@
 }
 
 .WideBoi {
-    max-width: 90%;
+    max-width: 97%;
 }
 
 .FullSpan {
@@ -108,4 +108,8 @@
 
 .list-group-item {
     border-width: 0;
+}
+
+.filterButton {
+    width: 175px;
 }

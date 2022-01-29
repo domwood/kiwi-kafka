@@ -200,6 +200,7 @@ class FilterConfigurer extends Component {
                                     <ListGroupItem key={index} className={"ListGroupNoHorizontalPad"}>
                                         <InputGroup>
                                             <ButtonDropdown
+                                                className={"filterButton"}
                                                 isOpen={this.state.filters[index].filterApplicationButtonOpen}
                                                 toggle={() => this.toggleFilterTypeApplicationButton(index)}>
                                                 <DropdownToggle caret>
@@ -228,8 +229,10 @@ class FilterConfigurer extends Component {
                                                     </DropdownItem>
                                                 </DropdownMenu>
                                             </ButtonDropdown>
-                                            <ButtonDropdown isOpen={this.state.filters[index].filterTypeButtonOpen}
-                                                            toggle={() => this.toggleFilterTypeButton(index)}>
+                                            <ButtonDropdown
+                                                className={"filterButton"}
+                                                isOpen={this.state.filters[index].filterTypeButtonOpen}
+                                                toggle={() => this.toggleFilterTypeButton(index)}>
                                                 <DropdownToggle caret>
                                                     {this.state.filters[index].filterType}
                                                 </DropdownToggle>
