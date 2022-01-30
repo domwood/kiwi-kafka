@@ -29,14 +29,13 @@ class ConsumerView extends Component {
 
     render() {
         return (
-            <div>
+            <React.Fragment>
                 {this.state.groups.length === 0 ?
-                    <Button color="primary" onClick={this.getConsumerGroups}>Refresh <MdRefresh/></Button> : ''}
-                {this.state.groups.length === 0 ?
-                    <div>
+                    <div style={{textAlign: "center"}}>
+                        <Button color="primary" onClick={this.getConsumerGroups}>Refresh <MdRefresh/></Button>
                         <div className={"Gap"}/>
                         <div>No active consumers found.</div>
-                    </div> : ''}
+                    </div> : <React.Fragment/>}
                 {this.state.groups.map(group =>
                     <ConsumerGroupDetailsView
                         key={`${group}_${this.props.topic}_view`}
@@ -46,7 +45,7 @@ class ConsumerView extends Component {
                         profiles={this.props.profiles}
                     />)
                 }
-            </div>
+            </React.Fragment>
         )
     }
 }
