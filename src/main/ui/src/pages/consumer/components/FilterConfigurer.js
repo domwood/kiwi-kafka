@@ -295,7 +295,7 @@ class FilterConfigurer extends Component {
                                                                value={this.asDateString(this.state.filters[index].filter)}
                                                                style={{borderRadius: "unset", width: "350px"}}
                                                                onChange={(event) =>
-                                                                   this.setFilter((event.target.valueAsDate || new Date()).getTime(), index)}
+                                                                   this.setFilter(new Date(event.target.value).getTime(), index)}
                                                         />
                                                     </InputGroupText> : <React.Fragment/>
                                             }
