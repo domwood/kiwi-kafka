@@ -35,7 +35,7 @@ public class KafkaConsumerTrackerTest {
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(startAtZero);
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(0, 300, 0, 0, 0);
 
@@ -50,7 +50,7 @@ public class KafkaConsumerTrackerTest {
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(middleOffset);
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(0, 300, 150, 50, 0);
 
@@ -64,7 +64,7 @@ public class KafkaConsumerTrackerTest {
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(endOffsets);
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(0, 300, 300, 100, 0);
 
@@ -79,7 +79,7 @@ public class KafkaConsumerTrackerTest {
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(beyondEndOffsets);
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(0, 600, 600, 100, 0);
 
@@ -93,12 +93,12 @@ public class KafkaConsumerTrackerTest {
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(startAtZero);
 
-        consumerTracker.position(consumerResource);
+        consumerTracker.gatherUpdatedPosition(consumerResource);
 
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(endOffsets);
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(0, 300, 300, 100, 0);
 
@@ -112,7 +112,7 @@ public class KafkaConsumerTrackerTest {
         when(consumerResource.currentPosition(anySet()))
                 .thenReturn(endOffsets);
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(300, 300, 300, 100, 0, 0);
 
@@ -128,7 +128,7 @@ public class KafkaConsumerTrackerTest {
 
         IntStream.range(0, 56).forEach(i -> consumerTracker.incrementRecordCount());
 
-        ConsumerPosition observed = consumerTracker.position(consumerResource);
+        ConsumerPosition observed = consumerTracker.gatherUpdatedPosition(consumerResource).getRight();
 
         ConsumerPosition expected = position(0, 300, 300, 100, 56);
 

@@ -24,7 +24,7 @@ public class ConsumerGroupInformation extends AbstractKafkaTask<Void, ConsumerGr
                 .thenApply(this::consumerGroupList);
     }
 
-    private ConsumerGroupList consumerGroupList(Collection<ConsumerGroupListing> listing){
+    private ConsumerGroupList consumerGroupList(Collection<ConsumerGroupListing> listing) {
         return ImmutableConsumerGroupList.builder()
                 .groups(listing.stream()
                         .map(ConsumerGroupListing::groupId)

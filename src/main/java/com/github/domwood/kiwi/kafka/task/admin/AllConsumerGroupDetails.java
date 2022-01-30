@@ -37,7 +37,7 @@ public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGro
                 .thenCompose(list -> fromConsumerGroupList(resource, list));
     }
 
-    private CompletableFuture<ConsumerGroups> fromConsumerGroupList(KafkaAdminResource resource, Collection<ConsumerGroupListing> groupListings){
+    private CompletableFuture<ConsumerGroups> fromConsumerGroupList(KafkaAdminResource resource, Collection<ConsumerGroupListing> groupListings) {
         DescribeConsumerGroupsResult result = resource.describeConsumerGroups(groupListings.stream()
                 .map(ConsumerGroupListing::groupId).collect(toList()));
         return toCompletable(result.all())
@@ -46,7 +46,7 @@ public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGro
                         .build());
     }
 
-    private Map<String, Map<String, List<TopicGroupAssignment>>> asTopicAssignments(Map<String, ConsumerGroupDescription> details){
+    private Map<String, Map<String, List<TopicGroupAssignment>>> asTopicAssignments(Map<String, ConsumerGroupDescription> details) {
         return details.entrySet().stream()
                 .flatMap(entry -> asTopicAssignments(entry).stream())
                 .collect(Collectors.groupingBy(TopicGroupAssignment::topic))
@@ -57,7 +57,7 @@ public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGro
                 .collect(StreamUtils.mapCollector());
     }
 
-    private List<TopicGroupAssignment> asTopicAssignments(Map.Entry<String, ConsumerGroupDescription> description){
+    private List<TopicGroupAssignment> asTopicAssignments(Map.Entry<String, ConsumerGroupDescription> description) {
         return description.getValue()
                 .members().stream()
                 .flatMap(member -> assignment(member, description.getValue()).stream())
@@ -65,7 +65,7 @@ public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGro
     }
 
     private List<TopicGroupAssignment> assignment(MemberDescription memberDescription,
-                                                  ConsumerGroupDescription consumerDescription){
+                                                  ConsumerGroupDescription consumerDescription) {
         return memberDescription.assignment().topicPartitions().stream()
                 .map(tp -> topicGroupAssignment(tp, memberDescription, consumerDescription))
                 .collect(toList());
@@ -74,7 +74,7 @@ public class AllConsumerGroupDetails extends AbstractKafkaTask<Void, ConsumerGro
 
     private TopicGroupAssignment topicGroupAssignment(TopicPartition topicPartition,
                                                       MemberDescription memberDescription,
-                                                      ConsumerGroupDescription consumerGroupDescription){
+                                                      ConsumerGroupDescription consumerGroupDescription) {
         return ImmutableTopicGroupAssignment.builder()
                 .topic(topicPartition.topic())
                 .partition(topicPartition.partition())

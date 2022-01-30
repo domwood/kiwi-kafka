@@ -1,6 +1,11 @@
 package com.github.domwood.kiwi.kafka.task.admin;
 
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.output.ImmutablePartitionInfo;
+import com.github.domwood.kiwi.data.output.ImmutableTopicConfigValue;
+import com.github.domwood.kiwi.data.output.ImmutableTopicInfo;
+import com.github.domwood.kiwi.data.output.PartitionInfo;
+import com.github.domwood.kiwi.data.output.TopicConfigValue;
+import com.github.domwood.kiwi.data.output.TopicInfo;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.utilities.StreamUtils;
@@ -16,7 +21,11 @@ import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import static com.github.domwood.kiwi.utilities.FutureUtils.failedFuture;

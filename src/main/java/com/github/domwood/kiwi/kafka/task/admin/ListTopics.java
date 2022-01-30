@@ -25,7 +25,7 @@ public class ListTopics extends AbstractKafkaTask<Void, TopicList, KafkaAdminRes
 
     @Override
     protected CompletableFuture<TopicList> delegateExecute() {
-        try{
+        try {
             ListTopicsResult topicsResult = resource.listTopics();
 
             return toCompletable(topicsResult.listings())
@@ -35,8 +35,7 @@ public class ListTopics extends AbstractKafkaTask<Void, TopicList, KafkaAdminRes
                                     .sorted()
                                     .collect(toList()))
                             .build());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Failed to execute list topics task", e);
             resource.discard();
             return failedFuture(e);
