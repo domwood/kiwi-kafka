@@ -109,7 +109,7 @@ class FilterConfigurer extends Component {
     setFilterApplication = (filterApplication, index) => {
         let filters = this.state.filters;
         if (this.isNumericFilter(filterApplication) !== this.isNumericFilterAtIndex(index)) {
-            filters[index].filterType = MATCHES;
+            filters[index].filterType = GREATER_THAN;
         }
         if (filterApplication === TIMESTAMP) {
             filters[index].filter = new Date().getTime();

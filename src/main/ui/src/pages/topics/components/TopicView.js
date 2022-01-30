@@ -54,14 +54,41 @@ class TopicView extends Component {
 
     viewSelection = () => {
         if (this.state.viewName === 'partitions') {
-            return <PartitionView topic={this.props.topic}
-                                  partitions={this.state.topicData.partitions}/>;
+            return <React.Fragment>
+                <Table>
+                    <tbody>
+                    <tr style={{textAlign: "center", width: "100%"}}>
+                        <td style={{width: "25%", paddingTop: "15px"}}>
+                            <Label>Name: </Label><b> {this.props.topic}</b>
+                        </td>
+                        <td style={{width: "25%", paddingTop: "15px"}}>
+                            <Label>Replication Count: </Label><b> {this.state.topicData.replicaCount} </b>
+                        </td>
+                        <td style={{width: "25%", paddingTop: "15px"}}>
+                            <Label>Partitions: </Label><b> {this.state.topicData.partitionCount}</b>
+                        </td>
+                        <td style={{width: "25%"}}>
+                            <ButtonGroup>
+                                <Button color="primary"
+                                        onClick={() => this.toggleDetails(true)}>Refresh Topic
+                                    Details<MdRefresh/></Button>
+                                <DeleteTopic topic={this.props.topic}
+                                             onComplete={this.props.onDeletion}
+                                             profiles={this.props.profiles}/>
+                            </ButtonGroup>
+                        </td>
+                    </tr>
+                    </tbody>
+                </Table>
+                <PartitionView topic={this.props.topic}
+                               partitions={this.state.topicData.partitions}/>
+            </React.Fragment>
         } else if (this.state.viewName === 'configuration') {
             return <ConfigurationView topic={this.props.topic}
                                       configuration={this.state.topicData.configuration}
-                                      profiles={this.props.profiles}/>;
+                                      profiles={this.props.profiles}/>
         } else {
-            return <ConsumerView topic={this.props.topic} profiles={this.props.profiles}/>;
+            return <ConsumerView topic={this.props.topic} profiles={this.props.profiles}/>
         }
     }
 
@@ -73,38 +100,19 @@ class TopicView extends Component {
                 {this.state.loading ? <Spinner color="secondary"/> : ''}
                 {
                     this.state.toggle ?
-                        <ListGroup style={{marginTop: "5px"}}>
-                            <Table>
-                                <tbody>
-                                <tr style={{textAlign: "center", width: "100%"}}>
-                                    <td style={{width: "25%", paddingTop: "15px"}}>
-                                        <Label>Name: </Label><b> {this.props.topic}</b>
-                                    </td>
-                                    <td style={{width: "25%", paddingTop: "15px"}}>
-                                        <Label>Replication Count: </Label><b> {this.state.topicData.replicaCount} </b>
-                                    </td>
-                                    <td style={{width: "25%", paddingTop: "15px"}}>
-                                        <Label>Partitions: </Label><b> {this.state.topicData.partitionCount}</b>
-                                    </td>
-                                    <td style={{width: "25%"}}>
-                                        <ButtonGroup>
-                                            <Button color="primary"
-                                                    onClick={() => this.toggleDetails(true)}>Refresh Topic Details<MdRefresh/></Button>
-                                            <DeleteTopic topic={this.props.topic}
-                                                         onComplete={this.props.onDeletion}
-                                                         profiles={this.props.profiles}/>
-                                        </ButtonGroup>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </Table>
-                            <ListGroupItem>
-                                <div className={"Gap"}/>
+                        <ListGroup style={{
+                            marginTop: "-30px",
+                            paddingTop: "30px",
+                            marginBottom: "15px",
+                            boxShadow: "0 5px 10px slategray",
+                            borderRadius: "0"
+                        }}>
+                            <ListGroupItem style={{paddingTop: "0"}}>
                                 <ButtonGroup className={"WideBoiGroup"}>
                                     <Button
                                         onClick={() => this.onTopicViewChange('partitions')}
                                         color={this.state.viewName === 'partitions' ? 'success' : 'secondary'}>
-                                        Partitions
+                                        Topic Info & Partitions
                                     </Button>
                                     <Button
                                         onClick={() => this.onTopicViewChange('configuration')}
