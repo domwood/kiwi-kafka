@@ -28,29 +28,29 @@ public class ConsumerGroupListByTopic extends AbstractKafkaTask<String, Consumer
                 .thenCompose(data -> consumerGroupList(input, resource, data));
     }
 
-    private CompletableFuture<ConsumerGroupList> consumerGroupList(String topic, KafkaAdminResource resource, Collection<ConsumerGroupListing> listing){
+    private CompletableFuture<ConsumerGroupList> consumerGroupList(String topic, KafkaAdminResource resource, Collection<ConsumerGroupListing> listing) {
         return FutureUtils.toCompletable(resource.describeConsumerGroups(listing
-                .stream()
-                .map(ConsumerGroupListing::groupId)
-                .collect(toList()))
-                .all())
+                                .stream()
+                                .map(ConsumerGroupListing::groupId)
+                                .collect(toList()))
+                        .all())
                 .thenApply(data -> groupsWithTopic(topic, data));
     }
 
     private ConsumerGroupList groupsWithTopic(String topic, Map<String, ConsumerGroupDescription> groupDescriptions) {
         return ImmutableConsumerGroupList.builder()
                 .groups(groupDescriptions.entrySet().stream()
-                        .filter(kv-> groupIdAttachedToTopic(topic, kv.getValue()))
+                        .filter(kv -> groupIdAttachedToTopic(topic, kv.getValue()))
                         .map(Map.Entry::getKey)
                         .collect(toList()))
                 .build();
     }
 
-    private boolean groupIdAttachedToTopic(String topic, ConsumerGroupDescription description){
+    private boolean groupIdAttachedToTopic(String topic, ConsumerGroupDescription description) {
         return getTopicList(description).contains(topic);
     }
 
-    private List<String> getTopicList(ConsumerGroupDescription description){
+    private List<String> getTopicList(ConsumerGroupDescription description) {
         return description.members().stream()
                 .flatMap(m -> m.assignment().topicPartitions().stream().map(TopicPartition::topic))
                 .distinct()

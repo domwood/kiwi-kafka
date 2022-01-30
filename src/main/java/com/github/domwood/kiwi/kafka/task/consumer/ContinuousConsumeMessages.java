@@ -14,6 +14,7 @@ import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
 import com.github.domwood.kiwi.kafka.task.KafkaContinuousTask;
 import com.github.domwood.kiwi.kafka.task.KafkaTaskUtils;
 import com.github.domwood.kiwi.kafka.utils.KafkaConsumerTracker;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -23,12 +24,13 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,6 +55,7 @@ public class ContinuousConsumeMessages<K, V>
 
     private Consumer<ConsumerResponse> consumer;
     private final List<MessageFilter> filters;
+    private final Map<TopicPartition, Long> currentPosition;
 
     public ContinuousConsumeMessages(final KafkaConsumerResource<K, V> resource,
                                      final AbstractConsumerRequest input) {
@@ -62,6 +65,7 @@ public class ContinuousConsumeMessages<K, V>
         this.paused = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
         this.filters = new ArrayList<>();
+        this.currentPosition = new HashMap<>();
     }
 
     @Override
@@ -81,6 +85,11 @@ public class ContinuousConsumeMessages<K, V>
     }
 
     @Override
+    public boolean isClosed() {
+        return this.closed.get();
+    }
+
+    @Override
     public void update(AbstractConsumerRequest input) {
         this.filters.clear();
         this.filters.addAll(input.filters());
@@ -97,20 +106,26 @@ public class ContinuousConsumeMessages<K, V>
 
         try {
             KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
+            Pair<Map<TopicPartition, Long>, ConsumerPosition> consumerPosition = tracker.gatherUpdatedPosition(resource);
+            forward(emptyList(), consumerPosition.getRight());
+            this.currentPosition.putAll(consumerPosition.getLeft());
 
-            forward(emptyList(), tracker.position(resource));
-
+            boolean wasPaused = false;
             int idleCount = 0;
             while (!this.isClosed()) {
                 if (this.paused.get()) {
                     MILLISECONDS.sleep(20);
+                    wasPaused = true;
                 } else {
                     ConsumerRecords<K, V> records = resource.poll(Duration.of(Integer.max(10 ^ (idleCount + 1), 5000), MILLIS));
+
+                    if (wasPaused) pauseCheck(tracker.assignedPartitions());
+                    wasPaused = false;
+
                     if (records.isEmpty()) {
                         idleCount++;
                         logger.debug("No records polled for topic {} ", input.topics());
-                        forward(emptyList(), tracker.position(resource));
-
+                        forward(emptyList(), tracker.gatherUpdatedPosition(resource).getRight());
                     } else {
                         idleCount = 0;
                         Predicate<ConsumerRecord<K, V>> filter = FilterBuilder.compileFilters(this.filters, resource::convertKafkaKey, resource::convertKafkaValue);
@@ -131,11 +146,13 @@ public class ContinuousConsumeMessages<K, V>
                             }
 
                             if (totalBatchSize >= MAX_MESSAGE_BYTES || messages.size() >= MAX_MESSAGES) {
-                                forwardAndMaybeCommit(resource, messages, toCommit, tracker.position(resource));
+                                forwardAndMaybeCommit(resource, messages, toCommit, tracker);
                                 totalBatchSize = 0;
                             }
                         }
-                        forwardAndMaybeCommit(resource, messages, toCommit, tracker.position(resource));
+                        if(!messages.isEmpty()){
+                            forwardAndMaybeCommit(resource, messages, toCommit, tracker);
+                        }
                     }
                 }
             }
@@ -170,12 +187,14 @@ public class ContinuousConsumeMessages<K, V>
     private void forwardAndMaybeCommit(KafkaConsumerResource<K, V> resource,
                                        List<ConsumedMessage> messages,
                                        Map<TopicPartition, OffsetAndMetadata> toCommit,
-                                       ConsumerPosition position) {
+                                       KafkaConsumerTracker tracker) {
         //Blocking Call
         logger.info("Message batch size {} forwarding to consumers", messages.size());
 
         if (!this.isClosed()) {
-            forward(messages, position);
+            Pair<Map<TopicPartition, Long>, ConsumerPosition> consumerPosition = tracker.gatherUpdatedPosition(resource);
+            this.currentPosition.putAll(consumerPosition.getLeft());
+            forward(messages, consumerPosition.getRight());
 
             if (resource.isCommittingConsumer()) {
                 resource.commitAsync(toCommit, this::logCommit);
@@ -183,6 +202,16 @@ public class ContinuousConsumeMessages<K, V>
 
             messages.clear();
             toCommit.clear();
+        }
+    }
+
+    private void pauseCheck(Set<TopicPartition> topicPartitions) {
+        Map<TopicPartition, Long> latestPosition = resource.currentPosition(topicPartitions);
+        boolean positionChanged = latestPosition.keySet().stream()
+                .anyMatch(aLong -> !Objects.equals(currentPosition.get(aLong), latestPosition.get(aLong)));
+        if (positionChanged) {
+            logger.debug("Position has changed since pause, seeking back to original position");
+            resource.seek(currentPosition);
         }
     }
 
@@ -194,11 +223,6 @@ public class ContinuousConsumeMessages<K, V>
                     .position(position)
                     .build());
         }
-    }
-
-    @Override
-    public boolean isClosed() {
-        return this.closed.get();
     }
 
 }

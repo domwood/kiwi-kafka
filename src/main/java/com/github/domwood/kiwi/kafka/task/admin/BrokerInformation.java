@@ -31,7 +31,7 @@ public class BrokerInformation extends AbstractKafkaTask<Void, BrokerInfoList, K
                         .build());
     }
 
-    private BrokerInfo fromNode(Node node){
+    private BrokerInfo fromNode(Node node) {
         return ImmutableBrokerInfo.builder()
                 .nodeNumber(node.id())
                 .nodeName(node.idString())

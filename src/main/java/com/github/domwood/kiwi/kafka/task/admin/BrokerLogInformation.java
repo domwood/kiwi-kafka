@@ -1,6 +1,11 @@
 package com.github.domwood.kiwi.kafka.task.admin;
 
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.output.BrokerLogInfo;
+import com.github.domwood.kiwi.data.output.BrokerLogInfoList;
+import com.github.domwood.kiwi.data.output.BrokerLogTopicInfo;
+import com.github.domwood.kiwi.data.output.ImmutableBrokerLogInfo;
+import com.github.domwood.kiwi.data.output.ImmutableBrokerLogInfoList;
+import com.github.domwood.kiwi.data.output.ImmutableBrokerLogTopicInfo;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.task.AbstractKafkaTask;
 import com.github.domwood.kiwi.utilities.FutureUtils;
@@ -34,11 +39,11 @@ public class BrokerLogInformation extends AbstractKafkaTask<Integer, BrokerLogIn
     }
 
 
-    private List<BrokerLogInfo> handle(Map<String, DescribeLogDirsResponse.LogDirInfo> data){
+    private List<BrokerLogInfo> handle(Map<String, DescribeLogDirsResponse.LogDirInfo> data) {
         return extract(data, this::fromMapEntry);
     }
 
-    private BrokerLogInfo fromMapEntry(String kafkaLogName, DescribeLogDirsResponse.LogDirInfo infoForNode){
+    private BrokerLogInfo fromMapEntry(String kafkaLogName, DescribeLogDirsResponse.LogDirInfo infoForNode) {
         List<BrokerLogTopicInfo> topicInfo = extract(infoForNode.replicaInfos, this::fromMapEntry);
         topicInfo.sort(Comparator.comparing(BrokerLogTopicInfo::topic).thenComparing(BrokerLogTopicInfo::partition));
 
@@ -50,7 +55,7 @@ public class BrokerLogInformation extends AbstractKafkaTask<Integer, BrokerLogIn
     }
 
 
-    private BrokerLogTopicInfo fromMapEntry(TopicPartition topicPartition, DescribeLogDirsResponse.ReplicaInfo replicaInfo){
+    private BrokerLogTopicInfo fromMapEntry(TopicPartition topicPartition, DescribeLogDirsResponse.ReplicaInfo replicaInfo) {
         return ImmutableBrokerLogTopicInfo.builder()
                 .topic(topicPartition.topic())
                 .partition(topicPartition.partition())

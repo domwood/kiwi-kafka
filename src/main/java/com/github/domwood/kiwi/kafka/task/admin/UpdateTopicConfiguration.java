@@ -25,7 +25,7 @@ public class UpdateTopicConfiguration extends AbstractKafkaTask<UpdateTopicConfi
         return toCompletable(resource.updateTopicConfiguration(asConfigs(input)).all());
     }
 
-    private Map<ConfigResource, Config> asConfigs(UpdateTopicConfig topicConfig){
+    private Map<ConfigResource, Config> asConfigs(UpdateTopicConfig topicConfig) {
         ConfigResource resource = new ConfigResource(ConfigResource.Type.TOPIC, topicConfig.topic());
         Config config = new Config(topicConfig.config().entrySet()
                 .stream()

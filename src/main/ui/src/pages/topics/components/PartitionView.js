@@ -7,7 +7,7 @@ class PartitionView extends Component {
     render() {
         return (
             <div>
-                <Table size="sm">
+                <Table size="sm" style={{textAlign: "center"}}>
                     <thead>
                     <tr>
                         <th>Number</th>
