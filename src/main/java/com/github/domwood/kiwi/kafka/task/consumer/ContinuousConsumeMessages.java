@@ -150,9 +150,7 @@ public class ContinuousConsumeMessages<K, V>
                                 totalBatchSize = 0;
                             }
                         }
-                        if(!messages.isEmpty()){
-                            forwardAndMaybeCommit(resource, messages, toCommit, tracker);
-                        }
+                        forwardAndMaybeCommit(resource, messages, toCommit, tracker);
                     }
                 }
             }
