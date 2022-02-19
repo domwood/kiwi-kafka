@@ -102,8 +102,8 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
                 if (!session.isOpen())
                     throw new WebSocketSendFailedException("Session closed whilst data pending send");
 
-                session.sendMessage(payload);
                 session.setNotReady();
+                session.sendMessage(payload);
 
             } catch (JsonProcessingException e) {
                 logger.error("Failed to serialize response " + response, e);
