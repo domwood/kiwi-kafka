@@ -60,10 +60,13 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTextMessage(WebSocketSession session,
-                                  TextMessage message) {
+    public void handleTextMessage(final WebSocketSession session,
+                                  final TextMessage message) {
 
         try {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Received inbound websocket message for session: {} message: {}", session.getId(), message);
+            }
             InboundRequest inboundRequest = objectMapper.readValue(message.getPayload(), InboundRequest.class);
             if (inboundRequest instanceof ConsumerRequest) {
                 KiwiWebSocketSession kiwiSession = getSession(session);
