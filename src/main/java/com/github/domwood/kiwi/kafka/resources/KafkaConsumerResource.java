@@ -3,21 +3,13 @@ package com.github.domwood.kiwi.kafka.resources;
 import com.github.domwood.kiwi.exceptions.KafkaResourceClientCloseException;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.clients.consumer.OffsetCommitCallback;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -82,6 +74,10 @@ public class KafkaConsumerResource<K, V> extends AbstractKafkaResource<KafkaCons
 
     public Set<TopicPartition> assignment() {
         return this.getClient().assignment();
+    }
+
+    public void assign(Set<TopicPartition> topicPartitions) {
+        this.getClient().assign(topicPartitions);
     }
 
     public ConsumerRecords<K, V> poll(Duration timeout) {

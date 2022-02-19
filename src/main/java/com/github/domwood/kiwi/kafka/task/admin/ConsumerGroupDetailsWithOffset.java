@@ -1,11 +1,6 @@
 package com.github.domwood.kiwi.kafka.task.admin;
 
-import com.github.domwood.kiwi.data.output.ConsumerGroupTopicWithOffsetDetails;
-import com.github.domwood.kiwi.data.output.ImmutableConsumerGroupTopicWithOffsetDetails;
-import com.github.domwood.kiwi.data.output.ImmutablePartitionOffset;
-import com.github.domwood.kiwi.data.output.ImmutableTopicGroupAssignmentWithOffset;
-import com.github.domwood.kiwi.data.output.PartitionOffset;
-import com.github.domwood.kiwi.data.output.TopicGroupAssignmentWithOffset;
+import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.resources.KafkaAdminResource;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.resources.KafkaResourcePair;
@@ -21,11 +16,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -120,7 +111,7 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
 
             if (topics.isEmpty()) return Collections.emptyMap();
 
-            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, Optional.empty()).getEndOffsets();
+            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, Optional.empty(), Collections.emptyList()).getEndOffsets();
 
             return mapToOffset(offsetData, endOffsets);
         });

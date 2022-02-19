@@ -9,35 +9,36 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class KiwiWebSocketSession {
-    private ConcurrentWebSocketSessionDecorator delegate;
-    private AtomicBoolean isReady;
+    private final ConcurrentWebSocketSessionDecorator delegate;
+    private final AtomicBoolean isReady;
 
-    public KiwiWebSocketSession(WebSocketSession session, int websocketBufferLimit){
-        this.delegate =  new ConcurrentWebSocketSessionDecorator(session, 200, websocketBufferLimit);
+    public KiwiWebSocketSession(final WebSocketSession session,
+                                final Long websocketBufferLimit) {
+        this.delegate = new ConcurrentWebSocketSessionDecorator(session, 200, websocketBufferLimit.intValue());
         this.isReady = new AtomicBoolean(true);
     }
 
-    public boolean isReady(){
+    public boolean isReady() {
         return this.isReady.get();
     }
 
-    public void setNotReady(){
+    public void setNotReady() {
         this.isReady.set(false);
     }
 
-    public void setReady(){
+    public void setReady() {
         this.isReady.set(true);
     }
 
-    public int getBufferSize(){
+    public int getBufferSize() {
         return this.delegate.getBufferSize();
     }
 
-    public boolean isOpen(){
+    public boolean isOpen() {
         return this.delegate.isOpen();
     }
 
-    public void sendMessage(String message) throws IOException{
+    public void sendMessage(String message) throws IOException {
         this.delegate.sendMessage(new TextMessage(message));
     }
 
@@ -45,7 +46,8 @@ public class KiwiWebSocketSession {
         this.delegate.close(status);
     }
 
-    public String getId(){
+    public String getId() {
         return this.delegate.getId();
     }
+
 }

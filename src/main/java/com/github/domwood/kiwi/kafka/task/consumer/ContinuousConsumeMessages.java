@@ -3,11 +3,7 @@ package com.github.domwood.kiwi.kafka.task.consumer;
 
 import com.github.domwood.kiwi.data.input.AbstractConsumerRequest;
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
-import com.github.domwood.kiwi.data.output.ConsumedMessage;
-import com.github.domwood.kiwi.data.output.ConsumerPosition;
-import com.github.domwood.kiwi.data.output.ConsumerResponse;
-import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
-import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
+import com.github.domwood.kiwi.data.output.*;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
@@ -23,14 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -104,7 +93,7 @@ public class ContinuousConsumeMessages<K, V>
     protected Void delegateExecuteSync() {
 
         try {
-            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
+            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition(), input.filters());
             Pair<Map<TopicPartition, Long>, ConsumerPosition> consumerPosition = tracker.gatherUpdatedPosition(resource);
             forward(emptyList(), consumerPosition.getRight());
             this.currentPosition.putAll(consumerPosition.getLeft());
@@ -133,7 +122,9 @@ public class ContinuousConsumeMessages<K, V>
                         Iterator<ConsumerRecord<K, V>> recordIterator = records.iterator();
                         Map<TopicPartition, OffsetAndMetadata> toCommit = new HashMap<>();
                         int totalBatchSize = 0;
+                        boolean commitAfterEndOfPoll = true;
                         while (recordIterator.hasNext() && !this.isClosed()) {
+                            commitAfterEndOfPoll = true;
                             ConsumerRecord<K, V> kafkaRecord = recordIterator.next();
                             tracker.incrementRecordCount();
 
@@ -147,9 +138,12 @@ public class ContinuousConsumeMessages<K, V>
                             if (totalBatchSize >= MAX_MESSAGE_BYTES || messages.size() >= MAX_MESSAGES) {
                                 forwardAndMaybeCommit(resource, messages, toCommit, tracker);
                                 totalBatchSize = 0;
+                                commitAfterEndOfPoll = false;
                             }
                         }
-                        forwardAndMaybeCommit(resource, messages, toCommit, tracker);
+                        if (commitAfterEndOfPoll) {
+                            forwardAndMaybeCommit(resource, messages, toCommit, tracker);
+                        }
                     }
                 }
             }

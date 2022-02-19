@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import static com.github.domwood.kiwi.utilities.NumberUtils.safeLong;
+
 public class FilterBuilder {
 
     private FilterBuilder() {
@@ -221,14 +223,4 @@ public class FilterBuilder {
         }
     }
 
-    private static long safeLong(final String input) {
-        try {
-            return Optional.ofNullable(input)
-                    .map(Long::parseLong)
-                    .orElse(Long.MIN_VALUE);
-        } catch (NumberFormatException e) {
-            //Do Nothing
-        }
-        return Long.MIN_VALUE;
-    }
 }

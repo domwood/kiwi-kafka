@@ -2,11 +2,7 @@ package com.github.domwood.kiwi.api.ws;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.domwood.kiwi.data.input.CloseTaskRequest;
-import com.github.domwood.kiwi.data.input.ConsumerRequest;
-import com.github.domwood.kiwi.data.input.InboundRequest;
-import com.github.domwood.kiwi.data.input.MessageAcknowledge;
-import com.github.domwood.kiwi.data.input.PauseTaskRequest;
+import com.github.domwood.kiwi.data.input.*;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.exceptions.WebSocketSendFailedException;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
@@ -31,16 +27,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 @Component
 public class KiwiWebSocketHandler extends TextWebSocketHandler {
 
-    @Value("${websocket.max.wait.ms:30000}")
-    Long maxWaitTime;
-
-    @Value("${websocket.wait.interval.ms:10}")
-    Long waitInterval;
-
-    @Value("${websocket.message.buffer.limit:1}")
-    Integer websocketBufferLimit;
-
-    Long maxWaitCount = 3000L;
+    private final Long maxWaitTime;
+    private final Long waitInterval;
+    private final Long websocketBufferLimit;
+    private Long maxWaitCount = 3000L;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ObjectMapper objectMapper;
@@ -48,9 +38,17 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     private final Map<String, KiwiWebSocketSession> sessions;
 
     @Autowired
-    public KiwiWebSocketHandler(ObjectMapper objectMapper, KiwiWebSocketConsumerHandler consumerHandler) {
+    public KiwiWebSocketHandler(final ObjectMapper objectMapper,
+                                final KiwiWebSocketConsumerHandler consumerHandler,
+                                final @Value("${websocket.max.wait.ms:30000}") Long maxWaitTime,
+                                final @Value("${websocket.wait.interval.ms:10}") Long waitInterval,
+                                final @Value("${websocket.message.buffer.limit:1}") Long websocketBufferLimit) {
         this.objectMapper = objectMapper;
         this.consumerHandler = consumerHandler;
+        this.maxWaitTime = maxWaitTime;
+        this.waitInterval = waitInterval;
+        this.websocketBufferLimit = websocketBufferLimit;
+
         this.sessions = new ConcurrentHashMap<>();
     }
 
@@ -65,7 +63,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
 
         try {
             if (logger.isDebugEnabled()) {
-                logger.debug("Received inbound websocket message for session: {} message: {}", session.getId(), message);
+                logger.debug("Received inbound websocket message for session: {} message: {}", session.getId(), message.getPayload());
             }
             InboundRequest inboundRequest = objectMapper.readValue(message.getPayload(), InboundRequest.class);
             if (inboundRequest instanceof ConsumerRequest) {
@@ -122,10 +120,10 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
 
 
     //@SuppressWarnings("squid:S2142")
-    private void maybeBlockConsumer(KiwiWebSocketSession session) {
+    private void maybeBlockConsumer(final KiwiWebSocketSession session) {
         try {
             int sleeps = 0;
-            while (sessionIsAvailable(session, sleeps++)) {
+            while (sessionIsOpenButNotReady(session, sleeps++)) {
 
                 if (logger.isDebugEnabled()) logger.debug("Waiting for websocket backlog to clear");
 
@@ -184,7 +182,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
         return this.sessions.get(session.getId());
     }
 
-    private boolean sessionIsAvailable(KiwiWebSocketSession session, int sleepCounter) {
+    private boolean sessionIsOpenButNotReady(KiwiWebSocketSession session, int sleepCounter) {
         return !session.isReady() &&
                 sleepCounter <= this.maxWaitCount &&
                 session.isOpen();

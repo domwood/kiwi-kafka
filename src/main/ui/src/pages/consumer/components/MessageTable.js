@@ -74,7 +74,7 @@ class MessageTable extends Component {
     };
 
     prettifyHeaders = (m) => {
-        if (typeof m.headers !== 'object' || m.headers === []) {
+        if (typeof m.headers !== 'object' || m.headers.length === 0) {
             return "";
         } else {
             return JSON.stringify(m.headers.reduce((base, next) => {
