@@ -2,6 +2,7 @@ package com.github.domwood.kiwi.kafka.filters;
 
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
 import com.github.domwood.kiwi.kafka.utils.KafkaUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
@@ -101,15 +102,15 @@ public class FilterBuilder {
 
     private static Boolean headerKeyExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<String> headerMatcher) {
         return KafkaUtils.fromKafkaHeaders(kafkaRecord.headers())
-                .keySet()
                 .stream()
+                .map(Pair::getKey)
                 .anyMatch(headerMatcher);
     }
 
     private static Boolean headerValueExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<String> headerMatcher) {
         return KafkaUtils.fromKafkaHeaders(kafkaRecord.headers())
-                .values()
                 .stream()
+                .map(Pair::getValue)
                 .map(String::valueOf)
                 .anyMatch(headerMatcher);
     }

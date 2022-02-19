@@ -23,8 +23,10 @@ import com.github.domwood.kiwi.data.output.TopicConfigValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.TopicPartition;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -38,7 +40,8 @@ public class TestDataFactory {
     public static final String testTopic = "aTestTopic";
     public static final String testKey = "testKey";
     public static final String testPayload = "{\"key\":\"value\"}";
-    public static final Map<String, String> testHeaders = ImmutableMap.of("TestHeaderKey", "TestHeaderValue");
+    public static final String testHeadersAsString = "{\"TestHeaderKey\":\"TestHeaderValue\"}";
+    public static final List<Pair<String, String>> testHeaders = singletonList(Pair.of("TestHeaderKey", "TestHeaderValue"));
     public static final Integer replicationFactor = 1;
     public static final Integer partitionCount = 7;
     public static final Long testOffset = 11L;

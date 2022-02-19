@@ -43,7 +43,7 @@ public class ProduceSingleMessage<K, V> extends AbstractKafkaTask<ProducerReques
         }
     }
 
-    private ProducerResponse onSuccess(RecordMetadata recordMetadata, KafkaProducerResource resource) {
+    private ProducerResponse onSuccess(final RecordMetadata recordMetadata, final KafkaProducerResource<K, V> resource) {
         String topic = recordMetadata.topic();
         int partition = recordMetadata.partition();
         long offset = recordMetadata.offset();

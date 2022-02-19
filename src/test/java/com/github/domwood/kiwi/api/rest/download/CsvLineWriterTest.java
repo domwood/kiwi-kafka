@@ -6,16 +6,29 @@ import com.github.domwood.kiwi.data.input.ConsumerRequestColumns;
 import com.github.domwood.kiwi.data.input.ConsumerRequestFileType;
 import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
 import com.github.domwood.kiwi.data.output.ConsumedMessage;
+import com.github.domwood.kiwi.testutils.TestDataFactory;
 import org.junit.jupiter.api.Test;
 
-import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.*;
-import static com.github.domwood.kiwi.testutils.TestDataFactory.*;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.HEADERS;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.KEY;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.OFFSET;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.PARTITION;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.TIMESTAMP;
+import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.VALUE;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumedMessage;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerToFileRequest;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testHeadersAsString;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testKey;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testOffset;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testPartition;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testPayload;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testTimestamp;
+import static com.github.domwood.kiwi.testutils.TestUtils.testMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CsvLineWriterTest {
 
-    private ObjectMapper mapper =
-            new ObjectMapper();
+    private final ObjectMapper mapper = testMapper();
 
     @Test
     public void testCsvWriteKey() throws JsonProcessingException {
@@ -51,9 +64,8 @@ public class CsvLineWriterTest {
         ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
-        String expected = mapper.writeValueAsString(testHeaders);
 
-        assertEquals(expected, observed);
+        assertEquals(testHeadersAsString, observed);
     }
 
 
@@ -105,9 +117,7 @@ public class CsvLineWriterTest {
 
         String observed = lineWriter.writeLine(message);
 
-        String headers = mapper.writeValueAsString(testHeaders);
-
-        String expected = String.format("%s %s %s %s %s %s", testKey, testTimestamp, testPartition, testOffset, headers, testPayload);
+        String expected = String.format("%s %s %s %s %s %s", testKey, testTimestamp, testPartition, testOffset, testHeadersAsString, testPayload);
 
         assertEquals(expected, observed);
     }
@@ -121,9 +131,7 @@ public class CsvLineWriterTest {
 
         String observed = lineWriter.writeLine(message);
 
-        String headers = mapper.writeValueAsString(testHeaders);
-
-        String expected = String.format("%s||%s||%s||%s||%s||%s", testKey, testTimestamp, testPartition, testOffset, headers, testPayload);
+        String expected = String.format("%s||%s||%s||%s||%s||%s", testKey, testTimestamp, testPartition, testOffset, testHeadersAsString, testPayload);
 
         assertEquals(expected, observed);
     }
@@ -137,9 +145,7 @@ public class CsvLineWriterTest {
 
         String observed = lineWriter.writeLine(message);
 
-        String headers = mapper.writeValueAsString(testHeaders);
-
-        String expected = String.format("%s\t%s\t%s\t%s\t%s\t%s", testKey, testTimestamp, testPartition, testOffset, headers, testPayload);
+        String expected = String.format("%s\t%s\t%s\t%s\t%s\t%s", testKey, testTimestamp, testPartition, testOffset, testHeadersAsString, testPayload);
 
         assertEquals(expected, observed);
     }
@@ -154,7 +160,7 @@ public class CsvLineWriterTest {
                 .build();
 
         String observed = lineWriter.writeLine(message);
-        String expected = testPayload+"\\n\\nHelloWorld";
+        String expected = testPayload + "\\n\\nHelloWorld";
 
         assertEquals(expected, observed);
     }

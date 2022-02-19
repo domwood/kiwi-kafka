@@ -30,7 +30,7 @@ class KafkaPost extends Component {
             bootstrapServers: "",
             targetTopic: "",
             kafkaKey: "",
-            kafkaHeaders: {},
+            kafkaHeaders: [],
             message: null,
             currentKafkaHeaderKey: "",
             currentKafkaHeaderValue: "",
@@ -97,9 +97,9 @@ class KafkaPost extends Component {
             let updatedHeaders = this.state.kafkaHeaders
             Object.keys(headerMap).forEach((key) => {
                 if (typeof headerMap[key] !== "string") {
-                    updatedHeaders[key] = JSON.stringify(headerMap[key]);
+                    updatedHeaders.push({key: key, value: JSON.stringify(headerMap[key])})
                 } else {
-                    updatedHeaders[key] = headerMap[key];
+                    updatedHeaders.push({key: key, value: headerMap[key]})
                 }
             })
             this.setState({
@@ -116,7 +116,7 @@ class KafkaPost extends Component {
         let currentKey = this.state.currentKafkaHeaderKey;
         let currentValue = this.state.currentKafkaHeaderValue;
         if (currentKey && currentKey.length > 0) {
-            headers[currentKey] = currentValue;
+            headers.push({key: currentKey, value: currentValue})
             this.setState({
                 currentKafkaHeaderKey: "",
                 currentKafkaHeaderValue: "",
@@ -125,9 +125,9 @@ class KafkaPost extends Component {
         }
     };
 
-    removeHeader = (key) => {
+    removeHeader = (index) => {
         let headers = this.state.kafkaHeaders;
-        delete headers[key];
+        headers.splice(index, 1);
         this.setState({
             kafkaHeaders: headers
         })
@@ -205,7 +205,10 @@ class KafkaPost extends Component {
                                 </InputGroup>
                                 :
                                 <InputGroup>
-                                    <Input type="textarea" name="kafkaHeadersMap" id="kafkaHeadersMap"
+                                    <Input type="textarea"
+                                           name="kafkaHeadersMap"
+                                           id="kafkaHeadersMap"
+                                           placeholder='{"someKey":"someValue", "someOtherKey":"someOtherValue"}'
                                            value={this.state.currentKafkaHeaderMap}
                                            onChange={this.handleHeaderMapChange}/>
                                     <InputGroupText>
@@ -231,12 +234,13 @@ class KafkaPost extends Component {
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {Object.keys(this.state.kafkaHeaders).map(headerKey => {
+                                    {this.state.kafkaHeaders.map((header, index) => {
                                         return (
-                                            <tr key={headerKey}>
-                                                <td width={"40%"}>{headerKey}</td>
-                                                <td width={"40%"}>{this.state.kafkaHeaders[headerKey]}</td>
-                                                <td width={"20%"}><Button onClick={() => this.removeHeader(headerKey)} style={{width: "100%"}}>Remove
+                                            <tr key={header.key + index}>
+                                                <td width={"40%"}>{header.key}</td>
+                                                <td width={"40%"}>{header.value}</td>
+                                                <td width={"20%"}><Button onClick={() => this.removeHeader(index)}
+                                                                          style={{width: "100%"}}>Remove
                                                     Header</Button></td>
                                             </tr>
                                         )

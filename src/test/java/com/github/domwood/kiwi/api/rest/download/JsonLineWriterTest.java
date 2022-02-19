@@ -16,16 +16,17 @@ import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.TIMESTAM
 import static com.github.domwood.kiwi.data.input.ConsumerRequestColumns.VALUE;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumedMessage;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerToFileRequest;
-import static com.github.domwood.kiwi.testutils.TestDataFactory.testHeaders;
+import static com.github.domwood.kiwi.testutils.TestDataFactory.testHeadersAsString;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.testKey;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.testOffset;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.testPartition;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.testTimestamp;
+import static com.github.domwood.kiwi.testutils.TestUtils.testMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonLineWriterTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = testMapper();
 
     @Test
     public void testJsonWriteKey() throws JsonProcessingException {
@@ -61,8 +62,7 @@ public class JsonLineWriterTest {
         ConsumedMessage message = buildConsumedMessage().build();
 
         String observed = lineWriter.writeLine(message);
-        String headers = mapper.writeValueAsString(testHeaders);
-        String expected = "{\"Headers\":" + headers + "}";
+        String expected = "{\"Headers\":" + testHeadersAsString + "}";
 
         assertEquals(expected, observed);
     }
@@ -116,14 +116,12 @@ public class JsonLineWriterTest {
 
         String observed = lineWriter.writeLine(message);
 
-        String headers = mapper.writeValueAsString(testHeaders);
-
         String expected = "{" +
                 "\"Key\":\"" + testKey + "\"," +
                 "\"Timestamp\":" + testTimestamp + "," +
                 "\"Partition\":" + testPartition + "," +
                 "\"Offset\":" + testOffset + "," +
-                "\"Headers\":" + headers + "," +
+                "\"Headers\":" + testHeadersAsString + "," +
                 "\"Value\":\"{\\\"key\\\":\\\"value\\\"}\"" +
                 "}";
 

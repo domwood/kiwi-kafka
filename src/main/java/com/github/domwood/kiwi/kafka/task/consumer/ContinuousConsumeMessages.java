@@ -64,7 +64,7 @@ public class ContinuousConsumeMessages<K, V>
         this.consumer = message -> logger.warn("No consumer attached to kafka task");
         this.paused = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
-        this.filters = new ArrayList<>();
+        this.filters = new ArrayList<>(input.filters());
         this.currentPosition = new HashMap<>();
     }
 
@@ -102,7 +102,6 @@ public class ContinuousConsumeMessages<K, V>
 
     @Override
     protected Void delegateExecuteSync() {
-        update(input);
 
         try {
             KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());

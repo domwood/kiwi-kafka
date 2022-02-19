@@ -48,7 +48,7 @@ class ConsumerGroupDetailsView extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{paddingRight: "5px", paddingLeft: "5px"}}>
                 <div className={"TwoGap"} />
                 <ButtonGroup>
                     <InputGroupText className={"input-group-text-padded"}>Consumer Group: {this.props.groupId}</InputGroupText>

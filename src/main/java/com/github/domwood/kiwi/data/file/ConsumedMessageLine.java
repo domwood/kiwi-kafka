@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.domwood.kiwi.data.serialization.CustomHeaderMapSerializer;
 import org.immutables.value.Value;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -39,7 +39,7 @@ public interface ConsumedMessageLine {
     @JsonInclude(NON_NULL)
     @Nullable
     @JsonProperty("Headers")
-    Map<String, Object> headers();
+    CustomHeaderMapSerializer.CustomerHeaderMap headers();
 
     @JsonInclude(NON_NULL)
     @Nullable

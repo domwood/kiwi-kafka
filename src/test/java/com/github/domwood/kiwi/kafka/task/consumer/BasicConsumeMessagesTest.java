@@ -34,6 +34,7 @@ import static com.github.domwood.kiwi.testutils.TestDataFactory.buildConsumerReq
 import static com.github.domwood.kiwi.testutils.TestDataFactory.testTimestamp;
 import static com.github.domwood.kiwi.testutils.TestDataFactory.testTopic;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -153,7 +154,7 @@ public class BasicConsumeMessagesTest {
     private ConsumedMessage buildConsumedMessage(int partition, int i) {
         return ImmutableConsumedMessage.<String, String>builder()
                 .key(String.format(KEY_VALUE, i))
-                .headers(emptyMap())
+                .headers(emptyList())
                 .message(String.format(RECORD_VALUE, i))
                 .offset(i)
                 .partition(partition)

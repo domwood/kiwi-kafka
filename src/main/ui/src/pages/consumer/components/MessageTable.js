@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {Button, Table} from "reactstrap";
 import PropTypes from "prop-types";
 import * as GeneralUtilities from "../../../services/GeneralUtilities";
@@ -39,10 +39,10 @@ class MessageTable extends Component {
         });
     };
 
-    isLastHeader= (button) => {
+    isLastHeader = (button) => {
         return this.state.buttons
             .filter(b => this.state[b.key])
-            .reduce((a,b) => b).key === button.key;
+            .reduce((a, b) => b).key === button.key;
     };
 
     copyViewToClipboard = () => {
@@ -68,61 +68,76 @@ class MessageTable extends Component {
         let ok = document.execCommand('copy')
         if (ok) {
             toast.success("Copied current table view to clipboard");
-        }
-        else{
+        } else {
             toast.error("Failed to table to clipboard");
         }
     };
 
+    prettifyHeaders = (m) => {
+        if (typeof m.headers !== 'object' || m.headers === []) {
+            return "";
+        } else {
+            return JSON.stringify(m.headers.reduce((base, next) => {
+                if (next.key) {
+                    base[next.key] = next.value;
+                }
+                return base;
+            }, {}));
+        }
+    }
+
     render() {
         return (
-                this.props.messages.length > 0 ?
-                    <div>
-                        <div className={"TwoGap"} />
+            this.props.messages.length > 0 ?
+                <div>
+                    <div className={"TwoGap"}/>
 
-                        <ColumnFilterButtons name={'MessageTableFilter'}
-                                             id={'MessageTableFilter'}
-                                             buttons={this.state.buttons}
-                                             viewState={this.state}
-                                             updater={this.toggleField} />
+                    <ColumnFilterButtons name={'MessageTableFilter'}
+                                         id={'MessageTableFilter'}
+                                         buttons={this.state.buttons}
+                                         viewState={this.state}
+                                         updater={this.toggleField}/>
 
-                        <div className={"Gap"} />
+                    <div className={"Gap"}/>
 
-                        <Table size="sm" id={'mainTable'} bordered >
-                            <thead>
-                            <tr>
-                                {this.state.buttons.map((button) => {
-                                    return this.state[button.key] ?
-                                        <th key={'table_th_'+button.displayName}>
-                                            <span style={{"float":"left"}}>{button.displayName}</span>
-                                            {this.isLastHeader(button) ?
-                                                <span style={{"float":"right", "margin" : "-4px"}}>
-                                                    <Button onClick={this.copyViewToClipboard} size={"sm"}><GoClippy /></Button>
-                                                </span>: null}
-                                        </th> : null
-                                })}
-                            </tr>
-                            </thead>
-                            <tbody className="WrappedTable" id={'copiableTableBody'}>
-                            {
-                                this.props.messages.map(m => {
-                                    return (
-                                        <tr key={`${m.partition}_${m.offset}`} id={`record_row_${m.partition}_${m.offset}`}>
-                                            {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
-                                            {this.state.showDateTime ?  <td width="10%">{GeneralUtilities.prettyTimestamp(m.timestamp)}</td> : null}
-                                            {this.state.showPartition ? <td width="3%">{m.partition}</td>  : null}
-                                            {this.state.showOffset ?    <td width="3%">{m.offset}</td>     : null}
-                                            {this.state.showKey ?       <td width="10%">{m.key}</td> : null}
-                                            {this.state.showHeaders ?   <td width="18%">{GeneralUtilities.isEmpty(m.headers) ? "" : JSON.stringify(m.headers)}</td> : null}
-                                            {this.state.showValue ?     <td width="46%">{m.message}</td>: null}
-                                        </tr>
-                                    )
-                                })
-                            }
-                            </tbody>
-                        </Table>
-                    </div> :
-                    <div></div>
+                    <Table size="sm" id={'mainTable'} bordered>
+                        <thead>
+                        <tr>
+                            {this.state.buttons.map((button) => {
+                                return this.state[button.key] ?
+                                    <th key={'table_th_' + button.displayName}>
+                                        <span style={{"float": "left"}}>{button.displayName}</span>
+                                        {this.isLastHeader(button) ?
+                                            <span style={{"float": "right", "margin": "-4px"}}>
+                                                    <Button onClick={this.copyViewToClipboard}
+                                                            size={"sm"}><GoClippy/></Button>
+                                                </span> : null}
+                                    </th> : null
+                            })}
+                        </tr>
+                        </thead>
+                        <tbody className="WrappedTable" id={'copiableTableBody'}>
+                        {
+                            this.props.messages.map(m => {
+                                return (
+                                    <tr key={`${m.partition}_${m.offset}`} id={`record_row_${m.partition}_${m.offset}`}>
+                                        {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
+                                        {this.state.showDateTime ?
+                                            <td width="10%">{GeneralUtilities.prettyTimestamp(m.timestamp)}</td> : null}
+                                        {this.state.showPartition ? <td width="3%">{m.partition}</td> : null}
+                                        {this.state.showOffset ? <td width="3%">{m.offset}</td> : null}
+                                        {this.state.showKey ? <td width="10%">{m.key}</td> : null}
+                                        {this.state.showHeaders ?
+                                            <td width="18%">{this.prettifyHeaders(m)}</td> : null}
+                                        {this.state.showValue ? <td width="46%">{m.message}</td> : null}
+                                    </tr>
+                                )
+                            })
+                        }
+                        </tbody>
+                    </Table>
+                </div> :
+                <div></div>
         )
     }
 }

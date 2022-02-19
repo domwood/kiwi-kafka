@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.domwood.kiwi.data.input.ConsumerRequestColumns;
 import com.github.domwood.kiwi.data.input.ConsumerToFileRequest;
 import com.github.domwood.kiwi.data.output.ConsumedMessage;
+import com.github.domwood.kiwi.data.serialization.CustomHeaderMapSerializer;
 
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class CsvLineWriter implements FileLineWriter {
     private final ObjectMapper mapper;
 
     public CsvLineWriter(ObjectMapper mapper,
-                         ConsumerToFileRequest request){
+                         ConsumerToFileRequest request) {
 
         this.mapper = mapper;
         this.columns = request.columns();
@@ -35,49 +36,49 @@ public class CsvLineWriter implements FileLineWriter {
     }
 
     private void writeOffset(ConsumedMessage message, StringBuilder writer) {
-        if(columns.contains(ConsumerRequestColumns.OFFSET)){
-            if(writer.length() > 0) writer.append(delimiter);
+        if (columns.contains(ConsumerRequestColumns.OFFSET)) {
+            if (writer.length() > 0) writer.append(delimiter);
             writer.append(message.offset());
         }
     }
 
     private void writePartition(ConsumedMessage message, StringBuilder writer) {
-        if(columns.contains(ConsumerRequestColumns.PARTITION)){
-            if(writer.length() > 0) writer.append(delimiter);
+        if (columns.contains(ConsumerRequestColumns.PARTITION)) {
+            if (writer.length() > 0) writer.append(delimiter);
             writer.append(message.partition());
         }
     }
 
     private void writeTimestamp(ConsumedMessage message, StringBuilder writer) {
-        if(columns.contains(ConsumerRequestColumns.TIMESTAMP)){
-            if(writer.length() > 0) writer.append(delimiter);
+        if (columns.contains(ConsumerRequestColumns.TIMESTAMP)) {
+            if (writer.length() > 0) writer.append(delimiter);
             writer.append(message.timestamp());
         }
     }
 
-    private void writeKey(ConsumedMessage message, StringBuilder writer){
-        if(columns.contains(ConsumerRequestColumns.KEY)){
-            if(writer.length() > 0) writer.append(delimiter);
+    private void writeKey(ConsumedMessage message, StringBuilder writer) {
+        if (columns.contains(ConsumerRequestColumns.KEY)) {
+            if (writer.length() > 0) writer.append(delimiter);
             writer.append(message.key());
         }
     }
 
-    private void writeValue(ConsumedMessage message, StringBuilder writer){
-        if(columns.contains(ConsumerRequestColumns.VALUE)){
-            if(writer.length() > 0) writer.append(delimiter);
+    private void writeValue(ConsumedMessage message, StringBuilder writer) {
+        if (columns.contains(ConsumerRequestColumns.VALUE)) {
+            if (writer.length() > 0) writer.append(delimiter);
             writer.append(escapeNewLines(message.message()));
         }
     }
 
     private void writeHeaders(ConsumedMessage message, StringBuilder writer) throws JsonProcessingException {
-        if(columns.contains(ConsumerRequestColumns.HEADERS)){
-            if(writer.length() > 0) writer.append(delimiter);
-            writer.append(escapeNewLines(mapper.writeValueAsString(message.headers())));
+        if (columns.contains(ConsumerRequestColumns.HEADERS)) {
+            if (writer.length() > 0) writer.append(delimiter);
+            writer.append(escapeNewLines(mapper.writeValueAsString(CustomHeaderMapSerializer.toSerializable(message.headers()))));
         }
     }
 
-    private String escapeNewLines(String input){
-        if(input == null) return null;
+    private String escapeNewLines(String input) {
+        if (input == null) return null;
         return input.replaceAll("\n", "\\\\n");
     }
 

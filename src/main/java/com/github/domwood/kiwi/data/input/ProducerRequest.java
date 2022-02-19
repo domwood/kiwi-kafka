@@ -2,9 +2,10 @@ package com.github.domwood.kiwi.data.input;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.commons.lang3.tuple.Pair;
 import org.immutables.value.Value;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 @JsonSerialize(as = ImmutableProducerRequest.class)
@@ -16,7 +17,7 @@ public interface ProducerRequest extends InboundRequest {
 
     String key();
 
-    Map<String, String> headers();
+    List<Pair<String, String>> headers();
 
     Optional<String> payload();
 
