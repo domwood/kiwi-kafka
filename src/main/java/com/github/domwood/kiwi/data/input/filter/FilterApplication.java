@@ -7,7 +7,6 @@ public enum FilterApplication {
     HEADER,
     HEADER_VALUE,
     HEADER_KEY,
-    PARTITION,
     OFFSET,
     TIMESTAMP
 

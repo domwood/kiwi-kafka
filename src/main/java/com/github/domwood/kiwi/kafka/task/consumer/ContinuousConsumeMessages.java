@@ -3,7 +3,11 @@ package com.github.domwood.kiwi.kafka.task.consumer;
 
 import com.github.domwood.kiwi.data.input.AbstractConsumerRequest;
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.output.ConsumedMessage;
+import com.github.domwood.kiwi.data.output.ConsumerPosition;
+import com.github.domwood.kiwi.data.output.ConsumerResponse;
+import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
@@ -19,7 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -93,7 +104,7 @@ public class ContinuousConsumeMessages<K, V>
     protected Void delegateExecuteSync() {
 
         try {
-            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition(), input.filters());
+            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
             Pair<Map<TopicPartition, Long>, ConsumerPosition> consumerPosition = tracker.gatherUpdatedPosition(resource);
             forward(emptyList(), consumerPosition.getRight());
             this.currentPosition.putAll(consumerPosition.getLeft());

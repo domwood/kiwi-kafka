@@ -7,7 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -41,8 +40,6 @@ public class FilterBuilder {
                 return kafkaRecord -> headerKeyExtractor(kafkaRecord, buildFilterType(messageFilter));
             case HEADER_VALUE:
                 return kafkaRecord -> headerValueExtractor(kafkaRecord, buildFilterType(messageFilter));
-            case PARTITION:
-                return kafkaRecord -> partitionExtractor(kafkaRecord, buildNumericFilterType(messageFilter));
             case OFFSET:
                 return kafkaRecord -> offsetExtractor(kafkaRecord, buildNumericFilterType(messageFilter));
             case TIMESTAMP:
@@ -115,10 +112,6 @@ public class FilterBuilder {
                 .map(Pair::getValue)
                 .map(String::valueOf)
                 .anyMatch(headerMatcher);
-    }
-
-    private static Boolean partitionExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<Long> partitionMatcher) {
-        return partitionMatcher.test((long) kafkaRecord.partition());
     }
 
     private static Boolean offsetExtractor(final ConsumerRecord<?, ?> kafkaRecord, final Predicate<Long> offsetMatcher) {
@@ -202,7 +195,6 @@ public class FilterBuilder {
         switch (messageFilter.filterApplication()) {
             case OFFSET:
             case TIMESTAMP:
-            case PARTITION:
                 switch (messageFilter.filterType()) {
                     case GREATER_THAN:
                     case LESS_THAN:

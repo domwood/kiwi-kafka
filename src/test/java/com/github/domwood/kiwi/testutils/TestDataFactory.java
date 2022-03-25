@@ -221,7 +221,7 @@ public class TestDataFactory {
         return ImmutableTopicConfigValue.builder()
                 .configKey(configKey)
                 .configValue(configValue)
-                .isDefault(true)
+                .isDefault(false)
                 .build();
     }
 

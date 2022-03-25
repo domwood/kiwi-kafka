@@ -111,7 +111,7 @@ public class ConsumerGroupDetailsWithOffset extends AbstractKafkaTask<String, Co
 
             if (topics.isEmpty()) return Collections.emptyMap();
 
-            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, Optional.empty(), Collections.emptyList()).getEndOffsets();
+            Map<TopicPartition, Long> endOffsets = KafkaTaskUtils.subscribeAndSeek(resource, topics, Optional.empty()).getEndOffsets();
 
             return mapToOffset(offsetData, endOffsets);
         });

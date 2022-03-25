@@ -339,42 +339,6 @@ public class FilterBuilderTest {
         assertEquals(matches, test.test(mockRecord));
     }
 
-    @ParameterizedTest
-    @CsvSource(value = {
-            "0, GREATER_THAN, 10, false",
-            "10, GREATER_THAN, 10, false",
-            "10, GREATER_THAN, 0, true",
-
-            "0, LESS_THAN, 10, true",
-            "10, LESS_THAN, 10, false",
-            "10, LESS_THAN, 0, false",
-
-            "0, MATCHES, 10, false",
-            "10, MATCHES, 10, true",
-            "10, MATCHES, 0, false",
-
-            "0, NOT_MATCHES, 10, true",
-            "10, NOT_MATCHES, 10, false",
-            "10, NOT_MATCHES, 0, true"
-    })
-    public void testPartitionFilterApplication(final long offsetValue,
-                                               final FilterType filterType,
-                                               final long filterValue,
-                                               final boolean matches) {
-        when(mockRecord.partition()).thenReturn(Long.valueOf(offsetValue).intValue());
-
-        MessageFilter filter = baseFilter()
-                .filterApplication(FilterApplication.PARTITION)
-                .filterType(filterType)
-                .filter(Long.toString(filterValue))
-                .build();
-
-        Predicate<ConsumerRecord<String, String>> test = FilterBuilder
-                .compileFilters(singletonList(filter), Function.identity(), Function.identity());
-
-        assertEquals(matches, test.test(mockRecord));
-    }
-
     private ImmutableMessageFilter.Builder baseFilter() {
         return ImmutableMessageFilter.builder()
                 .filter("HELLO")

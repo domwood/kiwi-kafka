@@ -25,7 +25,8 @@ class KafkaGet extends Component {
             filters: [],
             continuous: false,
             consumeCount: 0,
-            isReversed: true
+            isReversed: true,
+            partitions: []
         };
     }
 
@@ -38,7 +39,12 @@ class KafkaGet extends Component {
     }
 
     setTargetTopic = (target) => {
-        this.setState({targetTopic: target})
+        if (target !== this.state.targetTopic) {
+            this.setState({
+                targetTopic: target,
+                partitions: []
+            });
+        }
     };
 
     setMessageLimit = (messageLimit) => {
@@ -48,6 +54,12 @@ class KafkaGet extends Component {
     setFilter = (filters) => {
         this.setState({
             filters: filters
+        });
+    };
+
+    setPartitions = (partitions) => {
+        this.setState({
+            partitions: partitions
         });
     };
 
@@ -79,7 +91,13 @@ class KafkaGet extends Component {
                             />
                             : null
                         }
-                        <FilterConfigurer name={"filterConfigurer"} id={"filterConfigurer"} onUpdate={this.setFilter}/>
+                        <FilterConfigurer name={"filterConfigurer"}
+                                          id={"filterConfigurer"}
+                                          onUpdate={this.setFilter}/>
+                        {/*<PartitionConfigurer name={"partitionConfigurer"}*/}
+                        {/*                     id={"partitionConfigurer"}*/}
+                        {/*                     onUpdate={this.setPartitions}*/}
+                        {/*                     targetTopic={this.state.targetTopic}/>*/}
                     </FormGroup>
 
                     {

@@ -43,7 +43,7 @@ public class BasicConsumeMessages<K, V> extends FuturisingAbstractKafkaTask<Abst
     protected ConsumerResponse delegateExecuteSync() {
 
         try {
-            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition(), input.filters());
+            KafkaConsumerTracker tracker = KafkaTaskUtils.subscribeAndSeek(resource, input.topics(), input.consumerStartPosition());
 
             Queue<ConsumedMessage> queue = selectQueueType();
 

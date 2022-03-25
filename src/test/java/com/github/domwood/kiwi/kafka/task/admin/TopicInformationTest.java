@@ -57,7 +57,7 @@ public class TopicInformationTest {
     private final Node leaderNode = new Node(46, "host", 9090);
 
     private final Config config = new Config(topicConfiguration.values().stream()
-            .map(topicConfigValue -> new ConfigEntry(topicConfigValue.configKey(), topicConfigValue.configValue(), true, false, false))
+            .map(topicConfigValue -> new ConfigEntry(topicConfigValue.configKey(), topicConfigValue.configValue()))
             .collect(toList()));
 
     private final List<TopicPartitionInfo> nodes = IntStream.range(0, partitionCount).boxed()
