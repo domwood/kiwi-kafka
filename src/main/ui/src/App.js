@@ -14,6 +14,7 @@ import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import * as ApiService from "./services/ApiService";
 import ClusterChooser from "./pages/common/ClusterChooser";
+import AppData from "./contexts/AppData";
 
 class App extends Component {
     constructor(props) {
@@ -117,16 +118,18 @@ class App extends Component {
                                 </NavItem>
                             </Nav>
                         </Navbar>
-                        <Routes>
-                            <Route exact path="/" element={<KafkaHome profiles={this.state.profiles}/>}/>
-                            <Route path="/topics" element={<KafkaTopics profiles={this.state.profiles}/>}/>
-                            <Route path="/groups" element={<KafkaConsumerGroups profiles={this.state.profiles}/>}/>
-                            <Route path="/post" element={<KafkaPost profiles={this.state.profiles}/>}/>
-                            <Route path="/get" element={<KafkaGet isDownload={false} profiles={this.state.profiles}/>}/>
-                            <Route path="/download"
-                                   element={<KafkaGet isDownload={true} profiles={this.state.profiles}/>}/>
-                            <Route redirectTo="/"/>
-                        </Routes>
+                        <AppData>
+                            <Routes>
+                                <Route exact path="/" element={<KafkaHome profiles={this.state.profiles}/>}/>
+                                <Route path="/topics" element={<KafkaTopics profiles={this.state.profiles}/>}/>
+                                <Route path="/groups" element={<KafkaConsumerGroups profiles={this.state.profiles}/>}/>
+                                <Route path="/post" element={<KafkaPost profiles={this.state.profiles}/>}/>
+                                <Route path="/get" element={<KafkaGet isDownload={false} profiles={this.state.profiles}/>}/>
+                                <Route path="/download"
+                                       element={<KafkaGet isDownload={true} profiles={this.state.profiles}/>}/>
+                                <Route redirectTo="/"/>
+                            </Routes>
+                        </AppData>
                     </div>
                 </Router>
             </div>

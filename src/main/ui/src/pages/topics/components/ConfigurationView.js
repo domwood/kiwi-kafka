@@ -79,7 +79,9 @@ class ConfigurationView extends Component {
 
                             return (
                                 <tr key={`${this.props.topic}_${key}`}>
-                                    <td>{key}</td>
+                                    <td>
+                                        {key}
+                                    </td>
                                     <td>{this.state.configuration[key].configValue}</td>
                                     <td>{this.state.configuration[key].isDefault ? 'Yes' : <b>No</b>}</td>
                                     <td>

@@ -1,60 +1,24 @@
 import React, {Component} from "react";
-import {
-    Button,
-    ButtonGroup,
-    Container,
-    Spinner
-} from "reactstrap";
-import * as ApiService from "../../services/ApiService";
-import {toast} from "react-toastify";
+import {Button, ButtonGroup, Container, Spinner} from "reactstrap";
 import "../../App.css";
 import {MdRefresh} from "react-icons/md";
 import CreateTopic from "./components/CreateTopic";
 import TopicView from "./components/TopicView";
 import SearchableViewList from "../common/SearchableViewList";
 import PropTypes from "prop-types";
+import {AppDataContext} from "../../contexts/AppDataContext";
 
 class KafkaTopics extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
 
         this.state = {
-            topicList: [],
-            loading: false
-        };
+            addTopic: false
+        }
     }
-
-    componentDidMount() {
-        this.mounted = true;
-        this.reloadTopics();
-    }
-
-    componentWillUnmount() {
-        this.mounted = false;
-    }
-
-    reloadTopics = () => {
-        this.setState({
-            loading: true
-        }, () => {
-            ApiService.getTopics((topics) => {
-                if (this.mounted) {
-                    this.setState({
-                        topicList: topics || [],
-                        loading: false
-                    }, () => {
-                        toast.info("Refreshed topic list from server");
-                    });
-                }
-            }, () => {
-                this.setState({
-                    loading: false
-                });
-                toast.error("Could not retrieve topic list from server")
-            });
-        });
-    };
 
     addTopic = (toggle) => {
         this.setState({
@@ -63,6 +27,7 @@ class KafkaTopics extends Component {
     };
 
     render() {
+
         return (
             <Container className={"WideBoi"}>
 
@@ -72,26 +37,26 @@ class KafkaTopics extends Component {
                 <div className={"TwoGap"}/>
 
                 <ButtonGroup>
-                    <Button color="primary" onClick={this.reloadTopics}>Reload List <MdRefresh/></Button>
+                    <Button color="primary" onClick={this.context.topicListRefresh}>Reload List <MdRefresh/></Button>
                     {!this.state.addTopic ?
                         <Button color="success" onClick={() => this.addTopic(true)}>Add Topic +</Button> : ''}
-                    {this.state.loading ? <Spinner color="secondary"/> : ''}
+                    {this.context.topicLoading ? <Spinner color="secondary"/> : ''}
                 </ButtonGroup>
 
                 <div className={"Gap"}/>
 
                 {this.state.addTopic ? <CreateTopic onClose={() => this.addTopic(false)}
-                                                    onCreate={this.reloadTopics}
+                                                    onCreate={this.context.topicListRefresh}
                                                     profiles={this.props.profiles}/> : ''}
 
                 <div className={"Gap"}/>
 
                 <SearchableViewList id={"topicViewList"}
-                                    elementList={this.state.topicList}
+                                    elementList={this.context.topicList}
                                     elementViewProvider={(topic) => <TopicView id={`${topic}_view`}
                                                                                key={`${topic}_view`}
                                                                                topic={topic}
-                                                                               onDeletion={this.reloadTopics}
+                                                                               onDeletion={this.context.topicListRefresh}
                                                                                profiles={this.props.profiles}/>}/>
             </Container>
         );
@@ -101,6 +66,5 @@ class KafkaTopics extends Component {
 KafkaTopics.propTypes = {
     profiles: PropTypes.array.isRequired
 };
-
 
 export default KafkaTopics;

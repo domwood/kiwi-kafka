@@ -5,8 +5,11 @@ import {Button, ButtonGroup, Input, Label, ListGroup, ListGroupItem} from "react
 import {toast} from "react-toastify";
 import * as ApiService from "../../../services/ApiService";
 import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
+import {AppDataContext} from "../../../contexts/AppDataContext";
 
 class FileDownloader extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
@@ -86,7 +89,7 @@ class FileDownloader extends Component {
 
     postForDownload = () => {
         ApiService.consumeToFile(
-            [this.props.targetTopic],
+            [this.context.targetTopic],
             this.props.filters,
             this.state.format,
             this.state.buttons.filter(b => this.state[b.key]).map(b => b.displayName.toUpperCase()),
@@ -152,11 +155,11 @@ class FileDownloader extends Component {
                 <Button onClick={this.postForDownload}
                         color={"success"}
                         id="consumeToFile"
-                        disabled={(!this.props.targetTopic || this.props.targetTopic.length === 0) || this.isConsumerDisabled()}
+                        disabled={(!this.context.targetTopic || this.context.targetTopic.length === 0) || this.isConsumerDisabled()}
                         block>Download</Button>
                 <ProfileToggleToolTip profiles={this.props.profiles}
                                       targetProfile={"read-consumer"}
-                                      id={`${this.props.targetTopic}_fd`}
+                                      id={`${this.context.targetTopic}_fd`}
                                       style={{"float":"right", "marginRight":"-20px", "marginTop":"-31px"}}
                 />
 
@@ -169,7 +172,6 @@ FileDownloader.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     filters: PropTypes.array.isRequired,
-    targetTopic: PropTypes.string.isRequired,
     profiles: PropTypes.array.isRequired
 };
 

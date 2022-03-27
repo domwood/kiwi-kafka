@@ -2,9 +2,7 @@ import React from 'react';
 import KafkaTopics from './KafkaTopics';
 import {render, unmountComponentAtNode} from "react-dom";
 import {act} from "react-dom/test-utils";
-import * as ApiService from "../../services/ApiService";
-
-jest.mock("../../services/ApiService");
+import {AppDataContext} from "../../contexts/AppDataContext";
 
 const topicList = [
     "exampleTestTopicOne", "exampleTestTopicTwo"
@@ -12,7 +10,6 @@ const topicList = [
 
 let container = null;
 beforeEach(() => {
-    ApiService.getTopics.mockClear();
     container = document.createElement("div");
     document.body.appendChild(container);
 });
@@ -25,17 +22,16 @@ afterEach(() => {
 
 it('check kafka topics loaded on start', async () => {
 
-    ApiService.getTopics.mockImplementation((cb) => {
-        cb(topicList);
-    });
-
     await act(async () => {
-        render(<KafkaTopics profiles={['write-admin', 'read-admin']}/>, container);
+        render(
+            <AppDataContext.Provider value={{topicList: topicList, topicListRefresh: () => {}}}>
+                <KafkaTopics profiles={['write-admin', 'read-admin']}/>
+            </AppDataContext.Provider>
+            ,
+            container);
     });
 
     let topicViewText = container.querySelector('#topicViewList').textContent;
     expect(topicViewText).toContain("exampleTestTopicOne");
     expect(topicViewText).toContain("exampleTestTopicTwo");
-
-    expect(ApiService.getTopics).toHaveBeenCalledTimes(1);
 });

@@ -5,12 +5,15 @@ import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
 import ConsumerSlider from "./ConsumerSlider";
 import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
+import {AppDataContext} from "../../../contexts/AppDataContext";
 
 const CLOSED_STATE = "CLOSED";
 const CONSUMING_STATE = "CONSUMING";
 const PAUSED_STATE = "PAUSING";
 
 class MessageReader extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
@@ -102,7 +105,7 @@ class MessageReader extends Component {
     };
 
     startConsumer = () => {
-        if (!this.props.targetTopic) {
+        if (!this.context.targetTopic) {
             toast.error("Consumer cannot be started, no topic specified");
             return;
         }
@@ -112,7 +115,7 @@ class MessageReader extends Component {
                 this.props.updateMessages([]);
 
                 WebSocketService.consume(
-                    [this.props.targetTopic],
+                    [this.context.targetTopic],
                     this.props.filters,
                     this.state.startingPosition,
                     this.onWebSocketMessage,
@@ -179,7 +182,7 @@ class MessageReader extends Component {
                     <Button onClick={this.startConsumer}
                             color={"success"}
                             id="consumeViaWebSocketButton"
-                            disabled={(!this.props.targetTopic || this.props.targetTopic.length === 0) || this.isConsumerDisabled()}
+                            disabled={(!this.context.targetTopic) || this.isConsumerDisabled()}
                             block>Read</Button>
                     <ProfileToggleToolTip profiles={this.props.profiles}
                                           id={`${this.props.topic}_consume`}
@@ -235,7 +238,6 @@ MessageReader.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     filters: PropTypes.array.isRequired,
-    targetTopic: PropTypes.string,
     messageLimit: PropTypes.number.isRequired,
     messageFromEnd: PropTypes.bool.isRequired,
     isReversed: PropTypes.bool.isRequired,

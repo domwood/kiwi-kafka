@@ -9,8 +9,12 @@ import MessageReader from "./components/MessageReader";
 import MessageTable from "./components/MessageTable";
 import FileDownloader from "./components/FileDownloader";
 import PropTypes from "prop-types";
+import PartitionConfigurer from "./components/PartitionConfigurer";
+import {AppDataContext} from "../../contexts/AppDataContext";
 
 class KafkaGet extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
@@ -18,7 +22,6 @@ class KafkaGet extends Component {
         this.state = {
             alerts: [],
             bootstrapServers: "",
-            targetTopic: "",
             messageLimit: 1000,
             messageFromEnd: true,
             messages: [],
@@ -38,14 +41,6 @@ class KafkaGet extends Component {
         this.mounted = false;
     }
 
-    setTargetTopic = (target) => {
-        if (target !== this.state.targetTopic) {
-            this.setState({
-                targetTopic: target,
-                partitions: []
-            });
-        }
-    };
 
     setMessageLimit = (messageLimit) => {
         this.setState({messageLimit: messageLimit})
@@ -78,7 +73,7 @@ class KafkaGet extends Component {
                 <h1 id={"kafkaGetDataTitle"}>{this.props.isDownload ? "Download Data From Kafka" : "Get Data From Kafka"}</h1>
                 <div className="mt-lg-4"/>
                 <Form>
-                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic || ""}/>
+                    <TopicInput/>
 
                     <div className="mt-lg-1"/>
 
@@ -94,10 +89,10 @@ class KafkaGet extends Component {
                         <FilterConfigurer name={"filterConfigurer"}
                                           id={"filterConfigurer"}
                                           onUpdate={this.setFilter}/>
-                        {/*<PartitionConfigurer name={"partitionConfigurer"}*/}
-                        {/*                     id={"partitionConfigurer"}*/}
-                        {/*                     onUpdate={this.setPartitions}*/}
-                        {/*                     targetTopic={this.state.targetTopic}/>*/}
+                        <PartitionConfigurer name={"partitionConfigurer"}
+                                             id={"partitionConfigurer"}
+                                             onUpdate={this.setPartitions}
+                        />
                     </FormGroup>
 
                     {
@@ -106,7 +101,7 @@ class KafkaGet extends Component {
                                 <MessageReader
                                     name={"messageReader"} id={"messageReader"}
                                     filters={this.state.filters}
-                                    targetTopic={this.state.targetTopic || ''}
+                                    targetTopic={this.context.targetTopic || ''}
                                     messageLimit={this.state.messageLimit}
                                     messageFromEnd={false}
                                     isReversed={true}
@@ -124,7 +119,6 @@ class KafkaGet extends Component {
                                 <FileDownloader id={"FileDownloader"}
                                                 name={"FileDownloader"}
                                                 filters={this.state.filters}
-                                                targetTopic={this.state.targetTopic}
                                                 profiles={this.props.profiles}
                                 />
                             </div>

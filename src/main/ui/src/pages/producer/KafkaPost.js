@@ -20,15 +20,17 @@ import {toast} from "react-toastify";
 import "../../App.css";
 import PropTypes from "prop-types";
 import ProfileToggleToolTip from "../common/ProfileToggleToolTip";
+import {AppDataContext} from "../../contexts/AppDataContext";
 
 class KafkaPost extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
 
         this.state = {
             bootstrapServers: "",
-            targetTopic: "",
             kafkaKey: "",
             kafkaHeaders: [],
             message: null,
@@ -141,7 +143,7 @@ class KafkaPost extends Component {
 
     submit = () => {
         ApiService.produce(
-            this.state.targetTopic,
+            this.context.targetTopic,
             this.state.kafkaKey,
             this.state.message,
             this.state.kafkaHeaders,
@@ -159,7 +161,7 @@ class KafkaPost extends Component {
                 <div className="mt-lg-4"/>
                 <Form>
 
-                    <TopicInput onUpdate={this.setTargetTopic} targetTopic={this.state.targetTopic}/>
+                    <TopicInput/>
 
                     <FormGroup>
                         <Label for="kafkaKey">Kafka Key</Label>

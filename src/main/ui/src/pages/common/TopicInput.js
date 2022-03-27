@@ -1,50 +1,20 @@
-import * as ApiService from "../../services/ApiService";
-
 import {Button, FormGroup, InputGroup, InputGroupText, Label} from "reactstrap";
 
 import React, {Component} from "react";
 import {MdRefresh} from "react-icons/md";
-import PropTypes from "prop-types";
-import {toast} from "react-toastify";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import "../../App.css";
+import {AppDataContext} from "../../contexts/AppDataContext";
 
 class TopicInput extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            topicList: []
-        };
-
-        this._cancellable = false;
+        this.state = {};
     }
-
-    componentDidMount() {
-        this._cancellable = true;
-        this._cancellable && this.getTopicList();
-    }
-
-    componentWillUnmount() {
-        this._cancellable = false;
-    }
-
-    getTopicList = (reload) => {
-        if (this.state.topicList.length === 0 || reload) {
-            ApiService.getTopics((topics) => {
-                if (this._cancellable) {
-                    this.setState({
-                        topicList: topics
-                    });
-                }
-            }, () => toast.warn("Could not retrieve topic list from server"));
-        }
-    };
-
-    setTargetTopic = (topic) => {
-        this.props.onUpdate(topic || '');
-    };
 
     render() {
         return (
@@ -52,18 +22,17 @@ class TopicInput extends Component {
                 <Label for="topic">Topic:</Label>
 
                 <InputGroup>
-
                     <Typeahead
-                        defaultInputValue={this.props.targetTopic}
+                        defaultInputValue={this.context.targetTopic}
                         id={"topicInput"}
-                        onChange={select => this.setTargetTopic(select[0]) || ''}
-                        onInputChange={i => this.setTargetTopic(i || '')}
-                        options={this.state.topicList}
+                        onChange={select => this.context.setTargetTopic(select[0]) || ''}
+                        onInputChange={i => this.context.setTargetTopic(i || '')}
+                        options={this.context.topicList}
                         className={"StretchedInput"}
                     />
 
                     <InputGroupText>
-                        <Button color="primary" onClick={() => this.getTopicList(true)}>Refresh
+                        <Button color="primary" onClick={this.context.topicListRefresh}>Refresh
                             Topics<MdRefresh/></Button>
                     </InputGroupText>
                 </InputGroup>
@@ -72,9 +41,6 @@ class TopicInput extends Component {
     }
 }
 
-TopicInput.propTypes = {
-    onUpdate: PropTypes.func.isRequired,
-    targetTopic: PropTypes.string.isRequired
-};
+TopicInput.propTypes = {};
 
 export default TopicInput;

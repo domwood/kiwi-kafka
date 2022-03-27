@@ -6,10 +6,12 @@ import DeleteTopic from "./DeleteTopic";
 import PartitionView from "./PartitionView";
 import ConfigurationView from "./ConfigurationView";
 import ConsumerView from "./ConsumerView";
-import * as ApiService from "../../../services/ApiService";
-import {toast} from "react-toastify";
+import {AppDataContext} from "../../../contexts/AppDataContext";
 
 class TopicView extends Component {
+
+    static contextType = AppDataContext
+
     constructor(props) {
         super(props);
 
@@ -24,7 +26,7 @@ class TopicView extends Component {
         if (!this.state.toggle || refresh) {
             this.setState({
                 loading: true
-            }, this.loadDetails)
+            }, () => this.loadDetails(refresh))
         } else {
             this.setState({
                 toggle: false
@@ -32,17 +34,15 @@ class TopicView extends Component {
         }
     };
 
-    loadDetails = () => {
-        ApiService.getTopicInfo(this.props.topic, (details) => {
+    loadDetails = (forceRefresh) => {
+        this.context.getTopicData(this.props.topic, forceRefresh, (details) => {
             this.setState({
                 topicData: details,
                 toggle: true,
                 loading: false
             });
-            toast.info(`Retrieved details for ${this.props.topic} topic list from server`)
         }, () => {
             this.setState({loading: false});
-            toast.error("Could not retrieve topic list from server")
         });
     }
 
