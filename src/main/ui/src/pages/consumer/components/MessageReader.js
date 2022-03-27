@@ -118,6 +118,7 @@ class MessageReader extends Component {
                     [this.context.targetTopic],
                     this.props.filters,
                     this.state.startingPosition,
+                    this.props.partitions,
                     this.onWebSocketMessage,
                     this.onWebsocketError,
                     this.onWebSocketClose
@@ -244,6 +245,7 @@ MessageReader.propTypes = {
     updateMessages: PropTypes.func.isRequired,
     messages: PropTypes.array.isRequired,
     profiles: PropTypes.array.isRequired,
+    partitions: PropTypes.array.isRequired,
     topic: PropTypes.string
 };
 

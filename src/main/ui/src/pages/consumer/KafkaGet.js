@@ -41,7 +41,6 @@ class KafkaGet extends Component {
         this.mounted = false;
     }
 
-
     setMessageLimit = (messageLimit) => {
         this.setState({messageLimit: messageLimit})
     };
@@ -108,6 +107,7 @@ class KafkaGet extends Component {
                                     updateMessages={this.setMessages}
                                     messages={this.state.messages}
                                     profiles={this.props.profiles}
+                                    partitions={this.state.partitions}
                                 />
 
                                 <MessageTable name={"messageTable"}

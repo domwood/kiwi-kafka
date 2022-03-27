@@ -61,7 +61,7 @@ WebSocketService.connect = (cb, eb) => {
     cb();
 };
 
-WebSocketService.consume = (topics, filters, startPosition, messageHandler, errorHandler, closeHandler) => {
+WebSocketService.consume = (topics, filters, startPosition, partitions, messageHandler, errorHandler, closeHandler) => {
     WebSocketService.socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler, websocketAck(WebSocketService.send));
     WebSocketService.socket.onerror = errorHandler;
     WebSocketService.socket.onclose = () => {
@@ -75,7 +75,10 @@ WebSocketService.consume = (topics, filters, startPosition, messageHandler, erro
         topics: topics,
         limit: -1,
         filters: filters || [],
-        consumerStartPosition: startPosition < 0.1 ? null : {topicPercentage: startPosition}
+        consumerStartPosition: startPosition < 0.1 ? {partitions: partitions} : {
+            topicPercentage: startPosition,
+            partitions: partitions
+        }
     }, errorHandler);
 };
 

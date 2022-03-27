@@ -13,6 +13,7 @@ import java.util.Set;
 @Value.Immutable
 public interface ConsumerStartPosition {
 
+    @Value.Default
     default Set<Integer> partitions() {
         return Collections.emptySet();
     }
