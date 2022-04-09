@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {Button, ButtonGroup} from "reactstrap";
 
@@ -14,17 +14,19 @@ class ColumnFilterButtons extends Component {
 
     render() {
         return (
-                <ButtonGroup className={"FullSpan"} >
-                    {
-                        this.props.buttons.map(button => {
-                            return (
-                                <Button key={'button_'+button.key} size="sm" onClick={() => this.props.updater(button.key)} outline={!this.props.viewState[button.key]}>
-                                    {button.displayName}
-                                </Button>
-                            )
-                        })
-                    }
-                </ButtonGroup>
+            <ButtonGroup className={"FullSpan"}>
+                {
+                    this.props.buttons.map(button => {
+                        return (
+                            <Button key={'button_' + button.key} size="sm"
+                                    onClick={() => this.props.updater(button.key)}
+                                    outline={!this.props.viewState[button.key]}>
+                                {button.displayName}
+                            </Button>
+                        )
+                    })
+                }
+            </ButtonGroup>
         )
     }
 }

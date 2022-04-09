@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {AppDataContext} from "./AppDataContext";
+import {AppDataContext, CLOSED_STATE} from "./AppDataContext";
 import * as ApiService from "../services/ApiService";
 import {toast} from "react-toastify";
 
@@ -14,7 +14,8 @@ class AppData extends Component {
             targetTopic: '',
             targetTopicValid: false,
             topicData: {},
-            mounted: false
+            mounted: false,
+            consumingState: CLOSED_STATE
         }
     }
 
@@ -84,6 +85,12 @@ class AppData extends Component {
         }
     }
 
+    setConsumingState = (newState) => {
+        this.setState({
+            consumingState: newState
+        });
+    }
+
     render() {
         return (
             <AppDataContext.Provider value={{
@@ -94,7 +101,9 @@ class AppData extends Component {
                 setTargetTopic: this.setTargetTopic,
                 targetTopicValid: this.state.targetTopicValid,
                 getTopicData: this.getTopicData,
-                topicData: this.state.topicData
+                topicData: this.state.topicData,
+                consumingState: this.state.consumingState,
+                setConsumingState: this.setConsumingState
             }}>
                 {this.props.children}
             </AppDataContext.Provider>

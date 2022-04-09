@@ -15,6 +15,7 @@ import {
 } from "reactstrap";
 import PropTypes from "prop-types";
 import "../../../App.css";
+import {AppDataContext, CLOSED_STATE} from "../../../contexts/AppDataContext";
 
 const TIMESTAMP = "TIMESTAMP";
 const STARTS_WITH = "STARTS_WITH";
@@ -34,6 +35,8 @@ const LESS_THAN = "LESS_THAN";
 const GREATER_THAN = "GREATER_THAN";
 
 class FilterConfigurer extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
@@ -186,6 +189,7 @@ class FilterConfigurer extends Component {
     }
 
     render() {
+        let disabled = this.context.consumingState !== CLOSED_STATE;
         return (
             <div id={this.state.id}>
 
@@ -202,7 +206,9 @@ class FilterConfigurer extends Component {
                                             <ButtonDropdown
                                                 className={"filterButton"}
                                                 isOpen={this.state.filters[index].filterApplicationButtonOpen}
-                                                toggle={() => this.toggleFilterTypeApplicationButton(index)}>
+                                                toggle={() => this.toggleFilterTypeApplicationButton(index)}
+                                                disabled={disabled}
+                                            >
                                                 <DropdownToggle caret>
                                                     {this.state.filters[index].filterApplication}
                                                 </DropdownToggle>
@@ -232,7 +238,9 @@ class FilterConfigurer extends Component {
                                             <ButtonDropdown
                                                 className={"filterButton"}
                                                 isOpen={this.state.filters[index].filterTypeButtonOpen}
-                                                toggle={() => this.toggleFilterTypeButton(index)}>
+                                                toggle={() => this.toggleFilterTypeButton(index)}
+                                                disabled={disabled}
+                                            >
                                                 <DropdownToggle caret>
                                                     {this.state.filters[index].filterType}
                                                 </DropdownToggle>
@@ -296,6 +304,7 @@ class FilterConfigurer extends Component {
                                                                style={{borderRadius: "unset", width: "350px"}}
                                                                onChange={(event) =>
                                                                    this.setFilter(new Date(event.target.value).getTime(), index)}
+                                                               disabled={disabled}
                                                         />
                                                     </InputGroupText> : <React.Fragment/>
                                             }
@@ -305,13 +314,16 @@ class FilterConfigurer extends Component {
                                                 id="filter"
                                                 value={this.state.filters[index].filter}
                                                 onChange={event => this.setFilter(event.target.value, index)}
+                                                disabled={disabled}
                                             />
                                             <InputGroupText>
                                                 {
                                                     this.state.filters[index].filterType !== REGEX && !this.isNumericFilterAtIndex(index) ?
                                                         <div>
                                                             <Button onClick={() => this.setCaseSensitive(index)}
-                                                                    color={this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}>
+                                                                    color={this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}
+                                                                    disabled={disabled}
+                                                            >
                                                                 {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive'}
                                                             </Button>
                                                         </div>
@@ -326,11 +338,15 @@ class FilterConfigurer extends Component {
                                                                    type="checkbox"
                                                                    aria-label="Check to trim whitespace"
                                                                    checked={this.state.filters[index].trimWhitespace}
-                                                                   onChange={() => this.setWhiteSpaceTrim(index)}/>
+                                                                   onChange={() => this.setWhiteSpaceTrim(index)}
+                                                                   disabled={disabled}
+                                                            />
                                                             <Tooltip target={"auto" + index}
                                                                      placement={"top"}
                                                                      toggle={() => this.setWhiteSpaceTrimToolTipToggle(index)}
-                                                                     isOpen={this.state.filters[index].whitespaceToggle}>
+                                                                     isOpen={this.state.filters[index].whitespaceToggle}
+                                                                     disabled={disabled}
+                                                            >
                                                                 Automatically remove whitespace from start/end of filter
                                                                 string
                                                             </Tooltip>
@@ -344,15 +360,23 @@ class FilterConfigurer extends Component {
                                             index === this.state.filters.length - 1 ?
                                                 <div className={"Gap"}>
                                                     <ButtonGroup>
-                                                        <Button onClick={() => this.addFilter()} color={'success'}>
+                                                        <Button
+                                                            onClick={() => this.addFilter()}
+                                                            color={'success'}
+                                                            disabled={disabled}
+                                                        >
                                                             + Add
                                                         </Button>
-                                                        <Button onClick={() => this.removeFilter()} color={'warning'}>
+                                                        <Button
+                                                            onClick={() => this.removeFilter()}
+                                                            color={'warning'}
+                                                            disabled={disabled}
+                                                        >
                                                             - Remove
                                                         </Button>
                                                     </ButtonGroup>
                                                 </div>
-                                                : null
+                                                : <React.Fragment/>
                                         }
 
                                     </ListGroupItem>
@@ -362,8 +386,12 @@ class FilterConfigurer extends Component {
 
                     </ListGroup>
                     :
-                    <Button color="secondary" size="sm" block onClick={this.addFilter} width={'100%'}>Include Message
-                        Filter</Button>
+                    <Button color="secondary"
+                            size="sm" block
+                            onClick={this.addFilter}
+                            width={'100%'}
+                            disabled={disabled}
+                    >Include Message Filter</Button>
                 }
 
                 <div className="mt-lg-1"/>

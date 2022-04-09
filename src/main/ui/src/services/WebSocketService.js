@@ -1,10 +1,15 @@
 import WebSocketFactory from "./WebSocketFactory";
 import SessionStore from "./SessionStore";
 
+const CONNECTING = 0;
+const CONNECTED = 1;
+// eslint-disable-next-line no-unused-vars
+const CLOSING = 2;
+const CLOSED = 3;
 
 const WebSocketService = {
     socket: {
-        readyState: 4, //0 Connecting, 1 Connected, 2 Closing, 3 Closed (∴ 4 =~ UNCREATED)
+        readyState: CLOSED, //0 Connecting, 1 Connected, 2 Closing, 3 Closed)
         send: () => '',
         close: () => ''
     },
@@ -34,7 +39,7 @@ WebSocketService.send = (data, cb, eb) => {
     if (data) {
         WebSocketService.pending.push((sock) => sock.send(JSON.stringify(data)));
     }
-    if (WebSocketService.socket.readyState === 0) {
+    if (WebSocketService.socket.readyState === CONNECTING) {
         setTimeout(() => WebSocketService.send(data, eb), 50);
     } else if (WebSocketService.socket.readyState === 1) {
         while (WebSocketService.pending.length > 0 && WebSocketService.socket.readyState === 1) WebSocketService.pending.pop()(WebSocketService.socket);
@@ -44,7 +49,7 @@ WebSocketService.send = (data, cb, eb) => {
 };
 
 WebSocketService.connect = (cb, eb) => {
-    if (WebSocketService.socket.readyState > 1) {
+    if (WebSocketService.socket.readyState > CONNECTED) {
 
         WebSocketService.socket = WebSocketFactory();
         WebSocketService.socket.onopen = () => {
@@ -87,7 +92,7 @@ WebSocketService.disconnect = (errorHandler) => {
         clusterName: SessionStore.getActiveCluster(),
         requestType: ".CloseTaskRequest"
     }, errorHandler);
-    if (WebSocketService.socket.readyState > 2) {
+    if (WebSocketService.socket.readyState > CONNECTED) {
         WebSocketService.open = true;
         WebSocketService.socket.close();
     }

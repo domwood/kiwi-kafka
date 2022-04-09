@@ -5,7 +5,7 @@ import {act} from "react-dom/test-utils";
 import KafkaGet from "../consumer/KafkaGet";
 import {render, unmountComponentAtNode} from "react-dom";
 import {jest} from '@jest/globals';
-import {AppDataContext} from "../../contexts/AppDataContext";
+import {AppDataContext, CLOSED_STATE} from "../../contexts/AppDataContext";
 
 jest.mock("../../services/ApiService");
 jest.mock("../../services/WebSocketService");
@@ -33,7 +33,12 @@ it('check renders Kafka get page', async () => {
 
     await act(async () => {
         render(
-            <AppDataContext.Provider value={{topicList: topicList, topicData: {}}}>
+            <AppDataContext.Provider value={{
+                topicList: topicList,
+                topicData: {},
+                setConsumingState: () => {},
+                consumingState: CLOSED_STATE
+            }}>
                 <KafkaGet isDownload={false} profiles={[]}/>
             </AppDataContext.Provider>,
             container);

@@ -22,7 +22,7 @@ class KafkaGet extends Component {
         this.state = {
             alerts: [],
             bootstrapServers: "",
-            messageLimit: 1000,
+            messageLimit: 500,
             messageFromEnd: true,
             messages: [],
             filters: [],
@@ -111,7 +111,7 @@ class KafkaGet extends Component {
                                 />
 
                                 <MessageTable name={"messageTable"}
-                                              id={"messageTable"}
+                                              id={"messageTable_" + this.context.targetTopic}
                                               messages={this.state.messages}/>
                             </div>
                             :

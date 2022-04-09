@@ -120,7 +120,8 @@ class MessageTable extends Component {
                         {
                             this.props.messages.map(m => {
                                 return (
-                                    <tr key={`${m.partition}_${m.offset}`} id={`record_row_${m.partition}_${m.offset}`}>
+                                    <tr key={`${this.props.id}_${m.partition}_${m.offset}`}
+                                        id={`record_row_${m.partition}_${m.offset}`}>
                                         {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
                                         {this.state.showDateTime ?
                                             <td width="10%">{GeneralUtilities.prettyTimestamp(m.timestamp)}</td> : null}
@@ -137,7 +138,7 @@ class MessageTable extends Component {
                         </tbody>
                     </Table>
                 </div> :
-                <div></div>
+                <React.Fragment/>
         )
     }
 }

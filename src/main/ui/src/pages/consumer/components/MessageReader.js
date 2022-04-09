@@ -5,11 +5,7 @@ import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
 import ConsumerSlider from "./ConsumerSlider";
 import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
-import {AppDataContext} from "../../../contexts/AppDataContext";
-
-const CLOSED_STATE = "CLOSED";
-const CONSUMING_STATE = "CONSUMING";
-const PAUSED_STATE = "PAUSING";
+import {AppDataContext, CLOSED_STATE, CONSUMING_STATE, PAUSED_STATE} from "../../../contexts/AppDataContext";
 
 class MessageReader extends Component {
 
@@ -20,7 +16,6 @@ class MessageReader extends Component {
         this.state = {
             id: props.id,
             name: props.name,
-            state: CLOSED_STATE,
             consumeCount: 0,
             totalRecords: 0,
             position: 0,
@@ -37,6 +32,7 @@ class MessageReader extends Component {
 
     componentWillUnmount() {
         if (!this.isConsumerDisabled()) WebSocketService.disconnect();
+        this.context.setConsumingState(CLOSED_STATE);
 
         this.mounted = false;
     }
@@ -47,9 +43,9 @@ class MessageReader extends Component {
     };
 
     clearCounts = (cb, newState) => {
+        this.context.setConsumingState(newState);
         if (this.mounted) {
             this.setState({
-                state: newState || CLOSED_STATE,
                 consumeCount: 0,
                 totalRecords: 0,
                 position: 0,
@@ -62,7 +58,7 @@ class MessageReader extends Component {
     };
 
     onWebSocketMessage = (response) => {
-        if (this.state.state === CONSUMING_STATE && this.mounted) {
+        if (this.context.consumingState === CONSUMING_STATE && this.mounted) {
             let messages;
             if (this.props.isReversed) {
                 messages = response.messages
@@ -91,16 +87,14 @@ class MessageReader extends Component {
 
     onWebsocketError = (error) => {
         if (this.mounted) {
-            toast.error(`Failed to retrieve data from server ${error.message}`)
-            this.clearCounts();
+            this.clearCounts(() => toast.error(`Failed to retrieve data from server ${error.message}`), CLOSED_STATE);
             WebSocketService.disconnect();
         }
     };
 
     onWebSocketClose = () => {
         if (this.mounted) {
-            this.clearCounts();
-            toast.warn("Consumer connection closed");
+            this.clearCounts(() => toast.warn("Consumer connection closed"), CLOSED_STATE);
         }
     };
 
@@ -135,16 +129,12 @@ class MessageReader extends Component {
 
     pauseConsumer = () => {
         WebSocketService.sendPauseUpdate(true, (err) => toast.warn("Failed to cleanly pause: " + err.message));
-        this.setState({
-            state: PAUSED_STATE
-        })
+        this.context.setConsumingState(PAUSED_STATE);
     };
 
     unpauseConsumer = () => {
         WebSocketService.sendPauseUpdate(false, (err) => toast.warn("Failed to cleanly pause: " + err.message));
-        this.setState({
-            state: CONSUMING_STATE
-        })
+        this.context.setConsumingState(CONSUMING_STATE);
     };
 
     onUpdateConsumerPosition = (value) => {
@@ -154,7 +144,7 @@ class MessageReader extends Component {
     };
 
     renderButton = () => {
-        switch (this.state.state) {
+        switch (this.context.consumingState) {
             case CONSUMING_STATE:
                 return <React.Fragment>
                     <ButtonGroup style={{width: "100%"}}>
@@ -212,12 +202,12 @@ class MessageReader extends Component {
                     <ConsumerSlider id={'slider'}
                                     consumerPosition={this.state.startingPosition}
                                     onUpdateConsumerPosition={this.onUpdateConsumerPosition}
-                                    isConsuming={this.state.state !== CLOSED_STATE}
+                                    isConsuming={this.context.consumingState !== CLOSED_STATE}
                     />
                     <div className={"Gap"}></div>
 
                     <div className="text-center">{
-                        this.state.state !== CLOSED_STATE ?
+                        this.context.consumingState !== CLOSED_STATE ?
                             'Showing: ' + this.props.messages.length +
                             ', Matched: ' + this.state.consumeCount +
                             ', Records Processed: ' + this.state.totalRecords +
