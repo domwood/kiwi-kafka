@@ -54,9 +54,9 @@ public class KafkaConsumerTracker {
                 .startValue(start)
                 .endValue(end)
                 .consumerPosition(currentPosition)
-                .percentage((int) percentageOffset)
+                .percentage(percentageOffset)
                 .totalRecords(totalRecords)
-                .skippedPercentage((int) skippedOffset)
+                .skippedPercentage(skippedOffset)
                 .build();
     }
 

@@ -39,7 +39,7 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse response = consumerResponse(50, 2L, 1L);
+        ConsumerResponse response = consumerResponse(50.0, 2L, 1L);
 
         writer.accept(response);
 
@@ -53,7 +53,7 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse response = consumerResponse(50, 2L, 1L);
+        ConsumerResponse response = consumerResponse(50.0, 2L, 1L);
 
         writer.accept(response);
 
@@ -67,7 +67,7 @@ public class FileDownloadWriterTest {
 
         FileDownloadWriter writer = writer(request);
 
-        ConsumerResponse response = consumerResponse(100, 1L, 1L);
+        ConsumerResponse response = consumerResponse(100.0, 1L, 1L);
 
         writer.accept(response);
 
@@ -98,7 +98,7 @@ public class FileDownloadWriterTest {
         verifyNoMoreInteractions(outputStream, task);
     }
 
-    private FileDownloadWriter writer(ConsumerToFileRequest request) {
+    private FileDownloadWriter writer(final ConsumerToFileRequest request) {
         return new FileDownloadWriter(
                 objectMapper,
                 request,
@@ -107,7 +107,7 @@ public class FileDownloadWriterTest {
         );
     }
 
-    private ConsumerResponse consumerResponse(Integer percentage, Long endValue, Long position) {
+    private ConsumerResponse consumerResponse(final Double percentage, final Long endValue, final Long position) {
         return ImmutableConsumerResponse.builder()
                 .from(buildConsumerResponse().build())
                 .position(ImmutableConsumerPosition.builder()

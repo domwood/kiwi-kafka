@@ -139,7 +139,7 @@ public class KafkaConsumerTrackerTest {
         return position(start, end, position, percentage, records, 0);
     }
 
-    private ConsumerPosition position(long start, long end, long position, int percentage, int records, int skipped){
+    private ConsumerPosition position(long start, long end, long position, double percentage, int records, double skipped){
         return ImmutableConsumerPosition.builder()
                 .startValue(start)
                 .endValue(end)

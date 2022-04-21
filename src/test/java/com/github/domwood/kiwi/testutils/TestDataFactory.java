@@ -155,7 +155,7 @@ public class TestDataFactory {
                 .startValue(0L)
                 .endValue(1L)
                 .consumerPosition(1L)
-                .percentage(100)
+                .percentage(100.0)
                 .totalRecords(1);
     }
 
