@@ -1,5 +1,7 @@
 package com.github.domwood.kiwi.api.rest;
 
+import com.github.domwood.kiwi.kafka.provision.KafkaTaskProvider;
+import com.github.domwood.kiwi.kafka.task.KiwiTaskExecutor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,5 +32,9 @@ public class AppConfigController {
         return activeProfiles;
     }
 
+    @GetMapping("/workerInfo")
+    public String threads(){
+        return KiwiTaskExecutor.getInstance().executorInformation();
+    }
 
 }

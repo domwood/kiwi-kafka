@@ -9,10 +9,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class KiwiTaskExecutor implements Executor {
+    private static final int CORE_POOL_SIZE = 50;
     private final ThreadPoolExecutor delegate;
 
     private KiwiTaskExecutor(final ThreadFactory kiwiFactory) {
-        delegate = new ThreadPoolExecutor(50, Integer.MAX_VALUE,
+        delegate = new ThreadPoolExecutor(CORE_POOL_SIZE, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(),
                 kiwiFactory);
@@ -29,7 +30,12 @@ public class KiwiTaskExecutor implements Executor {
     }
 
     @Override
-    public void execute(Runnable command) {
+    public void execute(final Runnable command) {
         delegate.submit(command);
+    }
+
+    public String executorInformation() {
+        return String.format("Workers %s/%s (Active/Total)",
+                delegate.getActiveCount(), delegate.getPoolSize());
     }
 }

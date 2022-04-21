@@ -26,14 +26,22 @@ const statusHandler = (response) => {
     }
 };
 
-export const getVersion = (cb, eb) => {
+const commonTextFetch = (cb, eb, api) => {
     let errorHandler = (error) => (eb || errorHandler)(error);
 
-    fetch(api.version)
+    fetch(api)
         .then(statusHandler)
         .then(res => res.text())
         .then(result => cb(result))
         .catch(errorHandler);
+}
+
+export const getVersion = (cb, eb) => {
+    commonTextFetch(cb, eb, api.version);
+};
+
+export const getWorkerInfo = (cb, eb) => {
+    commonTextFetch(cb, eb, api.workerInfo);
 };
 
 export const getProfiles = (cb, eb) => {

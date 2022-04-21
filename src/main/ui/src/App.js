@@ -24,7 +24,8 @@ class App extends Component {
             isOpen: false,
             version: '',
             profiles: [],
-            clusterDropDownOpen: false
+            clusterDropDownOpen: false,
+            workerInfo: ""
         };
     }
 
@@ -45,6 +46,17 @@ class App extends Component {
                 })
             }
         }, () => toast.error("No connection to server"));
+
+        let updateWorkerInfo = () => ApiService.getWorkerInfo((workerInfo) => {
+            if (this.mounted) {
+                this.setState({
+                    workerInfo: workerInfo
+                })
+            }
+        }, () => toast.error("No connection to server"));
+
+        updateWorkerInfo();
+        setInterval(updateWorkerInfo, 20_000);
 
     }
 
@@ -73,7 +85,7 @@ class App extends Component {
                         <Navbar color="light" light expand="md" className={"pt-0 pb-0"}>
                             <Nav className="ml-auto" navbar>
                                 <NavbarBrand>
-                                    <img style={{"marginTop":"-0.375rem"}} src={logo} height="30" width="30"
+                                    <img style={{"marginTop": "-0.375rem"}} src={logo} height="30" width="30"
                                          alt="Kiwi - Kafka Interactive Web Interface"/>
                                 </NavbarBrand>
                                 <NavItem>
@@ -101,6 +113,11 @@ class App extends Component {
                                 </div>
                                 <NavItem>
                                     <div style={{padding: '11px'}}>
+                                        {this.state.workerInfo}
+                                    </div>
+                                </NavItem>
+                                <NavItem>
+                                    <div style={{padding: '11px'}}>
                                         Version: {this.state.version}
                                     </div>
                                 </NavItem>
@@ -124,7 +141,8 @@ class App extends Component {
                                 <Route path="/topics" element={<KafkaTopics profiles={this.state.profiles}/>}/>
                                 <Route path="/groups" element={<KafkaConsumerGroups profiles={this.state.profiles}/>}/>
                                 <Route path="/post" element={<KafkaPost profiles={this.state.profiles}/>}/>
-                                <Route path="/get" element={<KafkaGet isDownload={false} profiles={this.state.profiles}/>}/>
+                                <Route path="/get"
+                                       element={<KafkaGet isDownload={false} profiles={this.state.profiles}/>}/>
                                 <Route path="/download"
                                        element={<KafkaGet isDownload={true} profiles={this.state.profiles}/>}/>
                                 <Route redirectTo="/"/>
