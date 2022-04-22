@@ -16,6 +16,7 @@ import {
 import PropTypes from "prop-types";
 import "../../../App.css";
 import {AppDataContext, CLOSED_STATE} from "../../../contexts/AppDataContext";
+import {partition} from "murmur2-partitioner";
 
 const TIMESTAMP = "TIMESTAMP";
 const STARTS_WITH = "STARTS_WITH";
@@ -188,6 +189,16 @@ class FilterConfigurer extends Component {
         }, this.updateParent)
     }
 
+    calculatePartition = (key) => {
+        if (!key) {
+            return '?';
+        }
+        let partitionCount = (this.context.topicData[this.context.targetTopic] || {}).partitionCount;
+        let calculated = partition(key, partitionCount);
+        console.log(calculated);
+        return calculated;
+    }
+
     render() {
         let disabled = this.context.consumingState !== CLOSED_STATE;
         return (
@@ -316,6 +327,15 @@ class FilterConfigurer extends Component {
                                                 onChange={event => this.setFilter(event.target.value, index)}
                                                 disabled={disabled}
                                             />
+                                            {
+                                                this.state.filters[index].filterApplication === KEY && this.state.filters[index].filterType === MATCHES ?
+                                                    <InputGroupText id={"keyPartition" + index}>
+                                                        <div style={{paddingRight: "5px", paddingLeft: "5px"}}>
+                                                            Default
+                                                            Partition: <b>{this.calculatePartition(this.state.filters[index].filter)}</b>
+                                                        </div>
+                                                    </InputGroupText> : <React.Fragment/>
+                                            }
                                             <InputGroupText>
                                                 {
                                                     this.state.filters[index].filterType !== REGEX && !this.isNumericFilterAtIndex(index) ?

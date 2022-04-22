@@ -71,6 +71,7 @@ class ConsumerSlider extends Component {
                         type="number"
                         step=".1"
                         value={this.props.consumerPosition}
+                        disabled={this.props.isConsuming}
                         onChange={(event) => this.onUpdateConsumerPosition(event.target.value)}
                     />
                     <InputGroupText className={"input-group-text-padded"}>% Start @</InputGroupText>
