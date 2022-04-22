@@ -26,7 +26,7 @@ class ConsumerGroupView extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{paddingTop: this.state.toggle ? "25px" : "0px", paddingBottom: this.state.toggle ? "25px" : "0px"}}>
                 <ListGroupItem key={this.props.groupId + "_parent"} id={this.props.groupId}>
                     <Button color={this.state.toggle ? "success" : "secondary"} size="sm" onClick={() => this.toggle()} block>{this.props.groupId}</Button>
 
