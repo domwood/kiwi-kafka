@@ -6,16 +6,20 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class KiwiWebSocketSession {
     private final ConcurrentWebSocketSessionDecorator delegate;
     private final AtomicBoolean isReady;
+    private final AtomicReference<String> pending;
 
     public KiwiWebSocketSession(final WebSocketSession session,
                                 final Long websocketBufferLimit) {
         this.delegate = new ConcurrentWebSocketSessionDecorator(session, 200, websocketBufferLimit.intValue());
         this.isReady = new AtomicBoolean(true);
+        this.pending = new AtomicReference<>(null);
     }
 
     public boolean isReady() {
@@ -50,4 +54,18 @@ public class KiwiWebSocketSession {
         return this.delegate.getId();
     }
 
+    public void setPending(final String pending) {
+        this.pending.set(pending);
+    }
+
+    public void sendPending() throws IOException {
+        if (this.isReady.getAndSet(false)) {
+            final String toEmit = this.pending.getAndSet(null);
+            if (Objects.nonNull(toEmit) && this.isOpen()) {
+                this.delegate.sendMessage(new TextMessage(toEmit));
+            } else {
+                this.setReady();
+            }
+        }
+    }
 }

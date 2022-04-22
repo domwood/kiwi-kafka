@@ -22,7 +22,7 @@ class KafkaGet extends Component {
         this.state = {
             alerts: [],
             bootstrapServers: "",
-            messageLimit: 500,
+            messageLimit: 100,
             messageFromEnd: true,
             messages: [],
             filters: [],

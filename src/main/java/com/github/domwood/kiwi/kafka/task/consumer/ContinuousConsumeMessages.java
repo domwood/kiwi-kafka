@@ -191,7 +191,7 @@ public class ContinuousConsumeMessages<K, V>
                                        Map<TopicPartition, OffsetAndMetadata> toCommit,
                                        KafkaConsumerTracker tracker) {
         //Blocking Call
-        logger.info("Message batch size {} forwarding to consumers", messages.size());
+        logger.debug("Message batch size {} forwarding to consumers", messages.size());
 
         if (!this.isClosed()) {
             Pair<Map<TopicPartition, Long>, ConsumerPosition> consumerPosition = tracker.gatherUpdatedPosition(resource);

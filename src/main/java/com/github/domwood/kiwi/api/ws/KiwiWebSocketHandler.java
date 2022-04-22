@@ -2,7 +2,11 @@ package com.github.domwood.kiwi.api.ws;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.domwood.kiwi.data.input.*;
+import com.github.domwood.kiwi.data.input.CloseTaskRequest;
+import com.github.domwood.kiwi.data.input.ConsumerRequest;
+import com.github.domwood.kiwi.data.input.InboundRequest;
+import com.github.domwood.kiwi.data.input.MessageAcknowledge;
+import com.github.domwood.kiwi.data.input.PauseTaskRequest;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.exceptions.WebSocketSendFailedException;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
@@ -19,6 +23,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -61,21 +66,22 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     public void handleTextMessage(final WebSocketSession session,
                                   final TextMessage message) {
 
+        final KiwiWebSocketSession kiwiSession = getSession(session);
+        if (Objects.isNull(kiwiSession)) return;
+
         try {
             if (logger.isDebugEnabled()) {
                 logger.debug("Received inbound websocket message for session: {} message: {}", session.getId(), message.getPayload());
             }
-            InboundRequest inboundRequest = objectMapper.readValue(message.getPayload(), InboundRequest.class);
+            final InboundRequest inboundRequest = objectMapper.readValue(message.getPayload(), InboundRequest.class);
             if (inboundRequest instanceof ConsumerRequest) {
-                KiwiWebSocketSession kiwiSession = getSession(session);
                 consumerHandler.addConsumerTask(kiwiSession.getId(), (ConsumerRequest) inboundRequest, this.sendTextMessage(kiwiSession));
             } else if (inboundRequest instanceof CloseTaskRequest) {
                 consumerHandler.removeConsumerTask(session.getId());
                 if (((CloseTaskRequest) inboundRequest).closeSession()) {
-                    tryCloseSession(sessions.get(session.getId()), CloseStatus.NORMAL);
+                    tryCloseSession(kiwiSession, CloseStatus.NORMAL);
                 }
             } else if (inboundRequest instanceof PauseTaskRequest) {
-                KiwiWebSocketSession kiwiSession = getSession(session);
                 ContinuousConsumeMessages<?, ?> consumerTask = consumerHandler.getConsumerTask(kiwiSession.getId());
                 if (consumerTask != null) {
                     if (((PauseTaskRequest) inboundRequest).pauseSession()) {
@@ -86,10 +92,12 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
                 }
             }
             if (inboundRequest instanceof MessageAcknowledge) {
-                sessions.get(session.getId()).setReady();
+                kiwiSession.setReady();
+                kiwiSession.sendPending();
             }
         } catch (IOException e) {
             logger.error("Failed to parse inbound websocket request " + message.getPayload(), e);
+            tryCloseSession(kiwiSession);
         }
     }
 
@@ -98,14 +106,17 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
             try {
                 String payload = objectMapper.writeValueAsString(response);
 
-                maybeBlockConsumer(session);
+                if (!session.isReady() && response.messages().isEmpty()) {
+                    session.setPending(payload);
+                } else {
+                    maybeBlockConsumer(session);
 
-                if (!session.isOpen())
-                    throw new WebSocketSendFailedException("Session closed whilst data pending send");
-
-                session.setNotReady();
-                session.sendMessage(payload);
-
+                    if (!session.isOpen()) {
+                        throw new WebSocketSendFailedException("Session closed whilst data pending send");
+                    }
+                    session.setNotReady();
+                    session.sendMessage(payload);
+                }
             } catch (JsonProcessingException e) {
                 logger.error("Failed to serialize response " + response, e);
                 tryCloseSession(session);
@@ -157,7 +168,7 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         logger.info("Websocket session closed with id {} from {} with status {}", session.getId(), session.getRemoteAddress(), status);
         this.sessions.remove(session.getId());
         this.consumerHandler.removeConsumerTask(session.getId());
