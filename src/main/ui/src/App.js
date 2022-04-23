@@ -53,7 +53,7 @@ class App extends Component {
                     workerInfo: workerInfo
                 })
             }
-        }, () => toast.error("No connection to server"));
+        }, () => console.log("No connection to server"));
 
         updateWorkerInfo();
         setInterval(updateWorkerInfo, 20_000);

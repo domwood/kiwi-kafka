@@ -46,6 +46,7 @@ class PartitionConfigurer extends Component {
                         <ButtonGroup key={"group_" + partition}>
                             <Button key={"button_" + partition}
                                     size="sm"
+                                    style={{width: "40px"}}
                                     outline={!this.state.activePartitions[partition]}
                                     onClick={() => this.setPartition(partition)}
                                     disabled={disabled}>
@@ -56,6 +57,7 @@ class PartitionConfigurer extends Component {
                     <ButtonGroup key={"group_clear"}>
                         <Button key={"button_clear"}
                                 size="sm"
+                                style={{width: "40px"}}
                                 outline={Object.keys(this.state.activePartitions).length > 0}
                                 onClick={this.togglePartitionView}
                                 disabled={disabled}>
