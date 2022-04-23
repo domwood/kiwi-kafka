@@ -94,51 +94,47 @@ class TopicView extends Component {
 
     render() {
         return (
-            <div style={{
-                paddingTop: this.state.toggle ? "25px" : "0px",
-                paddingBottom: this.state.toggle ? "25px" : "0px"
-            }}>
-                <ListGroupItem key={this.props.topic + "_parent"} id={this.props.topic}>
-                    <Button color={this.state.toggle ? "success" : "secondary"} size="sm"
-                            onClick={() => this.toggleDetails()} block>{this.props.topic}</Button>
-                    {this.state.loading ? <Spinner color="secondary"/> : ''}
-                    {
-                        this.state.toggle ?
-                            <ListGroup style={{
-                                marginTop: "-30px",
-                                paddingTop: "30px",
-                                marginBottom: "15px",
-                                boxShadow: "0 5px 10px slategray",
-                                borderRadius: "0"
-                            }}>
-                                <ListGroupItem style={{paddingTop: "0"}}>
-                                    <ButtonGroup className={"WideBoiGroup"}>
-                                        <Button
-                                            onClick={() => this.onTopicViewChange('partitions')}
-                                            color={this.state.viewName === 'partitions' ? 'success' : 'secondary'}>
-                                            Topic Info & Partitions
-                                        </Button>
-                                        <Button
-                                            onClick={() => this.onTopicViewChange('configuration')}
-                                            color={this.state.viewName === 'configuration' ? 'success' : 'secondary'}>
-                                            Topic Configuration
-                                        </Button>
-                                        <Button
-                                            onClick={() => this.onTopicViewChange('consumers')}
-                                            color={this.state.viewName === 'consumers' ? 'success' : 'secondary'}>
-                                            Active Consumer Groups
-                                        </Button>
-                                    </ButtonGroup>
-                                    <div className={"Gap"}/>
-                                    {
-                                        this.viewSelection()
-                                    }
-                                </ListGroupItem>
-                            </ListGroup>
-                            : <React.Fragment/>
-                    }
-                </ListGroupItem>
-            </div>
+            <ListGroupItem key={this.props.topic + "_parent"} id={this.props.topic}>
+                <Button color={this.state.toggle ? "success" : "secondary"} size="sm"
+                        onClick={() => this.toggleDetails()} block>{this.props.topic}</Button>
+                {this.state.loading ? <Spinner color="secondary"/> : ''}
+                {
+                    this.state.toggle ?
+                        <ListGroup style={{
+                            marginTop: "-30px",
+                            paddingTop: "30px",
+                            marginBottom: "15px",
+                            boxShadow: "0 5px 10px slategray",
+                            borderRadius: "0"
+                        }}>
+                            <ListGroupItem style={{paddingTop: "0"}}>
+                                <ButtonGroup className={"WideBoiGroup"}>
+                                    <Button
+                                        onClick={() => this.onTopicViewChange('partitions')}
+                                        color={this.state.viewName === 'partitions' ? 'success' : 'secondary'}>
+                                        Topic Info & Partitions
+                                    </Button>
+                                    <Button
+                                        onClick={() => this.onTopicViewChange('configuration')}
+                                        color={this.state.viewName === 'configuration' ? 'success' : 'secondary'}>
+                                        Topic Configuration
+                                    </Button>
+                                    <Button
+                                        onClick={() => this.onTopicViewChange('consumers')}
+                                        color={this.state.viewName === 'consumers' ? 'success' : 'secondary'}>
+                                        Active Consumer Groups
+                                    </Button>
+                                </ButtonGroup>
+                                <div className={"Gap"}/>
+                                {
+                                    this.viewSelection()
+                                }
+                            </ListGroupItem>
+                        </ListGroup>
+                        : <React.Fragment/>
+                }
+
+            </ListGroupItem>
         )
     }
 }
