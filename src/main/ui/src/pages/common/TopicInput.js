@@ -1,4 +1,4 @@
-import {Button, FormGroup, InputGroup, InputGroupText, Label} from "reactstrap";
+import {Button, FormGroup, InputGroup, InputGroupText} from "reactstrap";
 
 import React, {Component} from "react";
 import {MdRefresh} from "react-icons/md";
@@ -19,9 +19,10 @@ class TopicInput extends Component {
     render() {
         return (
             <FormGroup>
-                <Label for="topic">Topic:</Label>
-
                 <InputGroup>
+                    <InputGroupText className="input-group-text-padded">
+                        Topic:
+                    </InputGroupText>
                     <Typeahead
                         defaultInputValue={this.context.targetTopic}
                         id={"topicInput"}
@@ -30,7 +31,6 @@ class TopicInput extends Component {
                         options={this.context.topicList}
                         className={"StretchedInput"}
                     />
-
                     <InputGroupText>
                         <Button color="primary" onClick={this.context.topicListRefresh}>Refresh
                             Topics<MdRefresh/></Button>

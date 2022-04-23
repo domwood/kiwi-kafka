@@ -70,8 +70,8 @@ class MessageReader extends Component {
                     .concat(response.messages)
                     .slice(this.state.messages.length + response.messages.length > this.props.messageLimit ? -this.props.messageLimit : 0);
             }
-            this.props.updateMessages(messages)
-            let position = (response.position || {})
+            this.props.updateMessages(messages);
+            let position = (response.position || {});
 
             this.setState({
                 consumeCount: this.state.consumeCount + response.messages.length,
@@ -140,7 +140,7 @@ class MessageReader extends Component {
     onUpdateConsumerPosition = (value) => {
         this.setState({
             startingPosition: value
-        })
+        });
     };
 
     renderButton = () => {
@@ -198,13 +198,13 @@ class MessageReader extends Component {
                     this.renderButton()
                 }
                 <div>
-                    <div className={"Gap"}></div>
+                    <div className={"Gap"}/>
                     <ConsumerSlider id={'slider'}
                                     consumerPosition={this.state.startingPosition}
                                     onUpdateConsumerPosition={this.onUpdateConsumerPosition}
                                     isConsuming={this.context.consumingState !== CLOSED_STATE}
                     />
-                    <div className={"Gap"}></div>
+                    <div className={"Gap"}/>
 
                     <div className="text-center">{
                         this.context.consumingState !== CLOSED_STATE ?

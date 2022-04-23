@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
 import React, {Component} from "react";
 import Slider, {Handle} from 'rc-slider';
-import {Input, InputGroup, InputGroupText} from "reactstrap";
-
 const SliderStyle = {
     width: '85%',
     padding: '11px 0px',
     marginRight: '15px',
     backgroundColor: 'rgba(111, 220, 137, 0.0)'
 };
+
+import {Input, InputGroup, InputGroupText} from "reactstrap";
 
 class ConsumerSlider extends Component {
 
@@ -61,7 +61,7 @@ class ConsumerSlider extends Component {
                             'height': '24px',
                             'width': '24px',
                             'borderColor': '#28a745',
-                            'borderRadius': '0.2rem',
+                            'borderRadius': 'unset',
                             'backgroundColor': '#28a745'
                         }}
                     />

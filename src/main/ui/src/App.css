@@ -114,3 +114,7 @@
 .filterButton {
     width: 175px;
 }
+
+input {
+    border-radius: unset !important;
+}

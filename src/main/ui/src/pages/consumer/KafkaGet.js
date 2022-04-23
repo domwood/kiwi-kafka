@@ -23,6 +23,7 @@ class KafkaGet extends Component {
             alerts: [],
             bootstrapServers: "",
             messageLimit: 100,
+            messagePauseLimit: -1,
             messageFromEnd: true,
             messages: [],
             filters: [],
@@ -83,7 +84,7 @@ class KafkaGet extends Component {
                                           messageLimit={this.state.messageLimit}
                                           onMessageLimitUpdate={this.setMessageLimit}
                             />
-                            : null
+                            : <React.Fragment />
                         }
                         <FilterConfigurer name={"filterConfigurer"}
                                           id={"filterConfigurer"}

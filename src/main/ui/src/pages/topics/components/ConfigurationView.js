@@ -69,7 +69,7 @@ class ConfigurationView extends Component {
                     <tr>
                         <th width="35%">Config Key</th>
                         <th width="35%">Config Value</th>
-                        <th width="10%">Default Value</th>
+                        <th width="10%">Config Defined</th>
                         <th width="20%"/>
                     </tr>
                     </thead>

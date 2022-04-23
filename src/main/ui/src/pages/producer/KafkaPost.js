@@ -1,17 +1,5 @@
 import React, {Component} from "react";
-import {
-    Button,
-    ButtonGroup,
-    ButtonToolbar,
-    Container,
-    Form,
-    FormGroup,
-    Input,
-    InputGroup,
-    InputGroupText,
-    Label,
-    Table
-} from 'reactstrap';
+import {Button, ButtonGroup, Container, Form, FormGroup, Input, InputGroup, InputGroupText, Table} from 'reactstrap';
 import JsonEditor from "./components/JsonEditor"
 import TopicInput from "../common/TopicInput";
 import {v4 as uuid} from 'uuid';
@@ -164,8 +152,10 @@ class KafkaPost extends Component {
                     <TopicInput/>
 
                     <FormGroup>
-                        <Label for="kafkaKey">Kafka Key</Label>
                         <InputGroup>
+                            <InputGroupText className="input-group-text-padded">
+                                Kafka Key:
+                            </InputGroupText>
                             <Input type="text" name="kafkaKey"
                                    id="kafkaKey"
                                    value={this.state.kafkaKey}
@@ -177,53 +167,52 @@ class KafkaPost extends Component {
                         </InputGroup>
                     </FormGroup>
                     <FormGroup>
-                        <ButtonToolbar>
-                            <Label for="kafkaHeaders">Kafka Headers</Label>
-                            <div style={{padding: "0px 0px 10px 10px", margin: "-3px 0px 0px 0px"}}>
-                                <ButtonGroup>
-                                    <Button outline={!this.state.individualHeaders} color="secondary" size="sm"
-                                            onClick={() => this.setIndividualHeaders(true)}>Individual</Button>
-                                    <Button outline={this.state.individualHeaders} color="secondary" size="sm"
-                                            onClick={() => this.setIndividualHeaders(false)}>Map</Button>
-                                </ButtonGroup>
-                            </div>
-                        </ButtonToolbar>
-
-                        {
-                            this.state.individualHeaders ?
-                                <InputGroup>
-                                    <Input type="text" name="kafkaHeaderKey" id="kafkaHeaderKey"
-                                           value={this.state.currentKafkaHeaderKey}
-                                           onChange={this.handleCurrentHeaderKeyChange}/>
-                                    <Input type="text" name="kafkaHeaderValue" id="kafkaHeaderValue"
-                                           value={this.state.currentKafkaHeaderValue}
-                                           onChange={this.handleCurrentHeaderValueChange}/>
-                                    <InputGroupText>
-                                        <Button color={this.isHeaderActive() ? "success" : "secondary"}
-                                                onClick={() => this.addHeader()} disabled={!this.isHeaderActive()}>
-                                            Add Header
-                                        </Button>
-                                    </InputGroupText>
-                                </InputGroup>
-                                :
-                                <InputGroup>
-                                    <Input type="textarea"
-                                           name="kafkaHeadersMap"
-                                           id="kafkaHeadersMap"
-                                           placeholder='{"someKey":"someValue", "someOtherKey":"someOtherValue"}'
-                                           value={this.state.currentKafkaHeaderMap}
-                                           onChange={this.handleHeaderMapChange}/>
-                                    <InputGroupText>
-                                        <Button
-                                            style={{"height": "100%"}}
-                                            color={this.state.currentKafkaHeaderMap !== "" ? "success" : "secondary"}
-                                            onClick={() => this.addHeaders()}
-                                            disabled={this.state.currentKafkaHeaderMap === ""}>
-                                            Add Headers
-                                        </Button>
-                                    </InputGroupText>
-                                </InputGroup>
-                        }
+                        <InputGroup>
+                            <InputGroupText className="input-group-text-padded">
+                                Kafka Headers:
+                            </InputGroupText>
+                            <ButtonGroup>
+                                <Button outline={!this.state.individualHeaders} color="secondary" size="sm"
+                                        onClick={() => this.setIndividualHeaders(true)}>Individual</Button>
+                                <Button outline={this.state.individualHeaders} color="secondary" size="sm"
+                                        onClick={() => this.setIndividualHeaders(false)}>Map</Button>
+                            </ButtonGroup>
+                            {
+                                this.state.individualHeaders ?
+                                    <React.Fragment>
+                                        <Input type="text" name="kafkaHeaderKey" id="kafkaHeaderKey"
+                                               value={this.state.currentKafkaHeaderKey}
+                                               onChange={this.handleCurrentHeaderKeyChange}/>
+                                        <Input type="text" name="kafkaHeaderValue" id="kafkaHeaderValue"
+                                               value={this.state.currentKafkaHeaderValue}
+                                               onChange={this.handleCurrentHeaderValueChange}/>
+                                        <InputGroupText>
+                                            <Button color={this.isHeaderActive() ? "success" : "secondary"}
+                                                    onClick={() => this.addHeader()} disabled={!this.isHeaderActive()}>
+                                                Add Header
+                                            </Button>
+                                        </InputGroupText>
+                                    </React.Fragment>
+                                    :
+                                    <React.Fragment>
+                                        <Input type="textarea"
+                                               name="kafkaHeadersMap"
+                                               id="kafkaHeadersMap"
+                                               placeholder='{"someKey":"someValue", "someOtherKey":"someOtherValue"}'
+                                               value={this.state.currentKafkaHeaderMap}
+                                               onChange={this.handleHeaderMapChange}/>
+                                        <InputGroupText>
+                                            <Button
+                                                style={{"height": "100%"}}
+                                                color={this.state.currentKafkaHeaderMap !== "" ? "success" : "secondary"}
+                                                onClick={() => this.addHeaders()}
+                                                disabled={this.state.currentKafkaHeaderMap === ""}>
+                                                Add Headers
+                                            </Button>
+                                        </InputGroupText>
+                                    </React.Fragment>
+                            }
+                        </InputGroup>
 
                         {
                             Object.keys(this.state.kafkaHeaders).length > 0 ?
@@ -259,7 +248,7 @@ class KafkaPost extends Component {
 
                     <div className="mt-lg-1"/>
                     <Button id="PostButton" onClick={this.submit}
-                            disabled={!!(this.state.currentKafkaHeaderKey || this.state.currentKafkaHeaderValue) || this.isPostDisabled()}>Send!</Button>
+                            disabled={this.isPostDisabled()}>Send!</Button>
 
                     <ProfileToggleToolTip profiles={this.props.profiles}
                                           id={`kafka_post_write`}

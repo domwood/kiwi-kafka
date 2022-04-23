@@ -1,9 +1,5 @@
-import React, { Component } from "react";
-import {
-    Input,
-    InputGroup,
-    Label
-} from "reactstrap";
+import React, {Component} from "react";
+import {Input, InputGroup, InputGroupText} from "reactstrap";
 import PropTypes from "prop-types";
 
 class MessageLimit extends Component {
@@ -19,13 +15,15 @@ class MessageLimit extends Component {
     render() {
         return (
             <div>
-                <Label for="messageLimit">Message Limit</Label>
                 <InputGroup>
+                    <InputGroupText className="input-group-text-padded">
+                        Message Limit:
+                    </InputGroupText>
                     <Input type="number"
                            name="messageLimit"
                            id="messageLimitInput"
                            defaultValue={this.props.messageLimit}
-                           onChange={event => this.props.onMessageLimitUpdate(parseInt(event.target.value||0))}
+                           onChange={event => this.props.onMessageLimitUpdate(parseInt(event.target.value || 0))}
                            min="1"
                            required
                     />
