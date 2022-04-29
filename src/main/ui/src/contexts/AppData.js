@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {AppDataContext, CLOSED_STATE} from "./AppDataContext";
 import * as ApiService from "../services/ApiService";
 import {toast} from "react-toastify";
+import SessionStore from "../services/SessionStore";
 
 class AppData extends Component {
     constructor(props) {
@@ -15,7 +16,9 @@ class AppData extends Component {
             targetTopicValid: false,
             topicData: {},
             mounted: false,
-            consumingState: CLOSED_STATE
+            consumingState: CLOSED_STATE,
+            clusters: [],
+            activeCluster: ''
         }
     }
 
@@ -23,13 +26,26 @@ class AppData extends Component {
         this.setState({
             mounted: true
         })
-        this.topicListRefresh();
+        this.clusterList(this.topicListRefresh);
     }
 
     componentWillUnmount() {
         this.setState({
             mounted: false
         })
+    }
+
+    clusterList = (cb) => {
+        ApiService.getKafkaClusterList((clusterList) => {
+            let activeCluster = clusterList[0];
+            let existingCluster = SessionStore.getActiveCluster();
+            if (clusterList.lastIndexOf(existingCluster) > -1) {
+                activeCluster = existingCluster;
+            }
+            this.setClusters(clusterList);
+            this.setActiveCluster(activeCluster);
+            cb();
+        }, () => toast.error("No connection to server"));
     }
 
     topicListRefresh = () => {
@@ -86,9 +102,28 @@ class AppData extends Component {
     }
 
     setConsumingState = (newState) => {
-        this.setState({
-            consumingState: newState
-        });
+        if (this.state.mounted) {
+            this.setState({
+                consumingState: newState
+            });
+        }
+    }
+
+    setActiveCluster = (activeCluster) => {
+        if (this.state.mounted) {
+            this.setState({
+                activeCluster: activeCluster
+            });
+            SessionStore.setActiveCluster(activeCluster);
+        }
+    }
+
+    setClusters = (clusters) => {
+        if (this.state.mounted) {
+            this.setState({
+                clusters: clusters
+            });
+        }
     }
 
     render() {
@@ -103,7 +138,10 @@ class AppData extends Component {
                 getTopicData: this.getTopicData,
                 topicData: this.state.topicData,
                 consumingState: this.state.consumingState,
-                setConsumingState: this.setConsumingState
+                setConsumingState: this.setConsumingState,
+                clusters: this.state.clusters,
+                activeCluster: this.state.activeCluster,
+                setActiveCluster: this.setActiveCluster
             }}>
                 {this.props.children}
             </AppDataContext.Provider>

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -21,7 +22,7 @@ public class KafkaConfigManagerTest {
     }
 
     @Test
-    private void notBaseConfigByDefault() {
+    public void notBaseConfigByDefault() {
         assertEquals(emptyMap(), kafkaConfigManager.generateAdminConfig(Optional.empty()));
         assertEquals(emptyMap(), kafkaConfigManager.generateConsumerConfig(Optional.empty()));
         assertEquals(emptyMap(), kafkaConfigManager.generateProducerConfig(Optional.empty()));
@@ -145,6 +146,21 @@ public class KafkaConfigManagerTest {
         assertEquals(expected, observed);
     }
 
+    @Test
+    public void testDefaultClusterNameIsReturnedAsFirstElement() {
+        final String test1 = "test1";
+        final String test2 = "test2";
+        final String test3 = "test3";
+        kafkaConfigManager.getActiveClusterConfiguration().put(test1, new HashMap<>());
+        kafkaConfigManager.getActiveClusterConfiguration().put(test2, new HashMap<>());
+        kafkaConfigManager.getActiveClusterConfiguration().put(test3, new HashMap<>());
+
+        kafkaConfigManager.setDefaultClusterName(test3);
+        assertEquals(kafkaConfigManager.getClusterList().get(0), test3);
+
+        kafkaConfigManager.setDefaultClusterName(test1);
+        assertEquals(kafkaConfigManager.getClusterList().get(0), test1);
+    }
 
     private void setUpClusterConfiguration(String clusterName, String key, String value) {
         HashMap<String, String> client = new HashMap<>();

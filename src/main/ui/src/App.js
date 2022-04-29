@@ -57,7 +57,6 @@ class App extends Component {
 
         updateWorkerInfo();
         setInterval(updateWorkerInfo, 20_000);
-
     }
 
     componentWillUnmount() {
@@ -68,74 +67,75 @@ class App extends Component {
 
         return (
             <div>
-                <Router>
-                    <div>
-                        <ToastContainer
-                            position="top-right"
-                            autoClose={3000}
-                            hideProgressBar={false}
-                            newestOnTop={false}
-                            closeOnClick
-                            rtl={false}
-                            pauseOnVisibilityChange
-                            draggable={false}
-                            theme={"colored"}
-                            pauseOnHover
-                        />
-                        <Navbar color="light" light expand="md" className={"pt-0 pb-0"}>
-                            <Nav className="ml-auto" navbar>
-                                <NavbarBrand>
-                                    <img style={{"marginTop": "-0.375rem"}} src={logo} height="30" width="30"
-                                         alt="Kiwi - Kafka Interactive Web Interface"/>
-                                </NavbarBrand>
-                                <NavItem>
-                                    <NavLink tag={Link} to="/" replace={true}>Kafka Brokers</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} to="/topics" replace={true}>Kafka Topics</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} to="/groups" replace={true}>Kafka Consumers Groups</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} to="/post" replace={true}>Kafka Post</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} to="/get" replace={true}>Kafka Get</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} to="/download" replace={true}>Kafka Download</NavLink>
-                                </NavItem>
-                            </Nav>
-                            <Nav className="mr-auto" navbar>
-                                <div style={{padding: '3px'}}>
-                                    <ClusterChooser/>
-                                </div>
-                                <NavItem>
-                                    <div style={{padding: '11px'}}>
-                                        {this.state.workerInfo}
+                <AppData>
+                    <Router>
+                        <div>
+                            <ToastContainer
+                                position="top-right"
+                                autoClose={3000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnVisibilityChange
+                                draggable={false}
+                                theme={"colored"}
+                                pauseOnHover
+                            />
+                            <Navbar color="light" light expand="md" className={"pt-0 pb-0"}>
+                                <Nav className="ml-auto" navbar>
+                                    <NavbarBrand>
+                                        <img style={{"marginTop": "-0.375rem"}} src={logo} height="30" width="30"
+                                             alt="Kiwi - Kafka Interactive Web Interface"/>
+                                    </NavbarBrand>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/" replace={true}>Kafka Brokers</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/topics" replace={true}>Kafka Topics</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/groups" replace={true}>Kafka Consumers Groups</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/post" replace={true}>Kafka Post</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/get" replace={true}>Kafka Get</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} to="/download" replace={true}>Kafka Download</NavLink>
+                                    </NavItem>
+                                </Nav>
+                                <Nav className="mr-auto" navbar>
+                                    <div style={{padding: '3px'}}>
+                                        <ClusterChooser/>
                                     </div>
-                                </NavItem>
-                                <NavItem>
-                                    <div style={{padding: '11px'}}>
-                                        Version: {this.state.version}
-                                    </div>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink href="https://github.com/domwood/kiwi">
-                                        <img src={github} height="20" width="20"
-                                             alt="Github Link: https://github.com/domwood/kiwi"/>
-                                    </NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink href="https://hub.docker.com/r/dmwood/kiwi">
-                                        <img src={docker} height="20" width="20"
-                                             alt="Docker Link: https://hub.docker.com/r/dmwood/kiwi"/>
-                                    </NavLink>
-                                </NavItem>
-                            </Nav>
-                        </Navbar>
-                        <AppData>
+                                    <NavItem>
+                                        <div style={{padding: '11px'}}>
+                                            {this.state.workerInfo}
+                                        </div>
+                                    </NavItem>
+                                    <NavItem>
+                                        <div style={{padding: '11px'}}>
+                                            Version: {this.state.version}
+                                        </div>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink href="https://github.com/domwood/kiwi">
+                                            <img src={github} height="20" width="20"
+                                                 alt="Github Link: https://github.com/domwood/kiwi"/>
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink href="https://hub.docker.com/r/dmwood/kiwi">
+                                            <img src={docker} height="20" width="20"
+                                                 alt="Docker Link: https://hub.docker.com/r/dmwood/kiwi"/>
+                                        </NavLink>
+                                    </NavItem>
+                                </Nav>
+                            </Navbar>
+
                             <Routes>
                                 <Route exact path="/" element={<KafkaHome profiles={this.state.profiles}/>}/>
                                 <Route path="/topics" element={<KafkaTopics profiles={this.state.profiles}/>}/>
@@ -147,9 +147,9 @@ class App extends Component {
                                        element={<KafkaGet isDownload={true} profiles={this.state.profiles}/>}/>
                                 <Route redirectTo="/"/>
                             </Routes>
-                        </AppData>
-                    </div>
-                </Router>
+                        </div>
+                    </Router>
+                </AppData>
             </div>
         );
     }

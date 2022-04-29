@@ -1,42 +1,22 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import "../../App.css";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
-import * as ApiService from "../../services/ApiService";
-import {toast} from "react-toastify";
-import SessionStore from "../../services/SessionStore";
+import {AppDataContext} from "../../contexts/AppDataContext";
 
 class ClusterChooser extends Component {
+
+    static contextType = AppDataContext
 
     constructor(props) {
         super(props);
 
         this.state = {
-            clusterDropDownOpen: false,
-            clusters: []
+            clusterDropDownOpen: false
         };
-
     }
+
     componentDidMount() {
         this.mounted = true;
-
-        ApiService.getKafkaClusterList((clusterList) => {
-            let activeCluster = clusterList[0];
-            let existingCluster = SessionStore.getActiveCluster();
-            if(clusterList.lastIndexOf(existingCluster) > -1){
-                activeCluster = existingCluster;
-            }
-            else{
-                SessionStore.setActiveCluster(activeCluster);
-            }
-            if(this.mounted){
-                this.setState({
-                    clusters: clusterList,
-                    activeCluster: activeCluster
-                })
-            }
-
-        }, () => toast.error("No connection to server"));
     }
 
     toggleCluster = () => {
@@ -46,9 +26,7 @@ class ClusterChooser extends Component {
     };
 
     setActiveCluster = (cluster) => {
-        this.setState({
-            activeCluster: cluster
-        }, () => SessionStore.setActiveCluster(cluster));
+        this.context.setActiveCluster(cluster);
     };
 
     render() {
@@ -56,11 +34,12 @@ class ClusterChooser extends Component {
             <div>
                 <Dropdown nav inNavbar size="sm" isOpen={this.state.clusterDropDownOpen} toggle={this.toggleCluster}>
                     <DropdownToggle nav caret>
-                        Active Cluster: {this.state.activeCluster}
+                        Active Cluster: {this.context.activeCluster}
                     </DropdownToggle>
                     <DropdownMenu>
                         {
-                            this.state.clusters.map((cluster) => (<DropdownItem key={cluster} onClick={() => this.setActiveCluster(cluster)}>{cluster}</DropdownItem>))
+                            this.context.clusters.map((cluster) => (<DropdownItem key={cluster}
+                                                                                  onClick={() => this.setActiveCluster(cluster)}>{cluster}</DropdownItem>))
                         }
                     </DropdownMenu>
                 </Dropdown>
@@ -69,8 +48,6 @@ class ClusterChooser extends Component {
     }
 }
 
-ClusterChooser.propTypes = {
-    onUpdate: PropTypes.func
-};
+ClusterChooser.propTypes = {};
 
 export default ClusterChooser;

@@ -1,6 +1,6 @@
 package com.github.domwood.kiwi.kafka.configs;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -11,7 +11,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 
 @Component
 @ConfigurationProperties("kafka")
@@ -29,6 +37,8 @@ public class KafkaConfigManager {
     private final Map<String, Map<String, Map<String, String>>> clusters = new HashMap<>();
 
     private final Map<String, Map<String, Map<String, String>>> mutableClusterCopy = new HashMap<>();
+
+    private String defaultClusterName = "";
 
     //Backwards compatability from =< 0.5.0 version of kiwi
     @Deprecated
@@ -49,10 +59,10 @@ public class KafkaConfigManager {
     @PostConstruct
     public void setMutableClusterCopy() {
         this.mutableClusterCopy.putAll(clusters);
-        if(this.mutableClusterCopy.isEmpty()){
+        if (this.mutableClusterCopy.isEmpty()) {
             this.mutableClusterCopy.put(defaultCluster, new HashMap<>());
         }
-        if(bootstrapServers != null && !bootstrapServers.isEmpty()){
+        if (bootstrapServers != null && !bootstrapServers.isEmpty()) {
             logger.warn("Using a deprecated configuration parameter use 'kafka.base.client.bootstrapServers' or configure a cluster configuration");
             Map<String, String> baseClient = this.base.getOrDefault("client", new HashMap<>());
             baseClient.put("bootstrapServers", bootstrapServers);
@@ -76,9 +86,27 @@ public class KafkaConfigManager {
         return bootstrapServers;
     }
 
-    public Set<String> getClusterList() {
-        Set<String> clusterNames = mutableClusterCopy.keySet();
-        return clusterNames.isEmpty() ? ImmutableSet.of(defaultCluster) : clusterNames;
+    public String getDefaultClusterName() {
+        return defaultClusterName;
+    }
+
+    public void setDefaultClusterName(String defaultClusterName) {
+        this.defaultClusterName = defaultClusterName;
+    }
+
+    public List<String> getClusterList() {
+        final Set<String> clusterNames = new HashSet<>(mutableClusterCopy.keySet());
+        if (clusterNames.isEmpty()) {
+            return ImmutableList.of(defaultCluster);
+        }
+
+        final List<String> clusterNameList = new ArrayList<>();
+        if (clusterNames.contains(defaultClusterName)) {
+            clusterNames.remove(defaultClusterName);
+            clusterNameList.add(defaultClusterName);
+        }
+        clusterNameList.addAll(clusterNames);
+        return clusterNameList;
     }
 
     public Map<String, Map<String, Map<String, String>>> getActiveClusterConfiguration() {
@@ -96,15 +124,6 @@ public class KafkaConfigManager {
 
     public Properties generateAdminConfig(Optional<String> clusterName) {
         return generateConfig(clusterName, adminConfigKey);
-    }
-
-    public void updateClusterConfiguration(String clusterName, Map<String, Map<String, String>> clusterConfig) {
-        this.mutableClusterCopy.put(clusterName, clusterConfig);
-    }
-
-    public void resetConfig(){
-        this.mutableClusterCopy.clear();
-        this.mutableClusterCopy.putAll(clusters);
     }
 
     private Properties generateConfig(Optional<String> clusterName, String targetClientType) {

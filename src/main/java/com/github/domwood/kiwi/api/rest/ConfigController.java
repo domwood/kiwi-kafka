@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -42,7 +43,7 @@ public class ConfigController {
 
     @GetMapping("/kafkaClusterList")
     @ResponseBody
-    public Set<String> getKafkaClusterList(){
+    public List<String> getKafkaClusterList(){
         return this.configManager.getClusterList();
     }
 
