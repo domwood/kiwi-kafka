@@ -17,35 +17,32 @@ class AppData extends Component {
             topicData: {},
             mounted: false,
             consumingState: CLOSED_STATE,
-            clusters: [],
-            activeCluster: ''
         }
+    }
+
+    clearState = () => {
+        this.setState({
+            topicList: [],
+            topicLoading: false,
+            targetTopic: '',
+            targetTopicValid: false,
+            topicData: {}
+        }, () => {
+            this.topicListRefresh();
+        });
     }
 
     componentDidMount() {
         this.setState({
             mounted: true
         })
-        this.clusterList(this.topicListRefresh);
+        this.topicListRefresh();
     }
 
     componentWillUnmount() {
         this.setState({
             mounted: false
         })
-    }
-
-    clusterList = (cb) => {
-        ApiService.getKafkaClusterList((clusterList) => {
-            let activeCluster = clusterList[0];
-            let existingCluster = SessionStore.getActiveCluster();
-            if (clusterList.lastIndexOf(existingCluster) > -1) {
-                activeCluster = existingCluster;
-            }
-            this.setClusters(clusterList);
-            this.setActiveCluster(activeCluster);
-            cb();
-        }, () => toast.error("No connection to server"));
     }
 
     topicListRefresh = () => {
@@ -110,20 +107,11 @@ class AppData extends Component {
     }
 
     setActiveCluster = (activeCluster) => {
-        if (this.state.mounted) {
-            this.setState({
-                activeCluster: activeCluster
-            });
-            SessionStore.setActiveCluster(activeCluster);
-        }
+        SessionStore.setActiveCluster(activeCluster);
     }
 
-    setClusters = (clusters) => {
-        if (this.state.mounted) {
-            this.setState({
-                clusters: clusters
-            });
-        }
+    getActiveCluster = (cb, eb) => {
+        SessionStore.getActiveCluster(cb, eb);
     }
 
     render() {
@@ -139,9 +127,9 @@ class AppData extends Component {
                 topicData: this.state.topicData,
                 consumingState: this.state.consumingState,
                 setConsumingState: this.setConsumingState,
-                clusters: this.state.clusters,
-                activeCluster: this.state.activeCluster,
-                setActiveCluster: this.setActiveCluster
+                setActiveCluster: this.setActiveCluster,
+                getActiveCluster: this.getActiveCluster,
+                clearState: this.clearState
             }}>
                 {this.props.children}
             </AppDataContext.Provider>

@@ -1,0 +1,83 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+  kafka1:
+    image: wurstmeister/kafka
+    container_name: kafka1
+    links:
+      - zookeeper
+    ports:
+      - 9094:9092
+    depends_on:
+      - zookeeper
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_PORT: 9094
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  kafka2:
+    image: wurstmeister/kafka
+    container_name: kafka2
+    links:
+      - zookeeper
+    depends_on:
+      - zookeeper
+      - kafka1
+    ports:
+      - 9095:9092
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_PORT: 9095
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  kafka3:
+    image: wurstmeister/kafka
+    container_name: kafka3
+    links:
+      - zookeeper
+    depends_on:
+      - zookeeper
+      - kafka1
+      - kafka2
+    ports:
+      - 9096:9092
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_PORT: 9096
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 2
+      KAFKA_CREATE_TOPICS: "Topic1:10:3,Topic2:20:1:compact"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  zookeeper2:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper2
+    ports:
+      - 2182:2182
+    entrypoint: /bin/bash -c
+    command:
+      - "\"sed -i 's/clientPort=2181/clientPort=2182/g'  && /usr/sbin/sshd && /usr/bin/start-zk.sh\""
+  kafka4:
+    image: wurstmeister/kafka
+    container_name: kafka4
+    links:
+      - zookeeper
+    ports:
+      - 9097:9092
+    depends_on:
+      - zookeeper
+    environment:
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+      KAFKA_ADVERTISED_PORT: 9097
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

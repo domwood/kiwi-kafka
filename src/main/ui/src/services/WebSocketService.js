@@ -74,35 +74,43 @@ WebSocketService.consume = (topics, filters, startPosition, partitions, messageH
         closeHandler();
     };
 
-    WebSocketService.send({
-        clusterName: SessionStore.getActiveCluster(),
-        requestType: ".ConsumerRequest",
-        topics: topics,
-        limit: -1,
-        filters: filters || [],
-        consumerStartPosition: startPosition < 0.1 ? {partitions: partitions} : {
-            topicPercentage: startPosition,
-            partitions: partitions
-        }
-    }, errorHandler);
+    SessionStore.getActiveCluster((activeCluster) => {
+        WebSocketService.send({
+            clusterName: activeCluster,
+            requestType: ".ConsumerRequest",
+            topics: topics,
+            limit: -1,
+            filters: filters || [],
+            consumerStartPosition: startPosition < 0.1 ? {partitions: partitions} : {
+                topicPercentage: startPosition,
+                partitions: partitions
+            }
+        }, errorHandler);
+    }, errorHandler)
+
 };
 
 WebSocketService.disconnect = (errorHandler) => {
-    WebSocketService.send({
-        clusterName: SessionStore.getActiveCluster(),
-        requestType: ".CloseTaskRequest"
+    SessionStore.getActiveCluster((activeCluster) => {
+        WebSocketService.send({
+            clusterName: activeCluster,
+            requestType: ".CloseTaskRequest"
+        }, errorHandler);
+        if (WebSocketService.socket.readyState > CONNECTED) {
+            WebSocketService.open = true;
+            WebSocketService.socket.close();
+        }
     }, errorHandler);
-    if (WebSocketService.socket.readyState > CONNECTED) {
-        WebSocketService.open = true;
-        WebSocketService.socket.close();
-    }
+
 };
 
 WebSocketService.sendPauseUpdate = (paused, eb) => {
-    WebSocketService.send({
-        clusterName: SessionStore.getActiveCluster(),
-        requestType: ".PauseTaskRequest",
-        pauseSession: paused
+    SessionStore.getActiveCluster((activeCluster) => {
+        WebSocketService.send({
+            clusterName: activeCluster,
+            requestType: ".PauseTaskRequest",
+            pauseSession: paused
+        }, eb);
     }, eb);
 };
 

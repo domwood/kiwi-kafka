@@ -120,7 +120,7 @@ class MessageTable extends Component {
                         {
                             this.props.messages.map(m => {
                                 return (
-                                    <tr key={`${this.props.id}_${m.partition}_${m.offset}`}
+                                    <tr key={`${this.props.id}_${m.partition}_${m.offset}_${m.key}`}
                                         id={`record_row_${m.partition}_${m.offset}`}>
                                         {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
                                         {this.state.showDateTime ?

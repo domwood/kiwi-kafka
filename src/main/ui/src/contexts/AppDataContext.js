@@ -16,7 +16,7 @@ export const AppDataContext = React.createContext({
     topicData: {},
     consumingState: CLOSED_STATE,
     setConsumingState: NOOP,
-    clusters: [],
-    activeCluster: '',
-    setActiveCluster: NOOP
+    setActiveCluster: NOOP,
+    getActiveCluster: NOOP,
+    clearState: NOOP
 });
