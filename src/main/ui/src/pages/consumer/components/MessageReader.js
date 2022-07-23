@@ -75,12 +75,12 @@ class MessageReader extends Component {
 
             this.setState({
                 consumeCount: this.state.consumeCount + response.messages.length,
-                position: position.percentage - (position.skippedPercentage || 0) || 0,
+                position: (Math.ceil(position.percentage || 0)) - (Math.floor(position.skippedPercentage || 0)),
                 totalRecords: position.totalRecords || 0,
                 startValue: position.startValue || 0,
                 endValue: position.endValue || 0,
                 consumerPosition: position.consumerPosition || 0,
-                skippedPosition: position.skippedPercentage || 0
+                skippedPosition: Math.floor(position.skippedPercentage || 0)
             });
         }
     };
