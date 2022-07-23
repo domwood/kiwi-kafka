@@ -214,9 +214,10 @@ class MessageReader extends Component {
                             ', Offset: ' + (this.state.consumerPosition) + ' of ' + (this.state.endValue) +
                             (this.state.skippedPosition < 0.1 ? '' : ' (' + this.state.skippedPosition + '% Skipped)') : ''
                     }</div>
-                    <Progress multi max={1000}>
-                        <Progress animated bar color="danger" value={this.state.skippedPosition * 10 | 0}/>
-                        <Progress animated bar color="success" value={this.state.position * 10 | 0}/>
+                    <Progress multi max={100}>
+                        <Progress animated bar color="danger" value={this.state.skippedPosition | 0}/>
+                        <Progress animated bar color="success"
+                                  value={this.state.position > 99.0 ? 100 : this.state.position | 0}/>
                     </Progress>
 
                 </div>
