@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.github.domwood</groupId>
     <artifactId>kiwi</artifactId>
-    <version>0.9.3</version>
+    <version>0.9.4-SNAPSHOT</version>
     <name>kiwi</name>
     <description>Kafka Interactive Web Interface</description>
 
@@ -18,7 +18,7 @@
         <connection>scm:git:git@github.com:domwood/kiwi.git</connection>
         <url>scm:git:git@github.com:domwood/kiwi.git</url>
         <developerConnection>scm:git:git@github.com:domwood/kiwi.git</developerConnection>
-        <tag>0.9.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
