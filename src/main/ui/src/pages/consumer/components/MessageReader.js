@@ -22,7 +22,8 @@ class MessageReader extends Component {
             startValue: 0,
             endValue: 0,
             consumerPosition: 0,
-            startingPosition: 0.0
+            startingPosition: 0.0,
+            skippedPosition: 0
         }
     }
 
@@ -93,9 +94,7 @@ class MessageReader extends Component {
     };
 
     onWebSocketClose = () => {
-        if (this.mounted) {
-            this.clearCounts(() => toast.warn("Consumer connection closed"), CLOSED_STATE);
-        }
+
     };
 
     startConsumer = () => {
@@ -103,7 +102,6 @@ class MessageReader extends Component {
             toast.error("Consumer cannot be started, no topic specified");
             return;
         }
-
         WebSocketService.connect(() => {
             this.clearCounts(() => {
                 this.props.updateMessages([]);
@@ -122,9 +120,8 @@ class MessageReader extends Component {
     };
 
     stopConsumer = () => {
-        this.clearCounts(() =>
-            WebSocketService.disconnect(
-                (err) => toast.warn("Failed to cleanly disconnect: " + err.message)), CLOSED_STATE);
+        WebSocketService.disconnect((err) => toast.warn("Failed to cleanly disconnect: " + err.message));
+        this.context.setConsumingState(CLOSED_STATE);
     };
 
     pauseConsumer = () => {
@@ -185,8 +182,6 @@ class MessageReader extends Component {
                                               "marginTop": "-31px"
                                           }}
                     />
-                    {this.state.consumeCount > 0 ?
-                        <span>Limited to {this.props.messages.length} of {this.state.consumeCount} consumed </span> : null}
                 </React.Fragment>
         }
     }
@@ -207,16 +202,15 @@ class MessageReader extends Component {
                     <div className={"Gap"}/>
 
                     <div className="text-center">{
-                        this.context.consumingState !== CLOSED_STATE ?
-                            'Showing: ' + this.props.messages.length +
-                            ', Matched: ' + this.state.consumeCount +
-                            ', Records Processed: ' + this.state.totalRecords +
-                            ', Offset: ' + (this.state.consumerPosition) + ' of ' + (this.state.endValue) +
-                            (this.state.skippedPosition < 0.1 ? '' : ' (' + this.state.skippedPosition + '% Skipped)') : ''
+                        'Showing: ' + this.props.messages.length +
+                        ', Matched: ' + this.state.consumeCount +
+                        ', Records Processed: ' + this.state.totalRecords +
+                        ', Offset: ' + (this.state.consumerPosition) + ' of ' + (this.state.endValue) +
+                        (this.state.skippedPosition < 0.1 ? '' : ' (' + this.state.skippedPosition + '% Skipped)')
                     }</div>
                     <Progress multi max={100}>
-                        <Progress animated bar color="danger" value={this.state.skippedPosition | 0}/>
-                        <Progress animated bar color="success"
+                        <Progress animated={this.context.consumingState !== CLOSED_STATE} bar color="danger" value={this.state.skippedPosition | 0}/>
+                        <Progress animated={this.context.consumingState !== CLOSED_STATE} bar color="success"
                                   value={this.state.position > 99.0 ? 100 : this.state.position | 0}/>
                     </Progress>
 
