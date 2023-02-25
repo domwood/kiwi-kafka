@@ -16,7 +16,7 @@ import {
 import PropTypes from "prop-types";
 import "../../../App.css";
 import {AppDataContext, CLOSED_STATE} from "../../../contexts/AppDataContext";
-import {partition} from "murmur2-partitioner";
+import {partition} from "../../../services/PartitionCalculator"
 
 const TIMESTAMP = "TIMESTAMP";
 const STARTS_WITH = "STARTS_WITH";
@@ -194,9 +194,12 @@ class FilterConfigurer extends Component {
             return '?';
         }
         let partitionCount = (this.context.topicData[this.context.targetTopic] || {}).partitionCount;
-        let calculated = partition(key, partitionCount);
-        console.log(calculated);
-        return calculated;
+        try {
+            return partition(key, partitionCount);
+        } catch (err) {
+            console.error(err);
+        }
+        return '?';
     }
 
     render() {

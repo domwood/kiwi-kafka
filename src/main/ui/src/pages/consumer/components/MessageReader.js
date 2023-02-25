@@ -1,11 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Button, ButtonGroup, Progress} from "reactstrap";
+import {Button, ButtonGroup, Collapse, Progress} from "reactstrap";
 import {toast} from "react-toastify";
 import WebSocketService from "../../../services/WebSocketService";
 import ConsumerSlider from "./ConsumerSlider";
 import ProfileToggleToolTip from "../../common/ProfileToggleToolTip";
 import {AppDataContext, CLOSED_STATE, CONSUMING_STATE, PAUSED_STATE} from "../../../contexts/AppDataContext";
+import {MdKeyboardArrowDown, MdKeyboardArrowUp} from "react-icons/md";
 
 class MessageReader extends Component {
 
@@ -23,7 +24,8 @@ class MessageReader extends Component {
             endValue: 0,
             consumerPosition: 0,
             startingPosition: 0.0,
-            skippedPosition: 0
+            skippedPosition: 0,
+            showingConsumedDetails: false
         }
     }
 
@@ -53,7 +55,8 @@ class MessageReader extends Component {
                 startValue: 0,
                 endValue: 0,
                 consumerPosition: 0,
-                skippedPosition: 0
+                skippedPosition: 0,
+                showingConsumedDetails: false
             }, cb)
         }
     };
@@ -81,7 +84,8 @@ class MessageReader extends Component {
                 startValue: position.startValue || 0,
                 endValue: position.endValue || 0,
                 consumerPosition: position.consumerPosition || 0,
-                skippedPosition: Math.floor(position.skippedPercentage || 0)
+                skippedPosition: Math.floor(position.skippedPercentage || 0),
+                showingConsumedDetails: true
             });
         }
     };
@@ -122,6 +126,9 @@ class MessageReader extends Component {
     stopConsumer = () => {
         WebSocketService.disconnect((err) => toast.warn("Failed to cleanly disconnect: " + err.message));
         this.context.setConsumingState(CLOSED_STATE);
+        this.setState({
+            showingConsumedDetails: false
+        })
     };
 
     pauseConsumer = () => {
@@ -139,6 +146,12 @@ class MessageReader extends Component {
             startingPosition: value
         });
     };
+
+    onToggleShowingConsumedDetails = () => {
+        this.setState({
+            showingConsumedDetails: !this.state.showingConsumedDetails
+        })
+    }
 
     renderButton = () => {
         switch (this.context.consumingState) {
@@ -200,20 +213,29 @@ class MessageReader extends Component {
                                     isConsuming={this.context.consumingState !== CLOSED_STATE}
                     />
                     <div className={"Gap"}/>
-
-                    <div className="text-center">{
-                        'Showing: ' + this.props.messages.length +
-                        ', Matched: ' + this.state.consumeCount +
-                        ', Records Processed: ' + this.state.totalRecords +
-                        ', Offset: ' + (this.state.consumerPosition) + ' of ' + (this.state.endValue) +
-                        (this.state.skippedPosition < 0.1 ? '' : ' (' + this.state.skippedPosition + '% Skipped)')
-                    }</div>
-                    <Progress multi max={100}>
-                        <Progress animated={this.context.consumingState !== CLOSED_STATE} bar color="danger" value={this.state.skippedPosition | 0}/>
-                        <Progress animated={this.context.consumingState !== CLOSED_STATE} bar color="success"
-                                  value={this.state.position > 99.0 ? 100 : this.state.position | 0}/>
-                    </Progress>
-
+                    <Button color="secondary" onClick={this.onToggleShowingConsumedDetails}
+                            style={{height: '1em', width: '100%'}}>
+                        {this.state.showingConsumedDetails ?
+                            <MdKeyboardArrowUp style={{marginTop: '-1.6em', padding: '0.1em'}}/> :
+                            <MdKeyboardArrowDown style={{marginTop: '-1.6em', padding: '0.1em'}}/>
+                        }
+                    </Button>
+                    <Collapse isOpen={this.state.showingConsumedDetails}>
+                        <div className="text-center">{
+                            'Showing: ' + this.props.messages.length +
+                            ', Matched: ' + this.state.consumeCount +
+                            ', Records Processed: ' + this.state.totalRecords +
+                            ', Offset: ' + (this.state.consumerPosition) + ' of ' + (this.state.endValue) +
+                            (this.state.skippedPosition < 0.1 ? '' : ' (' + this.state.skippedPosition + '% Skipped)')
+                        }</div>
+                        <Progress multi max={100}>
+                            <Progress animated={this.context.consumingState !== CLOSED_STATE} bar color="danger"
+                                      value={this.state.skippedPosition | 0}/>
+                            <Progress animated={this.context.consumingState !== CLOSED_STATE} bar
+                                      color="success"
+                                      value={this.state.position > 99.0 ? 100 : this.state.position | 0}/>
+                        </Progress>
+                    </Collapse>
                 </div>
             </div>
         )
