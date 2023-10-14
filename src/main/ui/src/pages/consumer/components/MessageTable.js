@@ -99,46 +99,56 @@ class MessageTable extends Component {
                                          updater={this.toggleField}/>
 
                     <div className={"Gap"}/>
-
-                    <Table size="sm" id={'mainTable'} bordered>
-                        <thead>
-                        <tr>
-                            {this.state.buttons.map((button) => {
-                                return this.state[button.key] ?
-                                    <th key={'table_th_' + button.displayName}>
-                                        <span style={{"float": "left"}}>{button.displayName}</span>
-                                        {this.isLastHeader(button) ?
-                                            <span style={{"float": "right", "margin": "-4px"}}>
+                    <div style={{
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                        height: "2000px",
+                        marginRight: "-10px",
+                        marginLeft: "-10px",
+                        paddingLeft: "10px",
+                        paddingRight: "10px"
+                    }}>
+                        <Table size="sm" id={'mainTable'} bordered>
+                            <thead>
+                            <tr>
+                                {this.state.buttons.map((button) => {
+                                    return this.state[button.key] ?
+                                        <th key={'table_th_' + button.displayName}>
+                                            <span style={{"float": "left"}}>{button.displayName}</span>
+                                            {this.isLastHeader(button) ?
+                                                <span style={{"float": "right", "margin": "-4px"}}>
                                                     <Button onClick={this.copyViewToClipboard}
                                                             size={"sm"}><GoClippy/></Button>
                                                 </span> : null}
-                                    </th> : null
-                            })}
-                        </tr>
-                        </thead>
-                        <tbody className="WrappedTable" id={'copiableTableBody'}>
-                        {
-                            this.props.messages.map(m => {
-                                return (
-                                    <tr key={`${this.props.id}_${m.partition}_${m.offset}`}
-                                        id={`record_row_${m.partition}_${m.offset}`}>
-                                        {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
-                                        {this.state.showDateTime ?
-                                            <td width="10%">{GeneralUtilities.prettyTimestamp(m.timestamp)}</td> : null}
-                                        {this.state.showPartition ? <td width="3%">{m.partition}</td> : null}
-                                        {this.state.showOffset ? <td width="3%">{m.offset}</td> : null}
-                                        {this.state.showKey ? <td width="10%">{m.key}</td> : null}
-                                        {this.state.showHeaders ?
-                                            <td width="18%">{this.prettifyHeaders(m)}</td> : null}
-                                        {this.state.showValue ? <td width="46%">{m.message}</td> : null}
-                                    </tr>
-                                )
-                            })
-                        }
-                        </tbody>
-                    </Table>
+                                        </th> : null
+                                })}
+                            </tr>
+                            </thead>
+                            <tbody className="WrappedTable" id={'copiableTableBody'}>
+                            {
+                                this.props.messages.map(m => {
+                                    return (
+                                        <tr key={`${this.props.id}_${m.partition}_${m.offset}`}
+                                            id={`record_row_${m.partition}_${m.offset}`}>
+                                            {this.state.showTimestamp ? <td width="10%">{m.timestamp}</td> : null}
+                                            {this.state.showDateTime ?
+                                                <td width="10%">{GeneralUtilities.prettyTimestamp(m.timestamp)}</td> : null}
+                                            {this.state.showPartition ? <td width="3%">{m.partition}</td> : null}
+                                            {this.state.showOffset ? <td width="3%">{m.offset}</td> : null}
+                                            {this.state.showKey ? <td width="10%">{m.key}</td> : null}
+                                            {this.state.showHeaders ?
+                                                <td width="18%">{this.prettifyHeaders(m)}</td> : null}
+                                            {this.state.showValue ? <td width="46%">{m.message}</td> : null}
+                                        </tr>
+                                    )
+                                })
+                            }
+                            </tbody>
+                        </Table>
+                    </div>
                 </div> :
                 <React.Fragment/>
+
         )
     }
 }
