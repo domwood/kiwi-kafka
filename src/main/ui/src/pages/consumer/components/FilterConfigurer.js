@@ -318,21 +318,6 @@ class FilterConfigurer extends Component {
                                                 }
 
                                             </ButtonDropdown>
-                                            {
-                                                this.state.filters[index].filterApplication === TIMESTAMP ?
-                                                    <InputGroupText id={"datetime" + index}>
-                                                        <Input addon
-                                                               type="datetime-local"
-                                                               aria-label="Time"
-                                                               step={".001"}
-                                                               value={this.asDateString(this.state.filters[index].filter)}
-                                                               style={{borderRadius: "unset", width: "350px"}}
-                                                               onChange={(event) =>
-                                                                   this.setFilter(new Date(event.target.value).getTime(), index)}
-                                                               disabled={disabled}
-                                                        />
-                                                    </InputGroupText> : <React.Fragment/>
-                                            }
                                             <Input
                                                 type="text"
                                                 name="filter"
