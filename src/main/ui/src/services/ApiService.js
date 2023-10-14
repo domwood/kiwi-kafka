@@ -40,10 +40,6 @@ export const getVersion = (cb, eb) => {
     commonTextFetch(cb, eb, api.version);
 };
 
-export const getWorkerInfo = (cb, eb) => {
-    commonTextFetch(cb, eb, api.workerInfo);
-};
-
 export const getProfiles = (cb, eb) => {
     let errorHandler = (error) => (eb || errorHandler)(error);
 

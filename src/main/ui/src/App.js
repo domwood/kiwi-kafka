@@ -46,17 +46,6 @@ class App extends Component {
                 })
             }
         }, () => toast.error("No connection to server"));
-
-        let updateWorkerInfo = () => ApiService.getWorkerInfo((workerInfo) => {
-            if (this.mounted) {
-                this.setState({
-                    workerInfo: workerInfo
-                })
-            }
-        }, () => console.log("No connection to server"));
-
-        updateWorkerInfo();
-        setInterval(updateWorkerInfo, 20_000);
     }
 
     componentWillUnmount() {
@@ -111,11 +100,6 @@ class App extends Component {
                                     <div style={{padding: '3px'}}>
                                         <ClusterChooser/>
                                     </div>
-                                    <NavItem>
-                                        <div style={{padding: '11px'}}>
-                                            {this.state.workerInfo}
-                                        </div>
-                                    </NavItem>
                                     <NavItem>
                                         <div style={{padding: '11px'}}>
                                             Version: {this.state.version}
