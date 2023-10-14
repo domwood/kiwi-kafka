@@ -151,6 +151,14 @@ class FilterConfigurer extends Component {
         });
     };
 
+    setCaseSensitiveToolTipToggle = (index) => {
+        let filters = this.state.filters;
+        filters[index].caseSensitiveTooltipToggle = !filters[index].caseSensitiveTooltipToggle;
+        this.setState({
+            filters: filters
+        });
+    };
+
     addFilter = () => {
         this.setState({
             useFilter: true,
@@ -345,13 +353,24 @@ class FilterConfigurer extends Component {
                                             <InputGroupText>
                                                 {
                                                     this.state.filters[index].filterType !== REGEX && !this.isNumericFilterAtIndex(index) ?
-                                                        <div>
+                                                        <div id={"casing" + index}>
                                                             <Button onClick={() => this.setCaseSensitive(index)}
                                                                     color={this.state.filters[index].isCaseSensitive ? 'warning' : 'success'}
                                                                     disabled={disabled}
                                                             >
                                                                 {this.state.filters[index].isCaseSensitive ? 'Case Sensitive' : 'Case Insensitive'}
                                                             </Button>
+                                                            <Tooltip target={"casing" + index}
+                                                                     placement={"top"}
+                                                                     toggle={() => this.setCaseSensitiveToolTipToggle(index)}
+                                                                     isOpen={this.state.filters[index].caseSensitiveTooltipToggle}
+                                                                     disabled={disabled}
+                                                            >
+                                                                {this.state.filters[index].isCaseSensitive ?
+                                                                    'Currently string matching will be case sensitive. eg \'Case\' will not match \'case\' ' :
+                                                                    'Currently string matching will be case insensitive. eg \'Case\' will match \'case\' '
+                                                                }
+                                                            </Tooltip>
                                                         </div>
                                                         : <React.Fragment/>
                                                 }
@@ -374,7 +393,7 @@ class FilterConfigurer extends Component {
                                                                      disabled={disabled}
                                                             >
                                                                 Automatically remove whitespace from start/end of filter
-                                                                string
+                                                                string {this.state.filters[index].trimWhitespace ? 'is enabled' : 'is not enabled'}
                                                             </Tooltip>
                                                         </div>
                                                     </InputGroupText> : <React.Fragment/>
