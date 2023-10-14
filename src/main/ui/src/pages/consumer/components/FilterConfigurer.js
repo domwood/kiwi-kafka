@@ -167,11 +167,13 @@ class FilterConfigurer extends Component {
         }, this.updateParent);
     };
 
-    removeFilter = () => {
+    removeFilter = (filterIndex) => {
         let useFilter = this.state.filters.length > 1;
+        let filters = this.state.filters;
+        filters.splice(filterIndex, 1);
         this.setState({
             useFilter: useFilter,
-            filters: useFilter ? this.state.filters.slice(0, -1) : []
+            filters: useFilter ? filters : []
         }, this.updateParent);
     };
 
@@ -189,13 +191,14 @@ class FilterConfigurer extends Component {
         }, this.updateParent)
     }
 
-    calculatePartition = (key) => {
+    calculatePartition = (key, trimWhitespace) => {
         if (!key) {
             return '?';
         }
         let partitionCount = (this.context.topicData[this.context.targetTopic] || {}).partitionCount;
         try {
-            return partition(key, partitionCount);
+            let trimmedKey = trimWhitespace ? key.trim() : key;
+            return partition(trimmedKey, partitionCount);
         } catch (err) {
             console.error(err);
         }
@@ -335,7 +338,7 @@ class FilterConfigurer extends Component {
                                                     <InputGroupText id={"keyPartition" + index}>
                                                         <div style={{paddingRight: "5px", paddingLeft: "5px"}}>
                                                             Default
-                                                            Partition: <b>{this.calculatePartition(this.state.filters[index].filter)}</b>
+                                                            Partition: <b>{this.calculatePartition(this.state.filters[index].filter, this.state.filters[index].trimWhitespace)}</b>
                                                         </div>
                                                     </InputGroupText> : <React.Fragment/>
                                             }
@@ -376,7 +379,15 @@ class FilterConfigurer extends Component {
                                                         </div>
                                                     </InputGroupText> : <React.Fragment/>
                                             }
-
+                                            <InputGroupText>
+                                                <Button
+                                                    onClick={() => this.removeFilter(index)}
+                                                    color={'warning'}
+                                                    disabled={disabled}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </InputGroupText>
 
                                         </InputGroup>
                                         {
@@ -389,13 +400,6 @@ class FilterConfigurer extends Component {
                                                             disabled={disabled}
                                                         >
                                                             + Add
-                                                        </Button>
-                                                        <Button
-                                                            onClick={() => this.removeFilter()}
-                                                            color={'warning'}
-                                                            disabled={disabled}
-                                                        >
-                                                            - Remove
                                                         </Button>
                                                     </ButtonGroup>
                                                 </div>
