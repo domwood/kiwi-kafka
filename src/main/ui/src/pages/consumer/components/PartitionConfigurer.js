@@ -22,7 +22,7 @@ class PartitionConfigurer extends Component {
         this.setState({
             toggleFilter: !this.state.toggleFilter,
             activePartitions: []
-        })
+        }, this.props.onUpdate([]));
     }
 
     setPartition = (partition) => {
@@ -30,8 +30,7 @@ class PartitionConfigurer extends Component {
         activePartitionUpdated[partition] = !activePartitionUpdated[partition];
         this.setState({
             activePartitions: activePartitionUpdated,
-        });
-        this.props.onUpdate(Object.keys(this.state.activePartitions).filter(partition => this.state.activePartitions[partition]))
+        }, this.props.onUpdate(Object.keys(this.state.activePartitions).filter(partition => this.state.activePartitions[partition])));
     }
 
     render() {
