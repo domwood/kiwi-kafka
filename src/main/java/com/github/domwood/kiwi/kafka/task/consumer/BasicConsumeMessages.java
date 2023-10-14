@@ -67,10 +67,14 @@ public class BasicConsumeMessages<K, V> extends FuturisingAbstractKafkaTask<Abst
                             queue.add(asConsumedRecord(consumerRecord, resource::convertKafkaKey, resource::convertKafkaValue));
                             toCommit.put(new TopicPartition(consumerRecord.topic(), consumerRecord.partition()), new OffsetAndMetadata(consumerRecord.offset()));
                         }
+                        if (input.pauseAfterMatchCount().isPresent() && queue.size() >= input.pauseAfterMatchCount().orElse(Integer.MAX_VALUE)) {
+                            running = false;
+                            break;
+                        }
                     }
                     commitAsync(toCommit);
                 }
-                running = shouldContinueRunning(pollEmptyCount, tracker.getEndOffsets(), toCommit);
+                running = running && shouldContinueRunning(pollEmptyCount, tracker.getEndOffsets(), toCommit);
             }
             this.resource.unsubscribe();
 

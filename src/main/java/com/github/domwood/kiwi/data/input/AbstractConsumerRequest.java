@@ -16,6 +16,8 @@ public interface AbstractConsumerRequest extends InboundRequest {
 
     Optional<ConsumerStartPosition> consumerStartPosition();
 
+    Optional<Integer> pauseAfterMatchCount();
+
     @Value.Default
     default KafkaDataType kafkaKeyDataType() {
         return KafkaDataType.STRING;

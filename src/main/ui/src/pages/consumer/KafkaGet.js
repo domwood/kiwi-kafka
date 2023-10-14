@@ -23,14 +23,14 @@ class KafkaGet extends Component {
             alerts: [],
             bootstrapServers: "",
             messageLimit: 100,
-            messagePauseLimit: -1,
             messageFromEnd: true,
             messages: [],
             filters: [],
             continuous: false,
             consumeCount: 0,
             isReversed: true,
-            partitions: []
+            partitions: [],
+            pauseAfterMatchCount: null
         };
     }
 
@@ -45,6 +45,11 @@ class KafkaGet extends Component {
     setMessageLimit = (messageLimit) => {
         this.setState({messageLimit: messageLimit})
     };
+
+    setPauseAfterMatchCount = (pauseAfterMatchCount) => {
+        this.setState({pauseAfterMatchCount: pauseAfterMatchCount > 0 ? pauseAfterMatchCount : null})
+    };
+
 
     setFilter = (filters) => {
         this.setState({
@@ -83,6 +88,8 @@ class KafkaGet extends Component {
                                           name={"messageLimit"}
                                           messageLimit={this.state.messageLimit}
                                           onMessageLimitUpdate={this.setMessageLimit}
+                                          pauseAfterMatchCount={this.state.pauseAfterMatchCount}
+                                          onPauseAfterMatchCountUpdate={this.setPauseAfterMatchCount}
                             />
                             : <React.Fragment />
                         }
@@ -109,6 +116,7 @@ class KafkaGet extends Component {
                                     messages={this.state.messages}
                                     profiles={this.props.profiles}
                                     partitions={this.state.partitions}
+                                    pauseAfterMatchCount={this.state.pauseAfterMatchCount}
                                 />
 
                                 <MessageTable name={"messageTable"}

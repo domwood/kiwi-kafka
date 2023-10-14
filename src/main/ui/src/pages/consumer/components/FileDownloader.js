@@ -49,7 +49,6 @@ class FileDownloader extends Component {
     };
 
     setSeparator = (separator) => {
-        console.log(separator);
         this.setState({
             separator: separator
         })
