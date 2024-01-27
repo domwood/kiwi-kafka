@@ -1,7 +1,7 @@
 # KIWI - Kafka Interactive Web Interface 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Latest-0.9.3-green.svg)]()
+[![Status](https://img.shields.io/badge/Latest-0.9.6-green.svg)]()
 
 *Note: Security Vulnerability CVE-2021-44832 in log4j2 present in tags/releases before 0.8.1*
 
