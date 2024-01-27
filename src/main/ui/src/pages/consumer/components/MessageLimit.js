@@ -27,15 +27,6 @@ class MessageLimit extends Component {
                            min="1"
                            required
                     />
-                    <InputGroupText className="input-group-text-padded">
-                        Pause After Match Count
-                    </InputGroupText>
-                    <Input type="number"
-                           name="messageLimit"
-                           id="pauseAfterCount"
-                           defaultValue={this.props.pauseAfterMatchCount}
-                           onChange={event => this.props.onPauseAfterMatchCountUpdate(parseInt(event.target.value || 0))}
-                    />
                 </InputGroup>
             </div>
         )
@@ -46,9 +37,7 @@ MessageLimit.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     onMessageLimitUpdate: PropTypes.func.isRequired,
-    messageLimit: PropTypes.number.isRequired,
-    onPauseAfterMatchCountUpdate: PropTypes.func.isRequired,
-    pauseAfterMatchCount: PropTypes.number
+    messageLimit: PropTypes.number.isRequired
 };
 
 export default MessageLimit;

@@ -2,7 +2,11 @@ package com.github.domwood.kiwi.api.ws;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.domwood.kiwi.data.input.*;
+import com.github.domwood.kiwi.data.input.CloseTaskRequest;
+import com.github.domwood.kiwi.data.input.ConsumerRequest;
+import com.github.domwood.kiwi.data.input.InboundRequest;
+import com.github.domwood.kiwi.data.input.MessageAcknowledge;
+import com.github.domwood.kiwi.data.input.PauseTaskRequest;
 import com.github.domwood.kiwi.data.output.ConsumerResponse;
 import com.github.domwood.kiwi.exceptions.WebSocketSendFailedException;
 import com.github.domwood.kiwi.kafka.task.consumer.ContinuousConsumeMessages;
@@ -80,11 +84,10 @@ public class KiwiWebSocketHandler extends TextWebSocketHandler {
             } else if (inboundRequest instanceof PauseTaskRequest) {
                 ContinuousConsumeMessages<?, ?> consumerTask = consumerHandler.getConsumerTask(kiwiSession.getId());
                 if (consumerTask != null) {
-                    PauseTaskRequest pauseRequest = (PauseTaskRequest) inboundRequest;
-                    if (pauseRequest.pauseSession()) {
-                        consumerTask.pause(pauseRequest.pauseAfterMatchCount());
+                    if (((PauseTaskRequest) inboundRequest).pauseSession()) {
+                        consumerTask.pause();
                     } else {
-                        consumerTask.unpause(pauseRequest.pauseAfterMatchCount());
+                        consumerTask.unpause();
                     }
                 }
             }

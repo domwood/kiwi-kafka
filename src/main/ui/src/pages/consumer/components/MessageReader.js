@@ -87,9 +87,6 @@ class MessageReader extends Component {
                 skippedPosition: Math.floor(position.skippedPercentage || 0),
                 showingConsumedDetails: true
             });
-            if (response.paused) {
-                this.context.setConsumingState(PAUSED_STATE);
-            }
         }
     };
 
@@ -118,7 +115,6 @@ class MessageReader extends Component {
                     this.props.filters,
                     this.state.startingPosition,
                     this.props.partitions,
-                    this.props.pauseAfterMatchCount,
                     this.onWebSocketMessage,
                     this.onWebsocketError,
                     this.onWebSocketClose
@@ -136,12 +132,12 @@ class MessageReader extends Component {
     };
 
     pauseConsumer = () => {
-        WebSocketService.sendPauseUpdate(true, this.props.pauseAfterMatchCount, (err) => toast.warn("Failed to cleanly pause: " + err.message));
+        WebSocketService.sendPauseUpdate(true, (err) => toast.warn("Failed to cleanly pause: " + err.message));
         this.context.setConsumingState(PAUSED_STATE);
     };
 
     unpauseConsumer = () => {
-        WebSocketService.sendPauseUpdate(false, this.props.pauseAfterMatchCount, (err) => toast.warn("Failed to cleanly pause: " + err.message));
+        WebSocketService.sendPauseUpdate(false, (err) => toast.warn("Failed to cleanly pause: " + err.message));
         this.context.setConsumingState(CONSUMING_STATE);
     };
 
@@ -257,8 +253,7 @@ MessageReader.propTypes = {
     messages: PropTypes.array.isRequired,
     profiles: PropTypes.array.isRequired,
     partitions: PropTypes.array.isRequired,
-    topic: PropTypes.string,
-    pauseAfterMatchCount: PropTypes.number
+    topic: PropTypes.string
 };
 
 export default MessageReader;

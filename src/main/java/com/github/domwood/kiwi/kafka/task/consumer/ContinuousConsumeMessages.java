@@ -3,7 +3,11 @@ package com.github.domwood.kiwi.kafka.task.consumer;
 
 import com.github.domwood.kiwi.data.input.AbstractConsumerRequest;
 import com.github.domwood.kiwi.data.input.filter.MessageFilter;
-import com.github.domwood.kiwi.data.output.*;
+import com.github.domwood.kiwi.data.output.ConsumedMessage;
+import com.github.domwood.kiwi.data.output.ConsumerPosition;
+import com.github.domwood.kiwi.data.output.ConsumerResponse;
+import com.github.domwood.kiwi.data.output.ImmutableConsumedMessage;
+import com.github.domwood.kiwi.data.output.ImmutableConsumerResponse;
 import com.github.domwood.kiwi.kafka.filters.FilterBuilder;
 import com.github.domwood.kiwi.kafka.resources.KafkaConsumerResource;
 import com.github.domwood.kiwi.kafka.task.FuturisingAbstractKafkaTask;
@@ -19,9 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -47,8 +57,6 @@ public class ContinuousConsumeMessages<K, V>
     private final List<MessageFilter> filters;
     private final Map<TopicPartition, Long> currentPosition;
 
-    private final AtomicInteger pauseAfterMatchCount;
-
     public ContinuousConsumeMessages(final KafkaConsumerResource<K, V> resource,
                                      final AbstractConsumerRequest input) {
         super(resource, input);
@@ -58,7 +66,6 @@ public class ContinuousConsumeMessages<K, V>
         this.closed = new AtomicBoolean(false);
         this.filters = new ArrayList<>(input.filters());
         this.currentPosition = new HashMap<>();
-        this.pauseAfterMatchCount = new AtomicInteger(input.pauseAfterMatchCount().orElse(-1));
     }
 
     @Override
@@ -68,15 +75,13 @@ public class ContinuousConsumeMessages<K, V>
     }
 
     @Override
-    public void pause(Optional<Integer> pauseAfterMatchCount) {
+    public void pause() {
         this.paused.set(true);
-        this.pauseAfterMatchCount.set(pauseAfterMatchCount.orElse(-1));
     }
 
     @Override
-    public void unpause(Optional<Integer> pauseAfterMatchCount) {
+    public void unpause() {
         this.paused.set(false);
-        this.pauseAfterMatchCount.set(pauseAfterMatchCount.orElse(-1));
     }
 
     @Override
@@ -106,7 +111,6 @@ public class ContinuousConsumeMessages<K, V>
 
             boolean wasPaused = false;
             int idleCount = 0;
-            int messagesReadSincePause = 0;
             while (!this.isClosed()) {
                 if (this.paused.get()) {
                     MILLISECONDS.sleep(20);
@@ -140,20 +144,12 @@ public class ContinuousConsumeMessages<K, V>
                                 messages.add(consumedMessage);
                                 toCommit.put(new TopicPartition(kafkaRecord.topic(), kafkaRecord.partition()), new OffsetAndMetadata(kafkaRecord.offset()));
                                 totalBatchSize += Optional.ofNullable(consumedMessage.message()).orElse("").length() * 16;
-                                messagesReadSincePause++;
                             }
 
                             if (totalBatchSize >= MAX_MESSAGE_BYTES || messages.size() >= MAX_MESSAGES) {
                                 forwardAndMaybeCommit(resource, messages, toCommit, tracker);
                                 totalBatchSize = 0;
                                 commitAfterEndOfPoll = false;
-                            }
-
-                            int pauseAfterMatchCountUnwrapped = pauseAfterMatchCount.get();
-                            if (pauseAfterMatchCountUnwrapped > 0 && messagesReadSincePause >= pauseAfterMatchCountUnwrapped) {
-                                paused.set(true);
-                                messagesReadSincePause = 0;
-                                break;
                             }
                         }
                         if (commitAfterEndOfPoll) {
@@ -227,7 +223,6 @@ public class ContinuousConsumeMessages<K, V>
             this.consumer.accept(ImmutableConsumerResponse.builder()
                     .messages(messages)
                     .position(position)
-                    .paused(this.paused.get())
                     .build());
         }
     }

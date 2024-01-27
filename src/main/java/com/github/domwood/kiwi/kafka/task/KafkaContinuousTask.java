@@ -1,14 +1,13 @@
 package com.github.domwood.kiwi.kafka.task;
 
 import java.io.Closeable;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface KafkaContinuousTask<I, O> extends Closeable {
 
-    public void pause(Optional<Integer> pauseAfterMatchCount);
+    public void pause();
 
-    public void unpause(Optional<Integer> pauseAfterMatchCount);
+    public void unpause();
 
     public void update(I input);
 

@@ -66,7 +66,7 @@ WebSocketService.connect = (cb, eb) => {
     cb();
 };
 
-WebSocketService.consume = (topics, filters, startPosition, partitions, pauseAfterMatchCount, messageHandler, errorHandler, closeHandler) => {
+WebSocketService.consume = (topics, filters, startPosition, partitions, messageHandler, errorHandler, closeHandler) => {
     WebSocketService.socket.onmessage = (message) => websocketDataHandler(message, messageHandler, errorHandler, websocketAck(WebSocketService.send));
     WebSocketService.socket.onerror = errorHandler;
     WebSocketService.socket.onclose = () => {
@@ -83,8 +83,7 @@ WebSocketService.consume = (topics, filters, startPosition, partitions, pauseAft
         consumerStartPosition: startPosition < 0.1 ? {partitions: partitions} : {
             topicPercentage: startPosition,
             partitions: partitions
-        },
-        pauseAfterMatchCount: pauseAfterMatchCount
+        }
     }, errorHandler);
 };
 
@@ -99,12 +98,11 @@ WebSocketService.disconnect = (errorHandler) => {
     }
 };
 
-WebSocketService.sendPauseUpdate = (paused, pauseAfterMatchCount, eb) => {
+WebSocketService.sendPauseUpdate = (paused, eb) => {
     WebSocketService.send({
         clusterName: SessionStore.getActiveCluster(),
         requestType: ".PauseTaskRequest",
-        pauseSession: paused,
-        pauseAfterMatchCount: pauseAfterMatchCount
+        pauseSession: paused
     }, eb);
 };
 

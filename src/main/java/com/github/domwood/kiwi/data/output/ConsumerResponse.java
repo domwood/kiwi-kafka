@@ -11,13 +11,7 @@ import java.util.Optional;
 @JsonSerialize(as = ImmutableConsumerResponse.class)
 @Value.Immutable
 @Value.Style(depluralize = true)
-public interface ConsumerResponse extends OutboundResponseWithPosition {
+public interface ConsumerResponse extends OutboundResponseWithPosition{
     Optional<ConsumerPosition> position();
-
     List<ConsumedMessage> messages();
-
-    @Value.Default
-    default boolean paused() {
-        return false;
-    }
 }

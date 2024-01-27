@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.github.domwood</groupId>
     <artifactId>kiwi</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
+    <version>0.9.6-SNAPSHOT</version>
     <name>kiwi</name>
     <description>Kafka Interactive Web Interface</description>
 
